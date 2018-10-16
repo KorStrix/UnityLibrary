@@ -1,0 +1,7 @@
+﻿// 영문 로컬 파일 예시입니다.
+// 처음 생성하실 때 다른이름 저장 - 인코딩 - UTF-8로 저장하셔야 합니다.
+
+Button_Kor 	= 	Korea
+Button_Eng 	= 	English
+Text		=	Localizing English
+Image		=	미국

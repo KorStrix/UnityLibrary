@@ -110,8 +110,10 @@ abstract public class CTweenBase : CObjectBase
     [Rename_Inspector("트윈 스타일")]
     public ETweenStyle p_eTweenStyle = ETweenStyle.Once;
 
-    [Rename_Inspector("Enable 시 자동 재생할건지")]
+    [Rename_Inspector("Enable시 자동 재생")]
     public bool p_bIsPlay_OnEnable = false;
+    [Rename_Inspector("Enable시 초기값으로")]
+    public bool p_bIsReset_OnEnable = false;
     [Rename_Inspector("기본 트윈 재생 시 방향")]
     public ETweenDirection p_eTweenDirection_OnDefaultPlay = ETweenDirection.Forward;
     [Rename_Inspector("트윈 전의 딜레이")]
@@ -221,9 +223,9 @@ abstract public class CTweenBase : CObjectBase
 
     public void DoSetTweening(float fDeltaTime)
     {
-        if (p_eTweenDirection == ETweenDirection.Forward && _fProgress_0_1 > 1f)
+        if (p_eTweenDirection == ETweenDirection.Forward && _fProgress_0_1 >= 1f)
             _bIsFinishForward = true;
-        else if (p_eTweenDirection == ETweenDirection.Reverse && _fProgress_0_1 < 0f)
+        else if (p_eTweenDirection == ETweenDirection.Reverse && _fProgress_0_1 <= 0f)
             _bIsFinishRevese = true;
 
         if (p_fDuration == 0f)
@@ -278,6 +280,8 @@ abstract public class CTweenBase : CObjectBase
         if (_bIsFinishForward == false && _bIsFinishRevese == false)
         {
             _fProgress_0_1 += Mathf.Abs(1f / p_fDuration) * fDeltaTime * _iTweenDirectionDelta;
+            if (_fProgress_0_1 > 1f)
+                _fProgress_0_1 = 1f;
 
             if (p_eTweenStyle == ETweenStyle.PingPong_ReverseCurve && p_eTweenDirection == ETweenDirection.Reverse)
                 OnTween(_pAnimationCurve_OnReverseCurvePlay.Evaluate(p_fProgress_0_1));
@@ -304,6 +308,7 @@ abstract public class CTweenBase : CObjectBase
         base.OnAwake();
 
         _fProgress_0_1 = 0f;
+        DoSetTarget(p_pObjectTarget);
     }
 
     protected override void OnEnableObject()
@@ -312,6 +317,9 @@ abstract public class CTweenBase : CObjectBase
 
         if (p_pObjectTarget == null)
             OnSetTarget(gameObject);
+
+        if (p_bIsReset_OnEnable)
+            DoSeekTweening(0f);
 
         if (p_bIsPlay_OnEnable)
             DoPlayTween();
@@ -388,6 +396,9 @@ abstract public class CTweenBase : CObjectBase
     void StartTween(bool bReset_Progress, ETweenDirection eTweenDirection)
     {
         DoSetTarget(p_pObjectTarget);
+
+        if (gameObject.activeInHierarchy == false)
+            return;
 
         if (_bIsPlayingTween && eTweenDirection != p_eTweenDirection)
             DoStopTween();

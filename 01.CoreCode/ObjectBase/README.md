@@ -31,7 +31,7 @@
 
 ---
 ### 예제
-- [작성한 Example 코드](https://github.com/strix13/UnityLibrary/tree/master/01.CoreCode/ObjectBase/Example)
+- [작성한 Example 코드](https://github.com/KorStrix/StrixLibrary/tree/master/01.CoreCode/ObjectBase/Example)
 
 ---
 ### 참고 링크
@@ -41,4 +41,4 @@
 ---
 
 #### 라이브러리로 돌아가기
-https://github.com/strix13/UnityLibrary
+https://github.com/KorStrix/StrixLibrary

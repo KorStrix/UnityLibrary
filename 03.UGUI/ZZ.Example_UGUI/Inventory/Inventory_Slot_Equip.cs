@@ -85,10 +85,10 @@ public class Inventory_Slot_Equip : CUGUIInventorySlot<Inventory_Slot_Equip, Inv
 
 		_pGoImage_Icon.SetActive( bExistNewData );
 
-		if(bExistNewData)
-			DoEditImage( EImage.Image_Icon, pData.pSprite );
-		else
-			DoEditImage( EImage.Image_Icon, null );
+		//if(bExistNewData)
+		//	DoEditImage( EImage.Image_Icon, pData.pSprite );
+		//else
+		//	DoEditImage( EImage.Image_Icon, null );
 
 		return true;
 	}

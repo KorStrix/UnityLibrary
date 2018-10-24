@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -19,7 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class CUGUIInventorySlot<Class_Slot, Class_Data> : CUGUIObjectBase, IInventorySlot<Class_Slot, Class_Data>, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
+public class CUGUIInventorySlot<Class_Slot, Class_Data> : CUIObjectBase, IInventorySlot<Class_Slot, Class_Data>, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     where Class_Slot : CUGUIInventorySlot<Class_Slot, Class_Data>
 	where Class_Data : IInventoryData<Class_Data>
 {

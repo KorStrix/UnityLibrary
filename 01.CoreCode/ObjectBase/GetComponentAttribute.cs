@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	작성자 : Strix
  *	
@@ -77,6 +77,7 @@ public class GetComponentAttribute : GetComponentAttributeBase
         MethodInfo getter = typeof(MonoBehaviour)
                  .GetMethod("GetComponents", new Type[0])
                  .MakeGenericMethod(pElementType);
+
         return getter.Invoke(pTargetMono, null);
     }
 }
@@ -128,8 +129,28 @@ public class GetComponentInChildrenAttribute : GetComponentAttributeBase
         MethodInfo getter = typeof(MonoBehaviour)
             .GetMethod("GetComponentsInChildren", new Type[] { typeof(bool) })
             .MakeGenericMethod(pElementType);
-        return getter.Invoke(pTargetMono,
-                new object[] { this.bInclude_DeActive });
+
+        if (pElementType == typeof(GameObject))
+        {
+            getter = typeof(MonoBehaviour)
+            .GetMethod("GetComponentsInChildren", new Type[] { typeof(bool) })
+            .MakeGenericMethod(typeof(Transform));
+
+            object[] arrObject = getter.Invoke(pTargetMono,
+                    new object[] { this.bInclude_DeActive }) as object[];
+
+            GameObject[] arrObjectReturn = new GameObject[arrObject.Length];
+            for (int i = 0; i < arrObject.Length; i++)
+                arrObjectReturn[i] = (arrObject[i] as Transform).gameObject;
+
+            return arrObjectReturn;
+
+        }
+        else
+        {
+            return getter.Invoke(pTargetMono,
+                    new object[] { this.bInclude_DeActive });
+        }
     }
 }
 
@@ -140,8 +161,23 @@ public class GetComponentInParentAttribute : GetComponentAttributeBase
         MethodInfo getter = typeof(MonoBehaviour)
           .GetMethod("GetComponentsInParent", new Type[] { typeof(bool) })
           .MakeGenericMethod(pElementType);
-        return getter.Invoke(pTargetMono,
+
+        if (pElementType == typeof(GameObject))
+        {
+            getter = typeof(MonoBehaviour)
+            .GetMethod("GetComponentsInParent", new Type[] { typeof(bool) })
+            .MakeGenericMethod(typeof(Transform));
+
+            Transform pTransform = getter.Invoke(pTargetMono,
+                new object[] { }) as Transform;
+
+            return pTransform.gameObject;
+        }
+        else
+        {
+            return getter.Invoke(pTargetMono,
                 new object[] { });
+        }
     }
 }
 
@@ -308,22 +344,23 @@ static public class SCManagerGetComponent
 
         if (pType_DictionaryKey == typeof(string))
         {
-            for (int k = 0; k < arrComponent.Length; k++)
+            for (int i = 0; i < arrComponent.Length; i++)
             {
-                Component pComponentChild = arrComponent.GetValue(k) as Component;
+                UnityEngine.Object pComponentChild = arrComponent.GetValue(i) as UnityEngine.Object;
                 Method_Add.Invoke(pInstanceDictionary, new object[] {
-                                    pComponentChild.name,
-                                    pComponentChild });
+                                pComponentChild.name,
+                                pComponentChild });
             }
+
         }
         else
         {
             if (bIsDerived_DictionaryItem)
             {
                 var pMethod_GetKey = pType_DictionaryValue.GetMethod("IDictionaryItem_GetKey");
-                for (int k = 0; k < arrComponent.Length; k++)
+                for (int i = 0; i < arrComponent.Length; i++)
                 {
-                    Component pComponentChild = arrComponent.GetValue(k) as Component;
+                    UnityEngine.Object pComponentChild = arrComponent.GetValue(i) as UnityEngine.Object;
                     Method_Add.Invoke(pInstanceDictionary, new object[] {
                                     pMethod_GetKey.Invoke(pComponentChild, null),
                                     pComponentChild });
@@ -333,9 +370,9 @@ static public class SCManagerGetComponent
             {
                 if (pType_DictionaryKey.IsEnum)
                 {
-                    for (int k = 0; k < arrComponent.Length; k++)
+                    for (int i = 0; i < arrComponent.Length; i++)
                     {
-                        Component pComponentChild = arrComponent.GetValue(k) as Component;
+                        UnityEngine.Object pComponentChild = arrComponent.GetValue(i) as UnityEngine.Object;
                         try
                         {
                             var pEnum = System.Enum.Parse(pType_DictionaryKey, pComponentChild.name, true);

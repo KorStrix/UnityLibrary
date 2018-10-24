@@ -25,43 +25,6 @@ public static class PrimitiveHelper
 		return vecTarget * -1;
 	}
 
-	/// <summary>
-	/// String Format : "(X.00, Y.00, Z.00)"
-	/// </summary>
-	/// <param name="strText"></param>
-	/// <param name="vecOut"></param>
-	/// <returns></returns>
-	static public bool TryParse_Vector3( this string strText, out Vector3 vecOut )
-	{
-		vecOut = Vector3.zero;
-		strText = strText.Trim();
-
-		// Parsing X
-		int iIndex = strText.IndexOf( "," );
-		string strFloat = strText.Substring( 1, iIndex - 1 ); // (를 뺀다.
-
-		if (float.TryParse( strFloat, out vecOut.x ) == false) return false;
-		strText = strText.Substring( iIndex + 1 );
-
-		// Parsing Y
-		iIndex = strText.IndexOf( "," );
-		strFloat = strText.Substring( 0, iIndex );
-
-		if (float.TryParse( strFloat, out vecOut.y ) == false) return false;
-		strText = strText.Substring( iIndex + 1 );
-		strText = strText.Substring( 0, strText.Length - 1 );
-
-		// Parsing Z
-		float.TryParse( strText, out vecOut.z );
-
-		return true;
-	}
-
-	static public Vector3 ConvertToVector3( this Color pColor )
-	{
-		return new Vector3( pColor.r, pColor.g, pColor.b );
-	}
-
 	static public Color ConvertToColor( this Vector3 sVector )
 	{
 		return new Color( sVector.x, sVector.y, sVector.z );

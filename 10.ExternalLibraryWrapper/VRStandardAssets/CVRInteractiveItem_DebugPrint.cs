@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================
  *	작성자 : Strix
  *	작성일 : 2018-04-23 오후 4:12:21

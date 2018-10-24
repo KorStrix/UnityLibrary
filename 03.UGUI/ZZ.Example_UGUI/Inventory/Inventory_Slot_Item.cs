@@ -66,12 +66,12 @@ public class Inventory_Slot_Item : CUGUIInventorySlot<Inventory_Slot_Item, Inven
 	{
 		base.OnAwake();
 
-		_pGoImage_Icon = this.GetGameObject( EImage.Image_Icon );
-		_pGoImage_Selected = this.GetGameObject( EImage.Image_Selected );
-		_pGoImage_Equip = this.GetGameObject( EImage.Image_Equip );
-		_pGoImage_New = this.GetGameObject( EImage.Image_New );
+		//_pGoImage_Icon = this.GetGameObject( EImage.Image_Icon );
+		//_pGoImage_Selected = this.GetGameObject( EImage.Image_Selected );
+		//_pGoImage_Equip = this.GetGameObject( EImage.Image_Equip );
+		//_pGoImage_New = this.GetGameObject( EImage.Image_New );
 
-		_pPopupOwner = GetComponentInParent<Popup_Inventory>();
+		//_pPopupOwner = GetComponentInParent<Popup_Inventory>();
 	}
 
 	public override void IInventorySlot_OnFillSlot( bool bEnable )
@@ -93,7 +93,7 @@ public class Inventory_Slot_Item : CUGUIInventorySlot<Inventory_Slot_Item, Inven
 
 		if (pData == null) return false;
 
-		DoEditImage( "Image_Icon", pData.pSprite );
+		//DoEditImage( "Image_Icon", pData.pSprite );
 		//if (GetSiblingIndex() == 1)
 		//	Debug.Log( name + "OnSetData" + pData.ToString() );
 

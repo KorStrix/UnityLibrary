@@ -6,7 +6,7 @@ using System;
 #region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	

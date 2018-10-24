@@ -18,7 +18,7 @@ CSV 문서가 들은 폴더를 우클릭 후 StrixTool - Convert CSV To Json In 
 ---
 ### 참조 클래스
 - SCManagerParserJson
-https://github.com/strix13/UnityLibrary/blob/master/01.CoreCode/FileParser/SCManagerParserJson.cs
+https://github.com/KorStrix/StrixLibrary/blob/master/01.CoreCode/FileParser/SCManagerParserJson.cs
 
 ---
 ### 개발자 연락처

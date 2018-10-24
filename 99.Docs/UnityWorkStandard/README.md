@@ -1,7 +1,7 @@
 # 워크 스탠다드
 
 - 이 문서의 깃허브 링크 :
-https://github.com/strix13/UnityLibrary/tree/master/99.Docs/UnityWorkStandard
+https://github.com/KorStrix/StrixLibrary/tree/master/99.Docs/UnityWorkStandard
 -
 - 제가 작업한 작업물들은 이 문서에 있는 워크 스탠다드를 따라 작업하였습니다.
 - 워크 스탠다드는 제가 경험하면서 효율적인것은 따르고, 따르다가 비효율적인 것은 버리기도 하였습니다.
@@ -22,7 +22,7 @@ https://github.com/strix13/UnityLibrary/tree/master/99.Docs/UnityWorkStandard
 ---
 ![](https://postfiles.pstatic.net/MjAxODA1MDdfNjAg/MDAxNTI1NjgyMTk1OTIw.KWb2jh-HlZxIpGvqURDhOToGnoJTmN0PCbjZLzgQUm0g.4hdmcELocTlAEAKNhnFRIvQpRDbemTH05Nik6nNYlYMg.JPEG.strix13/bandicam_2018-05-07_17-36-23-518.jpg?type=w773)
 
-ㄴ 제가 작성하고 사용하는 Visual Studio - Unity Item Template 입니다. [깃허브 링크](https://github.com/strix13/UnityLibrary/tree/master/99.CoreAsset/VSItemTemplate)
+ㄴ 제가 작성하고 사용하는 Visual Studio - Unity Item Template 입니다. [깃허브 링크](https://github.com/KorStrix/StrixLibrary/tree/master/99.CoreAsset/VSItemTemplate)
 
 
 ---
@@ -286,7 +286,7 @@ GetSomthing_OrNull()
 ```
 
 **7-4. 주석은 왜 이런식으로 전개했는지만 작성하고(Why), 로직에 대한 설명은 함수명으로 대체할 수 있도록 합니다.** ( 드래그로 영역 지정 후 VS - 빠른 작업 - 메서드 추출로 쉽게 할 수 있습니다. )
-  - [작성된 코드(CharacterController2D) 참고 링크](https://github.com/strix13/UnityLibrary/blob/master/01.CoreCode/2DPlatforming/CCharacterController2D.cs)
+  - [작성된 코드(CharacterController2D) 참고 링크](https://github.com/KorStrix/StrixLibrary/blob/master/01.CoreCode/2DPlatforming/CCharacterController2D.cs)
 
 ```csharp
 
@@ -322,4 +322,4 @@ private bool Check_IsFalling()
 
 ---
 #### 라이브러리로 돌아가기
-https://github.com/strix13/UnityLibrary
+https://github.com/KorStrix/StrixLibrary

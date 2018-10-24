@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System;
 
 [RequireComponent( typeof( Canvas ))]
-public class CUGUIPanelBase : CUGUIObjectBase, IUIPanel
+public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 {
     /* const & readonly declaration             */
 
@@ -66,11 +66,28 @@ public class CUGUIPanelBase : CUGUIObjectBase, IUIPanel
 		}
 	}
 
-	/* protected - Field declaration         */
+    public class CObserverShowHide : CObserverSubject<CUGUIPanelBase, bool>
+    {
+        public delegate void OnPanelShowHide(CUGUIPanelBase pUIPanel, bool bIsShow);
 
-	/* private - Field declaration           */
+        public void DoRegist_ShowHide(OnPanelShowHide OnPanelShowHide)
+        {
+            DoRegist_Listener(new Action<CUGUIPanelBase, bool>(OnPanelShowHide));
+        }
 
-	private IManagerUI _pManagerUI;
+        public void DoNotify_ShowHide(CUGUIPanelBase pUIPanel, bool bIsShow)
+        {
+            DoNotify(pUIPanel, bIsShow);
+        }
+    }
+
+    public CObserverShowHide p_Event_OnShowHide { get; private set; } = new CObserverShowHide();
+
+    /* protected - Field declaration         */
+
+    /* private - Field declaration           */
+
+    private IManagerUI _pManagerUI;
 	private int _iHashCode;
 
 	#endregion Field
@@ -121,38 +138,53 @@ public class CUGUIPanelBase : CUGUIObjectBase, IUIPanel
 	public IEnumerator IUIPanel_OnHidePanel_PlayingAnimation()
 	{
 		yield return StartCoroutine( OnHidePanel_PlayingAnimation() );
-	}
-	
-	/* public - [Event] Function             
+    }
+
+    public void IUIPanel_OnShow()
+    {
+        p_Event_OnShowHide.DoNotify_ShowHide(this, true);
+        OnShowPanel();
+    }
+
+    public void IUIPanel_OnHide()
+    {
+        p_Event_OnShowHide.DoNotify_ShowHide(this, false);
+        OnHidePanel();
+    }
+
+    /* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/
 
-	#endregion Public
+    #endregion Public
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	#region Protected
+    #region Protected
 
-	/* protected - [abstract & virtual]         */
+    /* protected - [abstract & virtual]         */
 
-	virtual protected IEnumerator OnShowPanel_PlayingAnimation( int iSortOrder ) { yield return null; }
+    virtual protected IEnumerator OnShowPanel_PlayingAnimation( int iSortOrder ) { yield return null; }
 	virtual protected IEnumerator OnHidePanel_PlayingAnimation() { yield return null; }
 
-	/* protected - [Event] Function           
+    virtual protected void OnShowPanel() { }
+    virtual protected void OnHidePanel() { }
+
+    /* protected - [Event] Function           
        자식 객체가 호출(For Child class call)		*/
 
-	/* protected - Override & Unity API         */
+    /* protected - Override & Unity API         */
 
-	#endregion Protected
+    #endregion Protected
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	#region Private
+    #region Private
 
-	/* private - [Proc] Function             
+    /* private - [Proc] Function             
        로직을 처리(Process Local logic)           */
 
-	/* private - Other[Find, Calculate] Func 
+    /* private - Other[Find, Calculate] Func 
        찾기, 계산등 단순 로직(Simpe logic)         */
 
-	#endregion Private
+    #endregion Private
 }

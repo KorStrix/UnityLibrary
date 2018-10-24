@@ -1,5 +1,5 @@
 
-## [사운드 시스템](https://github.com/strix13/UnityLibrary#%EB%AA%A9%EC%B0%A8)
+## [사운드 시스템](https://github.com/KorStrix/StrixLibrary#%EB%AA%A9%EC%B0%A8)
 
 ![](
 https://postfiles.pstatic.net/MjAxODA1MDZfODIg/MDAxNTI1NTg2NjI4NDg5.2-piThykc2EWXJVPdEQUx0FlQ9PoSANx5ZLP1S8-KWwg.vvcEPNS5G5_jlnjJqcXHSgF2I94o_bMPaWWPa4537BEg.JPEG.strix13/StrixLibrary_-_%EC%82%AC%EC%9A%B4%EB%93%9C_%EC%8B%9C%EC%8A%A4%ED%85%9C_%ED%81%B4%EB%9E%98%EC%8A%A4_%EA%B4%80%EA%B3%84%EB%8F%84.jpg?type=w773)
@@ -39,4 +39,4 @@ https://postfiles.pstatic.net/MjAxODA1MDZfODIg/MDAxNTI1NTg2NjI4NDg5.2-piThykc2EW
 ---
 
 #### 라이브러리로 돌아가기
-https://github.com/strix13/UnityLibrary
+https://github.com/KorStrix/StrixLibrary

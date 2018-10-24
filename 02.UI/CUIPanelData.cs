@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -27,7 +27,9 @@ public interface IUIPanel
 	void IUIPanel_Init( IManagerUI pManagerUI, int iHashCode );
 	void IUIPanel_SetOrder( int iSetSortOrder );
 	IEnumerator IUIPanel_OnShowPanel_PlayingAnimation( int iSortOrder );
-	IEnumerator IUIPanel_OnHidePanel_PlayingAnimation();
+    void IUIPanel_OnShow();
+    IEnumerator IUIPanel_OnHidePanel_PlayingAnimation();
+    void IUIPanel_OnHide();
 }
 
 abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CLASS_Panel, Class_Button> : CSingletonMonoBase<CLASS_Instance>
@@ -129,14 +131,16 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 			yield return _pPanel.StartCoroutine( _pPanel.IUIPanel_OnShowPanel_PlayingAnimation( iSortOrder ) );
 			_bIsPlayUIAnimation = false;
 
-			if (_OnFinishAnimation != null)
+            if (_OnFinishAnimation != null)
 			{
 				_OnFinishAnimation();
 				_OnFinishAnimation = null;
 			}
-		}
 
-		protected IEnumerator CoProcHidePanel(bool bAnimationPlay)
+            _pPanel.IUIPanel_OnShow();
+        }
+
+        protected IEnumerator CoProcHidePanel(bool bAnimationPlay)
 		{
             _pPanel.gameObject.SendMessage("OnUIEvent_Hide", SendMessageOptions.DontRequireReceiver);
             if (bAnimationPlay)
@@ -152,7 +156,8 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 				_OnFinishAnimation = null;
 			}
 
-			_pPanel.gameObject.SetActive( false );
+            _pPanel.IUIPanel_OnHide();
+            _pPanel.gameObject.SetActive( false );
 		}
 
         private void StopAnimationCoroutine()

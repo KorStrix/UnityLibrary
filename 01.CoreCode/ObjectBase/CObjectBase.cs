@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	작성자 : Strix
  *	
@@ -135,7 +135,7 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
             _bIsExcuteAwake = true;
             SCManagerGetComponent.DoUpdateGetComponentAttribute(this);
 
-            if(gameObject.activeSelf && Application.isPlaying)
+            if(gameObject.activeInHierarchy && Application.isPlaying)
             {
                 StopCoroutine("OnAwakeCoroutine");
                 StartCoroutine("OnAwakeCoroutine");

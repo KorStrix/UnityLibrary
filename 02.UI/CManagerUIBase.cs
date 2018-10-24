@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -177,6 +177,20 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
     /// <summary>
     /// UI Panel을 얻어옵니다.
     /// </summary>
+    /// <returns></returns>
+    public CLASS_Panel GetUIPanel(ENUM_Panel_Name ePanelName)
+    {
+        CUIPanelData pFindPanel = null;
+        bool bResult = _mapPanelData.TryGetValue(ePanelName, out pFindPanel);
+        if (bResult == false)
+            Debug.LogWarning(string.Format("{0}을 찾을 수 없습니다.", ePanelName));
+
+        return pFindPanel.p_pPanel;
+    }
+
+    /// <summary>
+    /// UI Panel을 얻어옵니다.
+    /// </summary>
     /// <typeparam name="CUIPanel">얻고자 하는 Panel 타입</typeparam>
     /// <returns></returns>
     public CUIPanel GetUIPanel<CUIPanel>() where CUIPanel : CLASS_Panel
@@ -256,6 +270,12 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
     //    return pTransTarget.localPosition;
     //}
 
+    public bool DoConvertPanel_ClassType_To_Enum(CLASS_Panel pPanel, out ENUM_Panel_Name ePanelName)
+    {
+        string strComponentName = pPanel.GetType().Name;
+        return strComponentName.ConvertEnum(out ePanelName);
+    }
+
     // ========================== [ Division ] ========================== //
 
     public void IManagerUI_ShowHide_Panel( int iPanelHashCode, bool bShow, System.Action OnFinishAnimation = null )
@@ -293,17 +313,17 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
         for (int i = 0; i < arrPanelInstance.Length; i++)
         {
             CLASS_Panel pPanel = arrPanelInstance[i];
-            pPanel.EventOnAwake();
-
-			string strComponentName = pPanel.GetType().Name;
             ENUM_Panel_Name ePanelName;
-            if (strComponentName.ConvertEnum(out ePanelName))
-			{
-				pPanel.IUIPanel_Init(this, ePanelName.GetHashCode());
-				_mapPanelData.Add( ePanelName, new CUIPanelData( ePanelName, pPanel ) );
-			}
-		}
-    }
+            if(DoConvertPanel_ClassType_To_Enum(pPanel, out ePanelName))
+            {
+                pPanel.IUIPanel_Init(this, ePanelName.GetHashCode());
+                _mapPanelData.Add(ePanelName, new CUIPanelData(ePanelName, pPanel));
+            }
+        }
+
+        for (int i = 0; i < arrPanelInstance.Length; i++)
+            arrPanelInstance[i].EventOnAwake();
+}
 
     private int CaculateSortOrder_Top()
     {

@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -42,9 +42,12 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 
     /* protected - Field declaration         */
 
+    protected Dictionary<Enum_InputName, Button> _mapButton;
+
     /* private - Field declaration           */
 
     private List<CUGUIScrollItem> _listScrollView = new List<CUGUIScrollItem>();
+    private Dictionary<string, Toggle> _mapToggle;
 
     #endregion Field
 
@@ -60,21 +63,6 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
         List<Button> listButton = _mapButton.Values.ToList();
         for (int i = 0; i < listButton.Count; i++)
             listButton[i].enabled = bEnable;
-    }
-
-    public Button GetButton(Enum_InputName eButtonName)
-    {
-        return this.GetComponentInChildren_Cashed(_mapButton, eButtonName.ToString());
-    }
-
-    public Toggle GetToggle(Enum_InputName eToggleName)
-    {
-        return this.GetComponentInChildren_Cashed(_mapToggle, eToggleName.ToString());
-    }
-
-    public Slider GetSlider(Enum_InputName eSliderName)
-    {
-        return this.GetComponentInChildren_Cashed(_mapSlider, eSliderName.ToString());
     }
 
     /* public - [Event] Function             
@@ -148,16 +136,16 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 			{
                 pButton.onClick.AddListener(() => { OnClick_Buttons_Wrapper(eButtonName, pButton); });
 				if (_mapButton == null)
-					_mapButton = new Dictionary<string, Button>();
+					_mapButton = new Dictionary<Enum_InputName, Button>();
 
-				if(_mapButton.ContainsKey( strButtonName ))
+				if(_mapButton.ContainsKey(eButtonName))
 				{
-					Debug.LogWarning( name + "Already Button Exist A - " + strButtonName, _mapButton[strButtonName] );
+					Debug.LogWarning( name + "Already Button Exist A - " + strButtonName, _mapButton[eButtonName] );
 					Debug.LogWarning( name + "Already Button Exist B - " + strButtonName, pButton );
 					continue;
 				}
 
-				_mapButton.Add(strButtonName, pButton);
+				_mapButton.Add(eButtonName, pButton);
 
 				CUGUIButton_Press pButtonPress = pButton.GetComponent<CUGUIButton_Press>();
 				if (pButtonPress != null)

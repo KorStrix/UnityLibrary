@@ -1,7 +1,7 @@
 ﻿#region Header
 /* ============================================ 
  *			    Strix Unity Library
- *		https://github.com/strix13/UnityLibrary
+ *		https://github.com/KorStrix/StrixLibrary
  *	============================================ 	
  *	관련 링크 :
  *	
@@ -24,7 +24,7 @@ public interface IUGUIScrollItemData
 	int IScrollData_GetSortOrder();
 }
 
-public class CUGUIScrollItem : CUGUIObjectBase
+public class CUGUIScrollItem : CUIObjectBase
 {
 	/* const & readonly declaration             */
 

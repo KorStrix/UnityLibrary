@@ -15,39 +15,6 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 #endif
 
-public static class CTweenPositionHelper
-{
-    static public void DoStartTween_Position(this Transform pTransStart, Transform pTransDestPos, float fDuration, UnityEngine.Events.UnityAction OnFinishTween)
-    {
-        CTweenPosition pTweenPos = pTransStart.GetComponent<CTweenPosition>();
-        if (pTweenPos == null)
-            pTweenPos = pTransStart.gameObject.AddComponent<CTweenPosition>();
-
-        pTweenPos.p_vecPosStart = pTransStart.position;
-        pTweenPos.p_vecPosDest = pTransDestPos.position;
-        pTweenPos.p_fDuration = fDuration;
-
-        pTweenPos.p_Event_OnFinishTween.AddListener(OnFinishTween);
-        pTweenPos.DoPlayTween_Forward();
-    }
-
-    static public void DoStartTween_Position2D(this Transform pTransStart, Transform pTransDestPos, float fDuration, UnityEngine.Events.UnityAction OnFinishTween)
-    {
-        CTweenPosition pTweenPos = pTransStart.GetComponent<CTweenPosition>();
-        if (pTweenPos == null)
-            pTweenPos = pTransStart.gameObject.AddComponent<CTweenPosition>();
-
-        Vector3 vecPos = pTransStart.position;
-        vecPos.z = pTransDestPos.position.z;
-        pTweenPos.p_vecPosStart = vecPos;
-        pTweenPos.p_vecPosDest = pTransDestPos.position;
-        pTweenPos.p_fDuration = fDuration;
-
-        pTweenPos.p_Event_OnFinishTween.AddListener(OnFinishTween);
-        pTweenPos.DoPlayTween_Forward();
-    }
-}
-
 public class CTweenPosition : CTweenBase
 {
     /* const & readonly declaration             */
@@ -140,7 +107,7 @@ public class CTweenPosition : CTweenBase
 
     public override object OnTween_EditorOnly(float fProgress_0_1)
     {
-        return Vector3.Lerp(p_vecPosStart, p_vecPosDest, fProgress_0_1);
+        return p_vecPosStart * (1f - fProgress_0_1) + p_vecPosDest * fProgress_0_1;
     }
 
     protected override void OnDrawGizmos()
@@ -158,32 +125,6 @@ public class CTweenPosition : CTweenBase
                 Gizmos.DrawLine(p_vecPosStart, p_vecPosDest);
         }
     }
-
-    //protected override void OnDrawGizmos()
-    //{
-    //    base.OnDrawGizmos();
-
-    //    GUIStyle style = new GUIStyle();
-    //    style.normal.textColor = Color.cyan;
-    //    Gizmos.color = Color.cyan;
-
-    //    Vector3 vecStart = p_vecPosStart;
-    //    Vector3 vecDest = p_vecPosDest;
-
-    //    if (p_bIsLocal)
-    //    {
-    //        vecStart = transform.TransformPoint(p_vecPosStart);
-    //        vecDest = transform.TransformPoint(p_vecPosDest);
-    //    }
-
-    //    Gizmos.DrawLine(vecStart, vecDest);
-
-    //    UnityEditor.Handles.Label(vecStart, "TweenPos Start : " + name, style);
-    //    Gizmos.DrawSphere(vecStart, 1f);
-
-    //    UnityEditor.Handles.Label(vecDest, "TweenPos Dest : " + name, style);
-    //    Gizmos.DrawSphere(vecDest, 1f);
-    //}
 
     /* protected - [abstract & virtual]         */
 

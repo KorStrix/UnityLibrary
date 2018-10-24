@@ -9,7 +9,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 
 /// <summary>
 /// 
@@ -47,7 +46,9 @@ public class C2DSpriteAnimation : CObjectBase
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-    [Button("Play Animation")]
+#if ODIN_INSPECTOR
+    [Sirenix.OdinInspector.Button("Play Animation")]
+#endif
     public void DoPlayAnimation_ForEditor()
     {
         DoPlayAnimation(null);
@@ -104,7 +105,7 @@ public class C2DSpriteAnimation : CObjectBase
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
     bool CalculateNextAnimation()
     {
@@ -129,5 +130,5 @@ public class C2DSpriteAnimation : CObjectBase
         _bIsPlayAnimation = false;
     }
 
-    #endregion Private
+#endregion Private
 }

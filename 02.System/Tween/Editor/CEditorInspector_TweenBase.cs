@@ -105,15 +105,16 @@ public class CEditorInspector_TweenBase : Editor
         }
     }
 
-#if ODIN_INSPECTOR
-    protected override void OnEnable()
-#else
+#if !ODIN_INSPECTOR
     public void OnEnable()
-#endif
+    {
+#else
+    protected override void OnEnable()
     {
         base.OnEnable();
+#endif
 
-        EditorApplication.update -= Update;
+    EditorApplication.update -= Update;
         EditorApplication.update += Update;
     }
 

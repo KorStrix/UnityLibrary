@@ -50,17 +50,17 @@ https://postfiles.pstatic.net/MjAxODA1MDdfNjAg/MDAxNTI1NjgzNDYwNTkx.7LVx1ndhvjxd
 ---
 ## Script - Attribute
 
+### RenameInsepctor Attribute
+
+![](
+https://postfiles.pstatic.net/MjAxODEwMThfMjE2/MDAxNTM5ODM5Njk1NzQw.wOFM2tlc7UWmgFzy9CtK3bd0vCEPv8fXFfFNob7zfvIg.OEA226nNr2TkYrXNbE6GeCDjtnDY-RCyOBlruSxEIywg.GIF.strix13/RenameInspector.gif?type=w773)
+
 ### GetComponent Attribute
 
 ![](
 https://postfiles.pstatic.net/MjAxODEwMTdfMjQg/MDAxNTM5NzQzMzEwODc1.x8RyeGzMq868vEyxEm4O-c-i8LPGuvVAEpL_vcLmX_Ig.GhEt-CnOrnKZHorIQ0cfWZU58OJ54qoV2Fi2h7V_i6Yg.GIF.strix13/GetComponentAttribute.gif?type=w773)
 
 - [작성한 코드 및 알아보기 링크](https://github.com/KorStrix/StrixLibrary/tree/master/01.CoreCode/ObjectBase)
-
-### RenameInsepctor Attribute
-
-![](
-https://postfiles.pstatic.net/MjAxODEwMThfMjE2/MDAxNTM5ODM5Njk1NzQw.wOFM2tlc7UWmgFzy9CtK3bd0vCEPv8fXFfFNob7zfvIg.OEA226nNr2TkYrXNbE6GeCDjtnDY-RCyOBlruSxEIywg.GIF.strix13/RenameInspector.gif?type=w773)
 
 ---
 ## 시스템

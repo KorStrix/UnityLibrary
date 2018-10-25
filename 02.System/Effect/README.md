@@ -1,5 +1,5 @@
 
-## [이펙트 시스템](https://github.com/KorStrix/StrixLibrary#%EB%AA%A9%EC%B0%A8)
+## [이펙트 시스템](https://github.com/KorStrix/UnityLibrary#%EB%AA%A9%EC%B0%A8)
 
 ![](
 https://postfiles.pstatic.net/MjAxODA1MDZfMzUg/MDAxNTI1NjEwMDU3MjQz.az-Y7SxCGDV-jlb4YCi06dZMTi5DQpIbyeBIzaLJwJkg.kfdc4L_DxkRORmGBFbGdlu6vHzu1MqnzrZKj3CL_kZIg.JPEG.strix13/StrixLibrary_-_%EC%9D%B4%ED%8E%99%ED%8A%B8_%EC%8B%9C%EC%8A%A4%ED%85%9C_%ED%81%B4%EB%9E%98%EC%8A%A4_%EA%B4%80%EA%B3%84%EB%8F%84.jpg?type=w773)
@@ -28,9 +28,9 @@ https://postfiles.pstatic.net/MjAxODA1MDZfMzUg/MDAxNTI1NjEwMDU3MjQz.az-Y7SxCGDV-
 
 ---
 ### 예제
-- [작성한 Example 코드](https://github.com/KorStrix/StrixLibrary/blob/master/01.CoreCode/Localize/Example_Localize.cs)
+- [작성한 Example 코드](https://github.com/KorStrix/UnityLibrary/blob/master/01.CoreCode/Localize/Example_Localize.cs)
 
 ---
 
 #### 라이브러리로 돌아가기
-https://github.com/KorStrix/StrixLibrary
+https://github.com/KorStrix/UnityLibrary

@@ -1,5 +1,5 @@
 
-## [로컬 라이징 시스템](https://github.com/KorStrix/StrixLibrary#%EB%AA%A9%EC%B0%A8)
+## [로컬 라이징 시스템](https://github.com/KorStrix/UnityLibrary#%EB%AA%A9%EC%B0%A8)
 
 ![](
 https://postfiles.pstatic.net/MjAxODA1MDdfMTUg/MDAxNTI1NjYxNjYzOTMw.uTGH7T0d2IFz7o5BHMhKqZndkZY1_XN_N9HF4FBF9VMg.hGGB_GJmzsuWrqreBhTW40fd806yUgnS4LFqL6gUlmkg.JPEG.strix13/StrixLibrary_-_%EB%A1%9C%EC%BB%AC%EB%9D%BC%EC%9D%B4%EC%A7%95_%EC%8B%9C%EC%8A%A4%ED%85%9C_%ED%81%B4%EB%9E%98%EC%8A%A4_%EA%B4%80%EA%B3%84%EB%8F%84.jpg?type=w773)
@@ -22,13 +22,13 @@ https://postfiles.pstatic.net/MjAxODA1MDdfMTUg/MDAxNTI1NjYxNjYzOTMw.uTGH7T0d2IFz
 
 - 작성한 Text, Sprite 컴포넌트 외에 이벤트를 받고 싶으면 ILocalizeListner를 구현하고, Manager에 등록하면 됩니다.
 
-- [작성한 코드 및 좀 더 알아 보기 링크 링크](https://github.com/KorStrix/StrixLibrary/tree/master/01.CoreCode/Effect)
+- [작성한 코드 및 좀 더 알아 보기 링크 링크](https://github.com/KorStrix/UnityLibrary/tree/master/01.CoreCode/Effect)
 
 ---
 ### 예제
-- [작성한 Example 코드](https://github.com/KorStrix/StrixLibrary/blob/master/01.CoreCode/Localize/Example_Localize.cs)
+- [작성한 Example 코드](https://github.com/KorStrix/UnityLibrary/blob/master/01.CoreCode/Localize/Example_Localize.cs)
 
 ---
 
 #### 라이브러리로 돌아가기
-https://github.com/KorStrix/StrixLibrary
+https://github.com/KorStrix/UnityLibrary

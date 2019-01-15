@@ -17,11 +17,11 @@ using System.Collections.Generic;
 [System.Serializable]
 public class CScriptableObject : ScriptableObject
 {
-#if UNITY_EDITOR && ODIN_INSPECTOR
     public static string strJsonText;
     public static ScriptableObject pScriptableObject;
     public static System.Type pScriptableObject_Type;
 
+#if UNITY_EDITOR && ODIN_INSPECTOR
     [Sirenix.OdinInspector.ButtonGroup("버튼")]
     [Sirenix.OdinInspector.Button("Copy ScriptableObject")]
     public void CopyObject()

@@ -21,6 +21,8 @@ public class Example_CObjectBase : CObjectBase
         Text1,
         Text2,
         Text3,
+
+        Text_Same,
     }
 
     [GetComponentInChildren("Text1")]
@@ -35,6 +37,10 @@ public class Example_CObjectBase : CObjectBase
 
     [GetComponentInChildren]
     public List<Text> listText;
+
+    [GetComponentInChildren("Text_Same")]
+    public List<Text> listTextSame;
+
 
     [GetComponentInChildren]
 #if ODIN_INSPECTOR
@@ -59,9 +65,6 @@ public class Example_CObjectBase : CObjectBase
         base.OnAwake();
 
         PrintLog();
-
-        Debug.LogWarning("mapText_Key_Is_String.Count : " + Dictionary_Key_IsString_Value_IsComponent.Count);
-        Debug.LogWarning("mapText_Key_Is_Dictionary.Count : " + Dictionary_Key_IsEnum_Value_IsComponent.Count);
     }
 
     protected override void OnStart()
@@ -87,10 +90,9 @@ public class Example_CObjectBase : CObjectBase
         // gameObject.SetActive(false);
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
 
         PrintLog();
     }

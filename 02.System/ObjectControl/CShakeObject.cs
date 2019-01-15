@@ -25,7 +25,6 @@ public class CShakeObject : CObjectBase
 
 	private Vector3 _vecOriginPos;
     private float _fRemainShakePow;
-    private bool _bBackToOriginPos;
 
     Coroutine _pCoroutine;
 
@@ -39,28 +38,18 @@ public class CShakeObject : CObjectBase
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.Button("Test Shake")]
 #endif
-    public void DoShakeObject(bool bBackToOriginPos = true)
+    public void DoShakeObject()
     {
-        if (_bBackToOriginPos)
-            transform.localPosition = _vecOriginPos;
-
-        _bBackToOriginPos = bBackToOriginPos;
         _fRemainShakePow = _fDefaultShakePow;
 
         if (_pCoroutine != null)
             StopCoroutine(_pCoroutine);
         _pCoroutine = StartCoroutine(CoStartShake());
-
-		//if (_bMachineShaking)
-		//	.instance.DoShakeMobile();
 	}
 
-	public void DoShakeObject(float fShakePow, bool bReverseOrigin)
+	public void DoShakeObject(float fShakePow)
     {
-        if (_bBackToOriginPos)
-            transform.localPosition = _vecOriginPos;
-
-        _bBackToOriginPos = bReverseOrigin;
+        transform.localPosition = _vecOriginPos;
         _fRemainShakePow = fShakePow;
 
         if (_pCoroutine != null)
@@ -75,7 +64,6 @@ public class CShakeObject : CObjectBase
         _vecOriginPos = transform.localPosition;
         while (_fRemainShakePow > 0f)
         {
-            // Vector3 vecOriginPos = transform.localPosition;
             Vector3 vecShakePos = PrimitiveHelper.RandomRange(_vecOriginPos.AddFloat(-_fRemainShakePow), _vecOriginPos.AddFloat(_fRemainShakePow));
             if(_eShakePosType != EShakePos.All)
             {
@@ -95,8 +83,7 @@ public class CShakeObject : CObjectBase
             yield return null;
         }
 
-        if (_bBackToOriginPos)
-            transform.localPosition = _vecOriginPos;
+        transform.localPosition = _vecOriginPos;
 
         yield break;
     }

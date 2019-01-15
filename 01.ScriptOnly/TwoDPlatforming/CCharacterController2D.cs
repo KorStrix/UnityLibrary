@@ -22,13 +22,6 @@ public class CCharacterController2D : CObjectBase
 
     /* enum & struct declaration                */
 
-    public enum EWallSlidingDetect
-    {
-        None,
-        Collider,
-        RayCasting,
-    }
-
     public enum EUpdateMode
     {
         Update,
@@ -101,15 +94,15 @@ public class CCharacterController2D : CObjectBase
     [SerializeField]
     [GetComponentInChildren("Collider_OnCrouch", true, false)]
     [Rename_Inspector("\"Collider_OnCrouch\" 앉았을 때 몸통용 자식 컬라이더")]
-    protected BoxCollider2D _pBoxCollider_OnCrouch = null;
+    protected CapsuleCollider2D _pCapsuleCollider_OnCrouch = null;
     [SerializeField]
     [GetComponentInChildren("ColliderLeft_OnCrouch", true, false)]
     [Rename_Inspector("\"ColliderLeft_OnCrouch\" 앉았을 때 왼벽 체크용 자식 컬라이더")]
-    protected BoxCollider2D _pBoxColliderLeft_OnCrouch = null;
+    protected List<BoxCollider2D> _listBoxColliderLeft_OnCrouch = new List<BoxCollider2D>();
     [SerializeField]
     [GetComponentInChildren("ColliderRight_OnCrouch", true, false)]
     [Rename_Inspector("\"ColliderRight_OnCrouch\" 앉았을 때 오른벽 체크용 자식 컬라이더")]
-    protected BoxCollider2D _pBoxColliderRight_OnCrouch = null;
+    protected List<BoxCollider2D> _listBoxColliderRight_OnCrouch = new List<BoxCollider2D>();
 
 
     [Space(10)]
@@ -122,12 +115,12 @@ public class CCharacterController2D : CObjectBase
     public Vector2 p_vecSlidingJump = new Vector2(0f, 0f);
     [Rename_Inspector("경사면 슬라이딩 점프 딜레이")]
     public float p_fSlopeSlidingJump_Delay = 0.2f;
+    [Rename_Inspector("경사면 슬라이딩 조건 달성후 몇초 뒤에 발동할지")]
+    public float p_fSlopeSlidingDelay = 0.2f;
 
 
     [Space(10)]
     [Header("월 슬라이딩 옵션")]
-    [Rename_Inspector("월 슬라이딩 감지 모드")]
-    public EWallSlidingDetect p_eWallSlidingDetect = EWallSlidingDetect.None;
     [Rename_Inspector("벽을 향해 점프할 때 추가  속도")]
     public Vector2 p_vecWallJumpClimb = new Vector2(50f, 150f);
     [Rename_Inspector("벽의 반대방향으로 점프할 때 추가  속도")]
@@ -143,17 +136,19 @@ public class CCharacterController2D : CObjectBase
     [Rename_Inspector("업데이트 모드")]
     public EUpdateMode p_eUpdateMode = EUpdateMode.Update;
     [Rename_Inspector("터레인 레이어")]
-    public LayerMask p_sWhatIsGround;
+    public LayerMask p_sWhatIsTerrain;
 
 
     /* protected & private - Field declaration         */
 
     [GetComponent]
-    protected Rigidbody2D _pRigidbody = null;
+    protected Rigidbody2D _pRigidbody = null; public Rigidbody2D p_pRigidbody { get { return _pRigidbody; } }
     [GetComponent]
-    protected BoxCollider2D _pCollider_Body = null;
-    [GetComponent]
-    protected CircleCollider2D _pCollider_Leg = null;
+    protected CapsuleCollider2D _pCollider_Body = null;
+    [SerializeField]
+    [GetComponentInChildren("CheckGround", true, true)]
+    [Rename_Inspector("\"CheckGround\" - 바닥 체크용 자식 컬라이더")]
+    protected CapsuleCollider2D _pCollider_Ground = null;
 
     [Space(10)]
     [Header("디버그용")]
@@ -165,11 +160,11 @@ public class CCharacterController2D : CObjectBase
     [SerializeField]
     [Rename_Inspector("\"ColliderLeft\" - 왼벽 체크용 자식 컬라이더", false)]
     [GetComponentInChildren("ColliderLeft", true, false)]
-    protected BoxCollider2D _pBoxCollider_LeftCheck = null;
+    protected List<BoxCollider2D> _listBoxCollider_LeftCheck = new List<BoxCollider2D>();
     [SerializeField]
     [Rename_Inspector("\"ColliderRight\" - 오른벽 체크용 자식 컬라이더", false)]
     [GetComponentInChildren("ColliderRight", true, false)]
-    protected BoxCollider2D _pBoxCollider_RightCheck = null;
+    protected List<BoxCollider2D> _listBoxCollider_RightCheck = new List<BoxCollider2D>();
     [SerializeField]
     [Rename_Inspector("현재 언덕 경사면 각도", false)]
     protected float _fSlopeAngle = 0f;
@@ -177,14 +172,22 @@ public class CCharacterController2D : CObjectBase
     [Rename_Inspector("현재 언덕 경사면 각도 ( 부호 포함 )", false)]
     protected float _fSlopeAngle_Signed = 0f;
 
-    protected List<Collider2D> _listSideBlock_Wall = new List<Collider2D>();
+    protected List<Collider2D> _listSideBlock_Wall = new List<Collider2D>(50);
     protected float p_fMoveVelocity { get; private set; }
 
 
     List<ICharacterController_Listener> _listCharacterControllerListener = new List<ICharacterController_Listener>();
 
-    BoxCollider2D _pBoxCollider_LeftCheck_Origin = null;
-    BoxCollider2D _pBoxCollider_RightCheck_Origin = null;
+    List<BoxCollider2D> _listBoxCollider_LeftCheck_Origin;
+    List<BoxCollider2D> _listBoxCollider_RightCheck_Origin;
+
+    List<Collider2D> _listColliderOverlap = new List<Collider2D>();
+    HashSet<Collider2D> _setCharacterBody = new HashSet<Collider2D>();
+
+    Queue<Vector2> _queueVelocityPrev = new Queue<Vector2>();
+
+    Collider2D[] _arrHitColliders = new Collider2D[10];
+    ContactPoint2D[] _arrContactPoint = new ContactPoint2D[10];
 
     Coroutine _pCoroutine_Falling;
     Coroutine _pCoroutine_SetLockMove_IsFalse;
@@ -196,7 +199,8 @@ public class CCharacterController2D : CObjectBase
     Vector2 _vecAddForce_Custom;
 
     Vector2 _vecCurrentSlopeNormal;
-    Queue<Vector2> _queueVelocityPrev = new Queue<Vector2>();
+
+    int _iHitCount;
 
     // float _fJumpVelocity;
     float _fMoveDelta_0_1;
@@ -209,35 +213,66 @@ public class CCharacterController2D : CObjectBase
     bool _bIsLockMove;
 
     bool _bInputAddForce_Custom;
-    bool _bInputAddForce_Custom_Velocity_IsZero;
+    bool _bInputSetForce_Custom;
+    bool _bInputSetForce_Custom_Velocity_IsZero;
     bool _bInputJump;
+    /// <summary>
+    /// 이동 후 바로 언덕 슬라이딩을 할 경우
+    ///  캐릭터가 이러한 지형에서 이 방향으로 이동할 때 -> _/
+    ///  언덕 슬라이딩이 걸린다. 이동 후 한 프레임을 생략 후 2 프레임 이상 언덕에 있으면 그때 언덕 슬라이딩 발동
+    /// </summary>
+    float _fSkipSlopeSlidingElapsTime;
 
     // ========================================================================== //
 
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
+    static public Vector3 CalculateVector3(Vector3 vecX, Vector3 vecY)
+    {
+        Vector3 vecNewVector = vecX;
+        vecNewVector.x *= vecY.x;
+        vecNewVector.y *= vecY.y;
+        vecNewVector.z *= vecY.z;
+
+        return vecNewVector;
+    }
+
+
     public void DoUpdate_CharacterController()
     {
         Logic_CharacterControll();
     }
 
-    public void DoSetMoveLock(bool bMoveLock)
+    public void DoSet_LockMove(bool bLockMove)
     {
-        _bIsLockMove = bMoveLock;
+        _bIsLockMove = bLockMove;
     }
 
     public void DoSet_ChangeFaceDir(bool bDirection_IsRight)
     {
         p_bFaceDirection_IsRight = bDirection_IsRight;
         for (int i = 0; i < _listCharacterControllerListener.Count; i++)
-            _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeFaceDir(bDirection_IsRight, p_bIsSlopeSliding, _fSlopeAngle_Signed);
+            _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeFaceDir(p_bFaceDirection_IsRight, p_bIsSlopeSliding, _fSlopeAngle_Signed);
+    }
+
+    public void DoSetVelocity_Custom(Vector2 vecVelocity, float fMoveLockSecond)
+    {
+        _bInputSetForce_Custom = true;
+        _vecAddForce_Custom = vecVelocity;
+
+        if (_fWaitSecond < fMoveLockSecond)
+        {
+            if (_pCoroutine_SetLockMove_IsFalse != null)
+                StopCoroutine(_pCoroutine_SetLockMove_IsFalse);
+            _pCoroutine_SetLockMove_IsFalse = StartCoroutine(CoDelaySetLockMove_IsFalse(fMoveLockSecond));
+        }
     }
 
     public void DoAddForce_Custom(Vector2 vecAddForce, float fMoveLockSecond)
     {
         _bInputAddForce_Custom = true;
-        _bInputAddForce_Custom_Velocity_IsZero = false;
+        _bInputSetForce_Custom_Velocity_IsZero = false;
         _vecAddForce_Custom = vecAddForce;
 
         if (_fWaitSecond < fMoveLockSecond)
@@ -251,7 +286,7 @@ public class CCharacterController2D : CObjectBase
     public void DoAddForce_Custom_Velocity_IsZero(Vector2 vecAddForce, float fMoveLockSecond)
     {
         DoAddForce_Custom(vecAddForce, fMoveLockSecond);
-        _bInputAddForce_Custom_Velocity_IsZero = true;
+        _bInputSetForce_Custom_Velocity_IsZero = true;
     }
 
     public void DoSetFalling(bool bFalling)
@@ -301,7 +336,7 @@ public class CCharacterController2D : CObjectBase
                 else if(p_fMoveVelocity < 0)
                     DoSet_ChangeFaceDir(false);
             }
-            else
+            else if(p_bIsSlopeSliding == false)
             {
                 if ((p_fMoveVelocity > 0 && p_bFaceDirection_IsRight == false) ||
                     p_fMoveVelocity < 0 && p_bFaceDirection_IsRight)
@@ -332,40 +367,42 @@ public class CCharacterController2D : CObjectBase
 
         if (p_bIsMoving && bInput_Run && p_bIsCrouch == false)
             _fMoveDelta_0_1 = 1f;
-        
+        if (p_bIsMoving && bInput_Run == false && _fMoveDelta_0_1 > p_fMaxMoveDelta_OnWalking)
+            _fMoveDelta_0_1 = p_fMaxMoveDelta_OnWalking;
+
         p_bIsCrouch = bInput_Crouch;
         p_bIsMoving = p_fMoveVelocity != 0f;
 
-        if (_pBoxCollider_OnCrouch)
+        if (_pCapsuleCollider_OnCrouch)
         {
             if (p_bIsCrouch && p_bIsGround)
             {
-                _pCollider_Body.offset = _pBoxCollider_OnCrouch.offset;
-                _pCollider_Body.size = _pBoxCollider_OnCrouch.size;
+                _pCollider_Body.offset = _pCapsuleCollider_OnCrouch.offset;
+                _pCollider_Body.size = _pCapsuleCollider_OnCrouch.size;
 
-                if (_pBoxColliderLeft_OnCrouch)
-                    _pBoxCollider_LeftCheck = _pBoxColliderLeft_OnCrouch;
+                if (_listBoxColliderLeft_OnCrouch.Count != 0)
+                    _listBoxCollider_LeftCheck = _listBoxColliderLeft_OnCrouch;
 
-                if (_pBoxColliderRight_OnCrouch)
-                    _pBoxCollider_RightCheck = _pBoxColliderRight_OnCrouch;
+                if (_listBoxColliderRight_OnCrouch.Count != 0)
+                    _listBoxCollider_RightCheck = _listBoxColliderRight_OnCrouch;
             }
             else
             {
                 _pCollider_Body.offset = _vecOriginCollider_Offset;
                 _pCollider_Body.size = _vecOriginCollider_Size;
 
-                if (_pBoxColliderLeft_OnCrouch)
-                    _pBoxCollider_LeftCheck = _pBoxCollider_LeftCheck_Origin;
+                if (_listBoxColliderLeft_OnCrouch.Count != 0)
+                    _listBoxCollider_LeftCheck = _listBoxCollider_LeftCheck_Origin;
 
-                if (_pBoxColliderRight_OnCrouch)
-                    _pBoxCollider_RightCheck = _pBoxCollider_RightCheck_Origin;
+                if (_listBoxColliderRight_OnCrouch.Count != 0)
+                    _listBoxCollider_RightCheck = _listBoxCollider_RightCheck_Origin;
             }
         }
     }
 
     public bool DoCheck_IsBlock_Ceiling()
     {
-        return Physics2D.OverlapCircle(_pTransform_CeilingCheck.position, p_fCeilingRadius, p_sWhatIsGround);
+        return Physics2D.OverlapCircle(_pTransform_CeilingCheck.position, p_fCeilingRadius, p_sWhatIsTerrain);
     }
 
     // ========================================================================== //
@@ -376,29 +413,44 @@ public class CCharacterController2D : CObjectBase
     {
         base.OnAwake();
 
-        // _fJumpVelocity = UpdateJumpVelocity(p_fJumpForce);
+        Collider2D[] arrColliderBody = GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < arrColliderBody.Length; i++)
+            _setCharacterBody.Add(arrColliderBody[i]);
+
         p_ePlatformerState_Current = (ECharacterControllerState)(-1);
 
-        if (_pBoxCollider_LeftCheck)
+        if (_listBoxCollider_LeftCheck.Count != 0)
         {
-            _pBoxCollider_LeftCheck_Origin = _pBoxCollider_LeftCheck;
-            _pBoxCollider_LeftCheck.SetActive(false);
+            _listBoxCollider_LeftCheck_Origin = _listBoxCollider_LeftCheck;
+            for(int i = 0; i < _listBoxCollider_LeftCheck.Count; i++)
+                _listBoxCollider_LeftCheck[i].SetActive(false);
+
+            _listBoxCollider_LeftCheck.Sort(SortBoxCollider_Height_Greater);
         }
 
-        if (_pBoxCollider_RightCheck)
+        if (_listBoxCollider_RightCheck.Count != 0)
         {
-            _pBoxCollider_RightCheck_Origin = _pBoxCollider_RightCheck;
-            _pBoxCollider_RightCheck.SetActive(false);
+            _listBoxCollider_RightCheck_Origin = _listBoxCollider_RightCheck;
+            for (int i = 0; i < _listBoxCollider_RightCheck.Count; i++)
+                _listBoxCollider_RightCheck[i].SetActive(false);
+
+            _listBoxCollider_RightCheck.Sort(SortBoxCollider_Height_Greater);
         }
 
-        if (_pBoxCollider_OnCrouch)
-            _pBoxCollider_OnCrouch.SetActive(false);
+        if (_pCapsuleCollider_OnCrouch)
+            _pCapsuleCollider_OnCrouch.SetActive(false);
 
-        if (_pBoxColliderLeft_OnCrouch)
-            _pBoxColliderLeft_OnCrouch.SetActive(false);
+        if (_pCollider_Ground)
+            _pCollider_Ground.SetActive(true);
 
-        if (_pBoxColliderRight_OnCrouch)
-            _pBoxColliderRight_OnCrouch.SetActive(false);
+        for (int i = 0; i < _listBoxColliderLeft_OnCrouch.Count; i++)
+            _listBoxColliderLeft_OnCrouch[i].SetActive(false);
+
+        for(int i = 0; i < _listBoxColliderRight_OnCrouch.Count; i++)
+            _listBoxColliderRight_OnCrouch[i].SetActive(false);
+
+        _listBoxColliderLeft_OnCrouch.Sort(SortBoxCollider_Height_Greater);
+        _listBoxColliderRight_OnCrouch.Sort(SortBoxCollider_Height_Greater);
 
         _vecOriginCollider_Offset = _pCollider_Body.offset;
         _vecOriginCollider_Size = _pCollider_Body.size;
@@ -406,10 +458,9 @@ public class CCharacterController2D : CObjectBase
         DoSet_ChangeFaceDir(p_bDefault_FaceDirection_IsRight);
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
         Logic_Moving();
 
         if (p_eUpdateMode == EUpdateMode.Update)
@@ -422,6 +473,9 @@ public class CCharacterController2D : CObjectBase
 
             _queueVelocityPrev.Enqueue(_pRigidbody.velocity);
         }
+
+        if (p_bUseSlopeSliding && _fSlopeAngle >= p_fSlopeAngle)
+            _fSkipSlopeSlidingElapsTime += Time.deltaTime;
     }
 
     private void FixedUpdate()
@@ -437,41 +491,19 @@ public class CCharacterController2D : CObjectBase
         if (p_bIsGround)
             return false;
 
-        switch (p_eWallSlidingDetect)
-        {
-            case EWallSlidingDetect.Collider:
-                return (p_bRightDirection_IsBlocked && p_fMoveVelocity > 0f) || (p_bLeftDirection_IsBlocked && p_fMoveVelocity < 0f);
-
-            case EWallSlidingDetect.RayCasting:
-                {
-                    if (p_bLeftDirection_IsBlocked && p_fMoveVelocity < 0f)
-                        return CheckRayCasting_IsHit(_pBoxCollider_LeftCheck, _pBoxCollider_LeftCheck.transform.position.x + _pBoxCollider_LeftCheck.offset.x + (_pBoxCollider_LeftCheck.size.x / 2f), Vector2.left);
-
-                    if (p_bRightDirection_IsBlocked && p_fMoveVelocity > 0f)
-                        return CheckRayCasting_IsHit(_pBoxCollider_RightCheck, _pBoxCollider_RightCheck.transform.position.x + _pBoxCollider_RightCheck.offset.x - (_pBoxCollider_RightCheck.size.x / 2f), Vector2.right);
-
-                    return false;
-                }
-
-            case EWallSlidingDetect.None:
-            default:
-                return false;
-        }
+        return (p_bRightDirection_IsBlocked && p_fMoveVelocity > 0f) || (p_bLeftDirection_IsBlocked && p_fMoveVelocity < 0f);
     }
 
     private bool CheckRayCasting_IsHit(BoxCollider2D pCollider, float fPosX, Vector2 vecDirection)
     {
-        // 왠지 모르게 Bounds가 잘 구해지지 않아서 직접 구현
         Vector2 vecPos = Vector2.zero;
         vecPos.x = fPosX;
         vecPos.y = pCollider.transform.position.y + pCollider.offset.y - (pCollider.size.y / 2f);
 
-        //if (Physics2D.Raycast(vecPos, vecDirection, p_fWallSlidCheck_RayDistance, p_sWhatIsGround))
-        if (Physics2D.Raycast(vecPos, vecDirection, pCollider.size.x, p_sWhatIsGround))
+        if (Physics2D.Raycast(vecPos, vecDirection, pCollider.size.x, p_sWhatIsTerrain))
         {
             vecPos.y = pCollider.transform.position.y + pCollider.offset.y + (pCollider.size.y / 2f);
-            //if (Physics2D.Raycast(vecPos, vecDirection, p_fWallSlidCheck_RayDistance, p_sWhatIsGround))
-            if (Physics2D.Raycast(vecPos, vecDirection, pCollider.size.x, p_sWhatIsGround))
+            if (Physics2D.Raycast(vecPos, vecDirection, pCollider.size.x, p_sWhatIsTerrain))
             {
                 return true;
             }
@@ -489,8 +521,8 @@ public class CCharacterController2D : CObjectBase
         {
             if (p_vecWallJumpClimb.Equals(Vector3.zero) == false)
             {
-                if (p_eDebugFilter.ContainEnumFlag(EDebugFilter.Debug_Level_1))
-                    Debug.Log(name + " WallJumpClimb", this);
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+                    Debug.Log(ConsoleProWrapper.ConvertLog_ToCore(name + " WallJumpClimb"), this);
 
 
                 vecClimbJump = p_vecWallJumpClimb;
@@ -500,8 +532,8 @@ public class CCharacterController2D : CObjectBase
         {
             if (p_vecWallLeap.Equals(Vector3.zero) == false)
             {
-                if (p_eDebugFilter.ContainEnumFlag(EDebugFilter.Debug_Level_1))
-                    Debug.Log(name + " WallJumpLeap", this);
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+                    Debug.Log(ConsoleProWrapper.ConvertLog_ToCore(name + " WallJumpLeap"), this);
 
                 vecClimbJump = p_vecWallLeap;
             }
@@ -512,7 +544,7 @@ public class CCharacterController2D : CObjectBase
 
         if (vecClimbJump.y != 0f)
         {
-            _pRigidbody.velocity = new Vector2(_pRigidbody.velocity.x, 0f);
+            SetVelocity(new Vector2(_pRigidbody.velocity.x, 0f));
             DoAddForce_Custom(vecClimbJump, p_fWallJump_Delay);
         }
         else
@@ -543,22 +575,28 @@ public class CCharacterController2D : CObjectBase
             _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeState(p_ePlatformerState_Prev, p_ePlatformerState_Current);
     }
 
+    virtual protected float GetMoveSpeed(float fSpeed_OnWalking, float fSpeed_OnRunning, float fMoveDelta_0_1)
+    {
+        return Mathf.Lerp(fSpeed_OnWalking, fSpeed_OnRunning, fMoveDelta_0_1);
+    }
+
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if (_pRigidbody == null || _pCollider_Leg == null || (p_bUseCrouching && _pTransform_CeilingCheck == null))
+        if (_pRigidbody == null || _pCollider_Ground == null || (p_bUseCrouching && _pTransform_CeilingCheck == null))
             EventOnAwake_Force();
 
-        if (p_eDebugFilter.ContainEnumFlag(EDebugFilter.Debug_Level_1))
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
         {
             bool bHitGround = false;
             Collider2D pColliderTerrain = null;
-            Collider2D[] arrColliders = Physics2D.OverlapCircleAll((Vector2)transform.position + _pCollider_Leg.offset, _pCollider_Leg.radius, p_sWhatIsGround);
-            for (int i = 0; i < arrColliders.Length; i++)
+
+            int iHitCount = Calculate_GroundCollider();
+            for (int i = 0; i < iHitCount; i++)
             {
-                if (arrColliders[i].gameObject != gameObject)
+                if (_setCharacterBody.Contains(_arrHitColliders[i]) == false)
                 {
-                    pColliderTerrain = arrColliders[i];
+                    pColliderTerrain = _arrHitColliders[i];
                     bHitGround = true;
                     break;
                 }
@@ -568,18 +606,16 @@ public class CCharacterController2D : CObjectBase
                 Gizmos.color = Color.red;
             else
                 Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere((Vector2)transform.position + _pCollider_Leg.offset, _pCollider_Leg.radius);
 
-
-            if(bHitGround && p_bUseSlopeSliding)
+            if (bHitGround)
             {
-                Gizmos.color = Color.green;
                 ContactPoint2D[] arrContactPoint = new ContactPoint2D[10];
-                int iContactCount = Physics2D.GetContacts(pColliderTerrain, _pCollider_Leg, new ContactFilter2D(), arrContactPoint);
+                int iContactCount = Physics2D.GetContacts(pColliderTerrain, _pCollider_Ground, new ContactFilter2D(), arrContactPoint);
                 for (int i = 0; i < iContactCount; i++)
                 {
                     float fSlopeAngle = Vector2.Angle(arrContactPoint[i].normal, Vector2.up);
                     Gizmos.DrawWireSphere(arrContactPoint[i].point, 1f);
+
                     UnityEditor.Handles.Label(arrContactPoint[i].point, "fSlopeAngle : " + fSlopeAngle);
                     Gizmos.DrawRay(arrContactPoint[i].point, arrContactPoint[i].normal * 1f);
                 }
@@ -588,7 +624,7 @@ public class CCharacterController2D : CObjectBase
 
             if (p_bUseCrouching)
             {
-                if (Physics2D.OverlapCircle(_pTransform_CeilingCheck.position, p_fCeilingRadius, p_sWhatIsGround))
+                if (Physics2D.OverlapCircle(_pTransform_CeilingCheck.position, p_fCeilingRadius, p_sWhatIsTerrain))
                     Gizmos.color = Color.red;
                 else
                     Gizmos.color = Color.green;
@@ -596,66 +632,14 @@ public class CCharacterController2D : CObjectBase
             }
 
 
-            if (p_eWallSlidingDetect == EWallSlidingDetect.Collider || p_eWallSlidingDetect == EWallSlidingDetect.RayCasting)
-            {
-                Color pColorLight_Red = new Color(0.7f, 0f, 0f, 0.5f);
-                Color pColorLight_Green = new Color(0f, 0.7f, 0f, 0.5f);
+            Color pColorLight_Red = new Color(0.7f, 0f, 0f, 0.5f);
+            Color pColorLight_Green = new Color(0f, 0.7f, 0f, 0.5f);
 
-                if (_pBoxCollider_LeftCheck == null || _pBoxCollider_RightCheck == null)
-                    EventOnAwake_Force();
+            if (_listBoxCollider_LeftCheck == null || _listBoxCollider_RightCheck == null)
+                EventOnAwake_Force();
 
-                if (Physics2D.OverlapBox((Vector2)_pBoxCollider_LeftCheck.transform.position + _pBoxCollider_LeftCheck.offset, _pBoxCollider_LeftCheck.size, 0f, p_sWhatIsGround))
-                    Gizmos.color = pColorLight_Red;
-                else
-                    Gizmos.color = pColorLight_Green;
-                Gizmos.DrawWireCube((Vector2)_pBoxCollider_LeftCheck.transform.position + _pBoxCollider_LeftCheck.offset, _pBoxCollider_LeftCheck.size);
-
-                if (Physics2D.OverlapBox((Vector2)_pBoxCollider_RightCheck.transform.position + _pBoxCollider_RightCheck.offset, _pBoxCollider_RightCheck.size, 0f, p_sWhatIsGround))
-                    Gizmos.color = pColorLight_Red;
-                else
-                    Gizmos.color = pColorLight_Green;
-                Gizmos.DrawWireCube((Vector2)_pBoxCollider_RightCheck.transform.position + _pBoxCollider_RightCheck.offset, _pBoxCollider_RightCheck.size);
-            }
-
-
-            if (p_eWallSlidingDetect == EWallSlidingDetect.RayCasting)
-            {
-                // 왠지 모르게 Bounds가 잘 구해지지 않아서 직접 구현
-                Vector2 vecRayPos = Vector2.zero;
-                vecRayPos.x = _pBoxCollider_LeftCheck.transform.position.x + _pBoxCollider_LeftCheck.offset.x + (_pBoxCollider_LeftCheck.size.x / 2f);
-                vecRayPos.y = _pBoxCollider_LeftCheck.transform.position.y + _pBoxCollider_LeftCheck.offset.y - (_pBoxCollider_LeftCheck.size.y / 2f);
-                if (Physics2D.Raycast(vecRayPos, Vector2.left, _pBoxCollider_LeftCheck.size.x, p_sWhatIsGround))
-                    Gizmos.color = Color.red;
-                else
-                    Gizmos.color = Color.green;
-                Gizmos.DrawRay(vecRayPos, Vector2.left * _pBoxCollider_LeftCheck.size.x);
-
-
-                vecRayPos.y = _pBoxCollider_LeftCheck.transform.position.y + _pBoxCollider_LeftCheck.offset.y + (_pBoxCollider_LeftCheck.size.y / 2f);
-                if (Physics2D.Raycast(vecRayPos, Vector2.left, _pBoxCollider_LeftCheck.size.x, p_sWhatIsGround))
-                    Gizmos.color = Color.red;
-                else
-                    Gizmos.color = Color.green;
-                Gizmos.DrawRay(vecRayPos, Vector2.left * _pBoxCollider_LeftCheck.size.x);
-
-
-
-                vecRayPos.x = _pBoxCollider_RightCheck.transform.position.x + _pBoxCollider_RightCheck.offset.x - (_pBoxCollider_RightCheck.size.x / 2f);
-                vecRayPos.y = _pBoxCollider_RightCheck.transform.position.y + _pBoxCollider_RightCheck.offset.y - (_pBoxCollider_RightCheck.size.y / 2f);
-                if (Physics2D.Raycast(vecRayPos, Vector2.right, _pBoxCollider_RightCheck.size.x, p_sWhatIsGround))
-                    Gizmos.color = Color.red;
-                else
-                    Gizmos.color = Color.green;
-                Gizmos.DrawRay(vecRayPos, Vector2.right * _pBoxCollider_RightCheck.size.x);
-
-
-                vecRayPos.y = _pBoxCollider_RightCheck.transform.position.y + _pBoxCollider_RightCheck.offset.y + (_pBoxCollider_RightCheck.size.y / 2f);
-                if (Physics2D.Raycast(vecRayPos, Vector2.right, _pBoxCollider_RightCheck.size.x, p_sWhatIsGround))
-                    Gizmos.color = Color.red;
-                else
-                    Gizmos.color = Color.green;
-                Gizmos.DrawRay(vecRayPos, Vector2.right * _pBoxCollider_RightCheck.size.x);
-            }
+            DrawGizmo_BoxCollider(_listBoxCollider_LeftCheck, pColorLight_Red, pColorLight_Green);
+            DrawGizmo_BoxCollider(_listBoxCollider_RightCheck, pColorLight_Red, pColorLight_Green);
 
             float fPosYOffset = 1f;
             Vector3 vecPos = transform.position + new Vector3(1f, 1f);
@@ -678,7 +662,7 @@ public class CCharacterController2D : CObjectBase
 
             UnityEditor.Handles.Label(vecPos, "_bInputAddForce_Custom : " + _bInputAddForce_Custom + " _vecAddForce_Custom : " + _vecAddForce_Custom);
             vecPos.y -= fPosYOffset * 2f;
-            
+
 
 
             UnityEditor.Handles.Label(vecPos, "Platformer State ---------------------------------------------");
@@ -701,18 +685,37 @@ public class CCharacterController2D : CObjectBase
             UnityEditor.Handles.Label(vecPos, "_bCheckIsFalling : " + _bCheckIsFalling + " _bIsFalling : " + _bIsFalling);
             vecPos.y -= fPosYOffset;
 
+            if (_bCheckIsFalling)
+            {
+                UnityEditor.Handles.Label(vecPos, "Check Falling Time : " + _fFallingTime.ToString("F2") + " Time : " + Time.time.ToString("F2"));
+                vecPos.y -= fPosYOffset;
+            }
+
             UnityEditor.Handles.Label(vecPos, "_bIsWallSliding : " + _bIsWallSliding + " _bLeftDirection_IsBlocked : " + p_bLeftDirection_IsBlocked + " _bRightDirection_IsBlocked : " + p_bRightDirection_IsBlocked);
             vecPos.y -= fPosYOffset * 2f;
 
 
-            if(p_bUseSlopeSliding)
+            if (p_bUseSlopeSliding)
             {
                 UnityEditor.Handles.Label(vecPos, "Slope Check State -----------------------------------------");
                 vecPos.y -= fPosYOffset;
 
-                UnityEditor.Handles.Label(vecPos, "p_bIsSlopeSliding : " + p_bIsSlopeSliding + " _fSlopeAngle : " + _fSlopeAngle + " _fSlopeAngle_Signed : " + _fSlopeAngle_Signed + " _vecCurrentSlopeNormal : " + _vecCurrentSlopeNormal);
+                UnityEditor.Handles.Label(vecPos, "_fSkipSlopeSlidingElapsTime : " + _fSkipSlopeSlidingElapsTime + " p_bIsSlopeSliding : " + p_bIsSlopeSliding + " _fSlopeAngle : " + _fSlopeAngle + " _fSlopeAngle_Signed : " + _fSlopeAngle_Signed + " _vecCurrentSlopeNormal : " + _vecCurrentSlopeNormal);
                 vecPos.y -= fPosYOffset;
             }
+        }
+    }
+
+    private void DrawGizmo_BoxCollider(List<BoxCollider2D> listBoxCollider, Color pColorLight_Red, Color pColorLight_Green)
+    {
+        for (int i = 0; i < listBoxCollider.Count; i++)
+        {
+            BoxCollider2D pCollider = listBoxCollider[i];
+            if (Physics2D.OverlapBox((Vector2)pCollider.transform.position + pCollider.offset, pCollider.size, 0f, p_sWhatIsTerrain))
+                Gizmos.color = pColorLight_Red;
+            else
+                Gizmos.color = pColorLight_Green;
+            Gizmos.DrawWireCube((Vector2)pCollider.transform.position + pCollider.offset, pCollider.size);
         }
     }
 #endif
@@ -730,18 +733,17 @@ public class CCharacterController2D : CObjectBase
         if (_bInputAddForce_Custom)
             Logic_AddForce_Custom();
 
-        if (bSkipMove == false && p_bIsSlopeSliding == false)
+        if (_bInputSetForce_Custom)
+            Logic_SetForce_Custom();
+
+        if (bSkipMove == false && p_bIsSlopeSliding == false && _bIsLockMove == false && CheckForward_IsBlock() == false)
         {
-            bool bBlocked_OnAir = p_bIsGround == false && CheckForward_IsBlock();
-            if (_bIsLockMove == false && bBlocked_OnAir == false)
-            {
-                float fMoveSpeed = Mathf.Lerp(p_fSpeed_OnWalking, p_fSpeed_OnRunning, _fMoveDelta_0_1);
-                _pRigidbody.velocity = new Vector2(p_fMoveVelocity * fMoveSpeed, _pRigidbody.velocity.y);
-            }
+            float fMoveSpeed = GetMoveSpeed(p_fSpeed_OnWalking, p_fSpeed_OnRunning, _fMoveDelta_0_1);
+            SetVelocity(new Vector2(p_fMoveVelocity * fMoveSpeed, _pRigidbody.velocity.y));
         }
 
         if (_bIsWallSliding && _pRigidbody.velocity.y < p_fWallSlideSpeedMax)
-            _pRigidbody.velocity = new Vector2(_pRigidbody.velocity.x, p_fWallSlideSpeedMax);
+            SetVelocity(new Vector2(_pRigidbody.velocity.x, p_fWallSlideSpeedMax));
 
         if (bSkipMove == false)
             Logic_IsGround();
@@ -751,6 +753,9 @@ public class CCharacterController2D : CObjectBase
 
     private void Logic_Moving()
     {
+        if (_bIsLockMove)
+            return;
+
         if (p_bIsMoving && _fMoveDelta_0_1 < p_fMaxMoveDelta_OnWalking)
         {
             _fMoveDelta_0_1 += (1f / p_fTimeToMaxSpeedApex) * Time.deltaTime;
@@ -773,13 +778,15 @@ public class CCharacterController2D : CObjectBase
     private void Logic_IsGround()
     {
         bool bIsGround = false;
-        Collider2D[] arrColliders = Physics2D.OverlapCircleAll((Vector2)_pCollider_Leg.transform.position + _pCollider_Leg.offset, _pCollider_Leg.radius, p_sWhatIsGround);
-        for (int i = 0; i < arrColliders.Length; i++)
+
+        int iHitCount = Calculate_GroundCollider();
+        for (int i = 0; i < iHitCount; i++)
         {
-            if (arrColliders[i].gameObject != gameObject)
+            Collider2D pCollider = _arrHitColliders[i];
+            if (pCollider != null && _setCharacterBody.Contains(pCollider) == false)
             {
                 bIsGround = true;
-                OnGround(arrColliders[i]);
+                OnGround(pCollider);
                 break;
             }
         }
@@ -803,10 +810,10 @@ public class CCharacterController2D : CObjectBase
     private void Logic_AddForce_Custom()
     {
         _bInputAddForce_Custom = false;
-        if(_bInputAddForce_Custom_Velocity_IsZero)
+        if(_bInputSetForce_Custom_Velocity_IsZero)
         {
-            _bInputAddForce_Custom_Velocity_IsZero = false;
-            _pRigidbody.velocity = Vector3.zero;
+            _bInputSetForce_Custom_Velocity_IsZero = false;
+            SetVelocity(Vector3.zero);
         }
 
         _pRigidbody.AddForce(_vecAddForce_Custom);
@@ -814,20 +821,26 @@ public class CCharacterController2D : CObjectBase
         // SetState();
     }
 
+    private void Logic_SetForce_Custom()
+    {
+        _bInputSetForce_Custom = false;
+        SetVelocity(_vecAddForce_Custom);
+    }
+
+
     private void Logic_IsBlocked()
     {
         _listSideBlock_Wall.Clear();
-        Collider2D pColliderLeft = Physics2D.OverlapBox((Vector2)_pBoxCollider_LeftCheck.transform.position + _pBoxCollider_LeftCheck.offset, _pBoxCollider_LeftCheck.size, 0f, p_sWhatIsGround);
-        Collider2D pColliderRight = Physics2D.OverlapBox((Vector2)_pBoxCollider_RightCheck.transform.position + _pBoxCollider_RightCheck.offset, _pBoxCollider_RightCheck.size, 0f, p_sWhatIsGround);
 
-        p_bLeftDirection_IsBlocked = pColliderLeft;
-        p_bRightDirection_IsBlocked = pColliderRight;
+        List<Collider2D> listCollider = CheckIsOverlapTerrain(_listBoxCollider_LeftCheck);
+        p_bLeftDirection_IsBlocked = listCollider.Count == _listBoxCollider_LeftCheck.Count;
+        _listSideBlock_Wall.AddRange(listCollider);
 
-        if (pColliderLeft)
-            _listSideBlock_Wall.Add(pColliderLeft);
-        if (pColliderRight)
-            _listSideBlock_Wall.Add(pColliderRight);
+        listCollider = CheckIsOverlapTerrain(_listBoxCollider_RightCheck);
+        p_bRightDirection_IsBlocked = listCollider.Count == _listBoxCollider_RightCheck.Count;
+        _listSideBlock_Wall.AddRange(listCollider);
 
+        
         if (p_bLeftDirection_IsBlocked || p_bRightDirection_IsBlocked)
             _bIsWallSliding = Check_IsWallSliding();
         else
@@ -856,24 +869,37 @@ public class CCharacterController2D : CObjectBase
         p_bIsJumping = false;
 
         DoSetFalling(false);
-        if(p_bUseSlopeSliding)
+        if (_pCoroutine_Falling != null)
+            StopCoroutine(_pCoroutine_Falling);
+        _bCheckIsFalling = false;
+
+        if (p_bUseSlopeSliding)
         {
             UpdateSlopeAngle(pColliderTerrain);
             Set_SlopeSliding(_fSlopeAngle >= p_fSlopeAngle);
 
             if (bIsGroundOrigin == false && _queueVelocityPrev.Count > 0)
-                _pRigidbody.velocity = _queueVelocityPrev.Dequeue();
+                SetVelocity(_queueVelocityPrev.Dequeue());
         }
+    }
+
+    private void SetVelocity(Vector2 vecVelocity)
+    {
+        _pRigidbody.velocity = vecVelocity;
     }
 
     private void Set_SlopeSliding(bool bIsSlopeSliding)
     {
+        if (bIsSlopeSliding && _fSkipSlopeSlidingElapsTime < p_fSlopeSlidingDelay)
+            return;
+
         if (bIsSlopeSliding)
             p_bFaceDirection_IsRight = _fSlopeAngle_Signed > 0f;
-        p_bIsSlopeSliding = bIsSlopeSliding;
+        else
+            _fSkipSlopeSlidingElapsTime = 0;
 
-        for (int i = 0; i < _listCharacterControllerListener.Count; i++)
-            _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeFaceDir(p_bFaceDirection_IsRight, bIsSlopeSliding, _fSlopeAngle_Signed);
+        p_bIsSlopeSliding = bIsSlopeSliding;
+        DoSet_ChangeFaceDir(p_bFaceDirection_IsRight);
     }
 
     private void SetState()
@@ -905,7 +931,7 @@ public class CCharacterController2D : CObjectBase
             return;
         }
 
-        bool bIsMoving = p_bIsMoving;
+        bool bIsMoving = p_bIsMoving && p_bIsGround;
         if (bIsMoving && p_bIsPlayAnimation_OnForwardIsBlock == false)
             bIsMoving = CheckForward_IsBlock() == false;
 
@@ -946,11 +972,26 @@ public class CCharacterController2D : CObjectBase
         }
     }
 
+    float _fFallingTime;
+
     private IEnumerator CoDelayFalling()
     {
         _bCheckIsFalling = true;
+        _fFallingTime = Time.time;
 
-        yield return new WaitForSeconds(p_fTimeToFalling);
+        float fElapseTime = p_fTimeToFalling;
+        while (fElapseTime > 0f)
+        {
+            yield return null;
+
+            if (Check_IsFalling() == false)
+            {
+                _bCheckIsFalling = false;
+                yield break;
+            }
+
+            fElapseTime -= Time.deltaTime;
+        }
 
         if (Check_IsFalling())
             DoSetFalling(true);
@@ -983,28 +1024,59 @@ public class CCharacterController2D : CObjectBase
 
     private bool CheckForward_IsBlock()
     {
-        return ((p_fMoveVelocity > 0f && p_bRightDirection_IsBlocked) || (p_fMoveVelocity < 0f && p_bLeftDirection_IsBlocked));
+        if (p_bFaceDirection_IsRight)
+            return CheckIsOverlapTerrain(_listBoxCollider_RightCheck).Count == _listBoxCollider_RightCheck.Count;
+        else
+            return CheckIsOverlapTerrain(_listBoxCollider_LeftCheck).Count == _listBoxCollider_LeftCheck.Count;
+    }
+
+    private List<Collider2D> CheckIsOverlapTerrain(List<BoxCollider2D> listColliderCheck)
+    {
+        _listColliderOverlap.Clear();
+        for(int i = 0; i < listColliderCheck.Count; i++)
+        {
+            BoxCollider2D pColliderCheck = listColliderCheck[i];
+            Collider2D pCollider = Physics2D.OverlapBox((Vector2)pColliderCheck.transform.position + pColliderCheck.offset, pColliderCheck.size, 0f, p_sWhatIsTerrain);
+            if (pCollider != null)
+                _listColliderOverlap.Add(pCollider);
+        }
+
+        return _listColliderOverlap;
     }
 
     private void UpdateSlopeAngle(Collider2D pColliderTerrain)
     {
-        ContactPoint2D[] arrContactPoint = new ContactPoint2D[10];
-        int iContactCount = Physics2D.GetContacts(pColliderTerrain, _pCollider_Leg, new ContactFilter2D(), arrContactPoint);
-
         _fSlopeAngle = 0f;
         _fSlopeAngle_Signed = 0f;
         _vecCurrentSlopeNormal = Vector3.zero;
 
+        int iContactCount = Physics2D.GetContacts(pColliderTerrain, _pCollider_Ground, new ContactFilter2D(), _arrContactPoint);
         for (int i = 0; i < iContactCount; i++)
         {
-            float fSlopeAngle = Vector2.Angle(arrContactPoint[i].normal, Vector2.up);
-            if (_fSlopeAngle == 0f || _fSlopeAngle > fSlopeAngle)
+            ContactPoint2D sContactPoint2D = _arrContactPoint[i];
+            float fSlopeAngle = Vector2.Angle(sContactPoint2D.normal, Vector2.up);
+            if (fSlopeAngle != 90f && _fSlopeAngle == 0f || _fSlopeAngle > fSlopeAngle)
             {
                 _fSlopeAngle = fSlopeAngle;
-                _fSlopeAngle_Signed = Vector2.SignedAngle(arrContactPoint[i].normal, Vector2.up);
-                _vecCurrentSlopeNormal = arrContactPoint[i].normal;
+                _fSlopeAngle_Signed = Vector2.SignedAngle(sContactPoint2D.normal, Vector2.up);
+                _vecCurrentSlopeNormal = sContactPoint2D.normal;
             }
         }
+    }
+
+    private int Calculate_GroundCollider()
+    {
+        Transform pTransformGround = _pCollider_Ground.transform;
+        Vector3 vecLossyScale = pTransformGround.lossyScale; 
+        Vector3 vecPosition = pTransformGround.position + CalculateVector3(vecLossyScale, _pCollider_Ground.offset);
+
+        // 딱 Ground Scale대로 하면 Physics에서 딱 Collider만큼 Fixed Update마다 밀기 때문에 충돌이 안된다.
+        return Physics2D.OverlapCapsuleNonAlloc(vecPosition, CalculateVector3(vecLossyScale * 1.1f, _pCollider_Ground.size), _pCollider_Ground.direction, 0f, _arrHitColliders, p_sWhatIsTerrain);
+    }
+
+    private int SortBoxCollider_Height_Greater(BoxCollider2D pBoxCollider_X, BoxCollider2D pBoxCollider_Y)
+    {
+        return pBoxCollider_X.transform.position.y.CompareTo(pBoxCollider_Y.transform.position.y);
     }
 
     #endregion Private

@@ -14,6 +14,7 @@ using UnityEngine.Events;
 #if UNITY_EDITOR
 using NUnit.Framework;
 using UnityEngine.TestTools;
+using UnityEditor;
 #endif
 
 public class WaitForSeconds_Custom : CustomYieldInstruction
@@ -42,7 +43,6 @@ public class WaitForTween : CustomYieldInstruction
     {
         _pTween = pTween;
     }
-
 
     public override bool keepWaiting
     {
@@ -76,40 +76,28 @@ abstract public class CTweenBase : CObjectBase
         PingPong_ReverseCurve,
     }
 
-    [System.Serializable]
-    public class STweenEventBase : IDictionaryItem<string>
-    {
-        public string strEvent;
-
-        public string IDictionaryItem_GetKey()
-        {
-            return strEvent;
-        }
-    }
-
     /* public - Field declaration            */
 
     public delegate void OnCreateYield(out CustomYieldInstruction pYield);
-    public delegate void OnTweenEvent(ETweenDirection eTweenDirection, GameObject pTweenObject);
+    public delegate void OnTweenEvent(ETweenDirection eTweenDirection, CTweenBase pTweener);
 
     public event OnTweenEvent p_Event_OnStartTween_InCludeArg;
     public event OnTweenEvent p_Event_OnFinishTween_InCludeArg;
 
-    [Rename_Inspector("디버깅 온")]
-    public bool bIsDebug = false;
-
     [Rename_Inspector("트윈 대상")]
     public GameObject p_pObjectTarget = null;
 
-    [Rename_Inspector("애니메이션 커브")]
-    public AnimationCurve p_pAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
-    [Rename_Inspector("Ignore TimeScale?")]
-    public bool p_bIgnoreTimeScale = false;
-    [Rename_Inspector("재생시간")]
-    public float p_fDuration = 1f;
+    [Space(10)]
+    [Header("트윈 옵션")]
     [Rename_Inspector("트윈 스타일")]
     public ETweenStyle p_eTweenStyle = ETweenStyle.Once;
+    [Rename_Inspector("재생시간")]
+    public float p_fDuration = 1f;
+    [Rename_Inspector("애니메이션 커브")]
+    public AnimationCurve p_pAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
 
+    [Space(10)]
+    [Header("플레이 옵션")]
     [Rename_Inspector("Enable시 자동 재생")]
     public bool p_bIsPlay_OnEnable = false;
     [Rename_Inspector("Enable시 초기값으로")]
@@ -119,6 +107,10 @@ abstract public class CTweenBase : CObjectBase
     [Rename_Inspector("트윈 전의 딜레이")]
     public float p_fFirstDelaySec = 0f;
 
+    [Space(10)]
+    [Header("기타 옵션")]
+    [Rename_Inspector("Ignore TimeScale?")]
+    public bool p_bIgnoreTimeScale = false;
     [Rename_Inspector("물리 업데이트를 사용할 것인지")]
     public bool p_bUseFixedUpdate = false;
 
@@ -132,13 +124,13 @@ abstract public class CTweenBase : CObjectBase
 
     [SerializeField]
     [Rename_Inspector("현재 진행 상황 0 ~ 1", false)]
-    float _fProgress_0_1;
+    protected float _fProgress_0_1;
     [SerializeField]
     [Rename_Inspector("트윈 플레이 중인지?", false)]
     bool _bIsPlayingTween;
 
     AnimationCurve _pAnimationCurve_OnReverseCurvePlay;
-    int _iTweenDirectionDelta;
+    int _iTweenDirectionDelta = 1;
     Coroutine _pCoroutineTween;
 
     bool _bIsFinishForward;
@@ -166,6 +158,7 @@ abstract public class CTweenBase : CObjectBase
 
     public void DoStopTween()
     {
+        _bIsPlayingTween = false;
         if (_pCoroutineTween != null)
             StopCoroutine(_pCoroutineTween);
     }
@@ -218,6 +211,9 @@ abstract public class CTweenBase : CObjectBase
 
     public void DoSeekTweening(float fProgress_0_1)
     {
+        if (_bIsExcuteAwake == false)
+            EventOnAwake();
+
         OnTween(fProgress_0_1);
     }
 
@@ -279,17 +275,26 @@ abstract public class CTweenBase : CObjectBase
 
         if (_bIsFinishForward == false && _bIsFinishRevese == false)
         {
-            _fProgress_0_1 += Mathf.Abs(1f / p_fDuration) * fDeltaTime * _iTweenDirectionDelta;
+            _fProgress_0_1 += CalculateProgressDelta(fDeltaTime * _iTweenDirectionDelta);
             if (_fProgress_0_1 > 1f)
                 _fProgress_0_1 = 1f;
 
             if (p_eTweenStyle == ETweenStyle.PingPong_ReverseCurve && p_eTweenDirection == ETweenDirection.Reverse)
                 OnTween(_pAnimationCurve_OnReverseCurvePlay.Evaluate(p_fProgress_0_1));
             else
-                OnTween(p_pAnimationCurve.Evaluate(p_fProgress_0_1));
+            {
+                try
+                {
+                    OnTween(p_pAnimationCurve.Evaluate(p_fProgress_0_1));
+                }
+                catch
+                {
+                    Debug.LogError(name, this);
+                    OnTween(p_pAnimationCurve.Evaluate(p_fProgress_0_1));
+                }
+            }
         }
     }
-
 
     // ========================================================================== //
 
@@ -308,6 +313,7 @@ abstract public class CTweenBase : CObjectBase
         base.OnAwake();
 
         _fProgress_0_1 = 0f;
+        _bIsPlayingTween = false;
         DoSetTarget(p_pObjectTarget);
     }
 
@@ -323,6 +329,13 @@ abstract public class CTweenBase : CObjectBase
 
         if (p_bIsPlay_OnEnable)
             DoPlayTween();
+    }
+
+    protected override void OnDisableObject()
+    {
+        base.OnDisableObject();
+
+        DoStopTween();
     }
 
     private void FixedUpdate()
@@ -343,7 +356,7 @@ abstract public class CTweenBase : CObjectBase
             p_Event_OnFinishTween.Invoke();
 
         if (p_Event_OnFinishTween_InCludeArg != null)
-            p_Event_OnFinishTween_InCludeArg(p_eTweenDirection, gameObject);
+            p_Event_OnFinishTween_InCludeArg(p_eTweenDirection, this);
 
         _bIsPlayingTween = false;
     }
@@ -353,9 +366,15 @@ abstract public class CTweenBase : CObjectBase
     abstract protected void OnSetTarget(GameObject pObjectNewTarget);
     abstract protected void OnTween(float fProgress_0_1);
 
+    virtual protected float CalculateProgressDelta(float fDeltaTime)
+    {
+        return Mathf.Abs(1f / p_fDuration) * fDeltaTime;
+    }
+
+    virtual public bool Check_Editor_IsDrawButton_SetTweenData() { return true; }
+
     virtual protected void Reset() { }
     virtual protected void OnTweenStart(ETweenDirection eTweenDirection) { }
-    virtual protected void OnTweenStart(string strTweenEvent, ETweenDirection eTweenDirection) { }
 
     virtual public object OnTween_EditorOnly(float fProgress_0_1) { return null; }
     virtual public void OnEditorButtonClick_SetStartValue_IsCurrentValue() { }
@@ -366,7 +385,6 @@ abstract public class CTweenBase : CObjectBase
     virtual public void OnInitTween_EditorOnly() { }
     virtual public void OnReleaseTween_EditorOnly() { }
 
-    virtual protected void OnDrawGizmosSelected() { }
     virtual protected void OnDrawGizmos()
     {
         if (g_bIsDrawGizmo == false)
@@ -410,7 +428,7 @@ abstract public class CTweenBase : CObjectBase
             DoInitTween(eTweenDirection, bReset_Progress);
 
             if (p_Event_OnStartTween_InCludeArg != null)
-                p_Event_OnStartTween_InCludeArg(eTweenDirection, gameObject);
+                p_Event_OnStartTween_InCludeArg(eTweenDirection, this);
         }
         else
         {
@@ -434,7 +452,7 @@ abstract public class CTweenBase : CObjectBase
         DoInitTween(eTweenDirection, bReset_Progress);
 
         if (p_Event_OnStartTween_InCludeArg != null)
-            p_Event_OnStartTween_InCludeArg(eTweenDirection, gameObject);
+            p_Event_OnStartTween_InCludeArg(eTweenDirection, this);
 
         while (_bIsFinishForward == _bIsFinishRevese)
         {
@@ -450,7 +468,7 @@ abstract public class CTweenBase : CObjectBase
             p_Event_OnFinishTween.Invoke();
 
         if (p_Event_OnFinishTween_InCludeArg != null)
-            p_Event_OnFinishTween_InCludeArg(eTweenDirection, gameObject);
+            p_Event_OnFinishTween_InCludeArg(eTweenDirection, this);
 
         _bIsPlayingTween = false;
     }
@@ -490,8 +508,189 @@ abstract public class CTweenBase : CObjectBase
 }
 // ========================================================================== //
 
-#region Test
 #if UNITY_EDITOR
-
+[CanEditMultipleObjects]
+[CustomEditor(typeof(CTweenBase), true)]
+#if ODIN_INSPECTOR
+public class CEditorInspector_TweenBase : Sirenix.OdinInspector.Editor.OdinEditor
+#else
+public class CEditorInspector_TweenBase : Editor
 #endif
-#endregion Test
+{
+    static List<CTweenBase> g_listTweenTestPlay = new List<CTweenBase>();
+
+    public override void OnInspectorGUI()
+    {
+        CTweenBase.g_bIsDrawGizmo = GUILayout.Toggle(CTweenBase.g_bIsDrawGizmo, "  기즈모를 그릴지");
+
+        base.OnInspectorGUI();
+        CTweenBase pTarget = target as CTweenBase;
+        pTarget.DoSetTarget(pTarget.p_pObjectTarget);
+
+        if(pTarget.Check_Editor_IsDrawButton_SetTweenData())
+            DrawButton_SetTweenData(pTarget);
+
+        EditorGUILayout.Space();
+        if (g_listTweenTestPlay.Contains(pTarget))
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("테스트 중지(이 트윈만)"))
+            {
+                g_listTweenTestPlay.Remove(pTarget);
+                pTarget.OnReleaseTween_EditorOnly();
+            }
+            if (GUILayout.Button("테스트 중지(트윈 전체)"))
+            {
+                Clear_TestPlay();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("테스트 - 순방향 (이 트윈만)"))
+            {
+                Add_TweenTestPlay(pTarget, CTweenBase.ETweenDirection.Forward);
+            }
+            if (GUILayout.Button("테스트 - 순방향 (트윈 전체)"))
+            {
+                CTweenBase[] arrComponent = pTarget.GetComponents<CTweenBase>();
+                foreach (var pTargetOther in arrComponent)
+                    Add_TweenTestPlay(pTargetOther, CTweenBase.ETweenDirection.Forward);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("테스트 - 역방향 (이 트윈만)"))
+            {
+                Add_TweenTestPlay(pTarget, CTweenBase.ETweenDirection.Reverse);
+            }
+            if (GUILayout.Button("테스트 - 역방향 (트윈 전체)"))
+            {
+                CTweenBase[] arrComponent = pTarget.GetComponents<CTweenBase>();
+                foreach (var pTargetOther in arrComponent)
+                    Add_TweenTestPlay(pTargetOther, CTweenBase.ETweenDirection.Reverse);
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+    }
+
+#if !ODIN_INSPECTOR
+    public void OnEnable()
+    {
+#else
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+#endif
+
+        EditorApplication.update -= Update;
+        EditorApplication.update += Update;
+    }
+
+#if ODIN_INSPECTOR
+    protected override void OnDisable()
+    {
+#else
+    public void OnDisable()
+    {
+#endif
+        EditorApplication.update -= Update;
+        Clear_TestPlay();
+    }
+
+
+    private void Update()
+    {
+        foreach (var pTweenTestPlay in g_listTweenTestPlay)
+        {
+            pTweenTestPlay.DoSetTweening(Time.deltaTime);
+            float fProgress_0_1 = pTweenTestPlay.p_pAnimationCurve.Evaluate(pTweenTestPlay.p_fProgress_0_1);
+
+            CTweenPosition pTweenPos = pTweenTestPlay as CTweenPosition;
+            if (pTweenPos)
+            {
+                // Editor에서 직접 해야 동작한다..
+                Vector3 vecPos = (Vector3)pTweenTestPlay.OnTween_EditorOnly(fProgress_0_1);
+                if (pTweenPos.p_bIsLocal)
+                    pTweenPos.transform.localPosition = vecPos;
+                else
+                    pTweenPos.transform.position = vecPos;
+            }
+
+            //CTweenRotation pTweenRot = pTweenTestPlay as CTweenRotation;
+            //if (pTweenRot)
+            //{
+            //    //Vector3 vecPos = (Vector3)pTweenTestPlay.OnTween_EditorOnly(pTweenTestPlay.p_fProgress_0_1);
+            //    //if (pTweenPos.p_bIsLocal)
+            //    //    pTweenPos.transform.localPosition = vecPos;
+            //    //else
+            //    //    pTweenPos.transform.position = vecPos;
+            //}
+
+            EditorUtility.SetDirty(pTweenTestPlay);
+        }
+    }
+
+    private void Add_TweenTestPlay(CTweenBase pTween, CTweenBase.ETweenDirection eDirection)
+    {
+        if (g_listTweenTestPlay.Contains(pTween) == false)
+        {
+            g_listTweenTestPlay.Add(pTween);
+            pTween.DoSetTarget(pTween.p_pObjectTarget);
+            pTween.DoInitTween(eDirection, true);
+            pTween.OnInitTween_EditorOnly();
+        }
+    }
+
+    private void Clear_TestPlay()
+    {
+        foreach (var pTweenTestPlay in g_listTweenTestPlay)
+        {
+            pTweenTestPlay.OnReleaseTween_EditorOnly();
+            EditorUtility.SetDirty(pTweenTestPlay);
+        }
+
+        g_listTweenTestPlay.Clear();
+    }
+
+    private void DrawButton_SetTweenData(CTweenBase pTarget)
+    {
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Start에 현재 값을 대입"))
+        {
+            EditorGUI.BeginChangeCheck();
+            pTarget.OnEditorButtonClick_SetStartValue_IsCurrentValue();
+            if (EditorGUI.EndChangeCheck())
+                Undo.RecordObject(target, "OnEditorButtonClick_SetStartValue_IsCurrentValue");
+        }
+        if (GUILayout.Button("Dest에 현재 값을 대입"))
+        {
+            EditorGUI.BeginChangeCheck();
+            pTarget.OnEditorButtonClick_SetDestValue_IsCurrentValue();
+            if (EditorGUI.EndChangeCheck())
+                Undo.RecordObject(target, "OnEditorButtonClick_SetDestValue_IsCurrentValue");
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("현재 값에 Start값을 대입"))
+        {
+            EditorGUI.BeginChangeCheck();
+            pTarget.OnEditorButtonClick_SetCurrentValue_IsStartValue();
+            if (EditorGUI.EndChangeCheck())
+                Undo.RecordObject(target, "OnEditorButtonClick_SetStartValue_IsCurrentValue");
+        }
+        if (GUILayout.Button("현재 값에 Dest값을 대입"))
+        {
+            EditorGUI.BeginChangeCheck();
+            pTarget.OnEditorButtonClick_SetCurrentValue_IsDestValue();
+            if (EditorGUI.EndChangeCheck())
+                Undo.RecordObject(target, "OnEditorButtonClick_SetDestValue_IsCurrentValue");
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+
+}
+#endif

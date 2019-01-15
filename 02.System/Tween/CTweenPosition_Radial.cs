@@ -173,7 +173,7 @@ public class CTweenPosition_Radial : CTweenBase
     {
         base.OnDrawGizmos();
 
-        if(bIsDebug)
+        if(CheckDebugFilter(EDebugFilter.Debug_Level_Core))
         {
             Gizmos.color = Color.green;
             for (int i = 0; i < _listChildEmpty_Managing.Count; i++)

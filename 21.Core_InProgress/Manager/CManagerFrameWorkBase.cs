@@ -104,7 +104,6 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 	// ===================================== //
 
 	static public CManagerNetworkDB_Project p_pNetworkDB { get { return CManagerNetworkDB_Project.instance; } }
-	static public SCSceneLoader<ENUM_Scene_Name> p_pManagerScene { get { return _pManagerScene; } }
 
 	static public event delDBDelgate p_Event_DB_OnRequest_Start
 	{
@@ -141,7 +140,6 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 	// private - Variable declaration        //
 	// ===================================== //
 
-	static protected SCSceneLoader<ENUM_Scene_Name> _pManagerScene;
 	static protected SCManagerParserJson _pJsonParser_Persistent;
 	static protected SCManagerParserJson _pJsonParser_StreammingAssets;
 	static public SCManagerParserJson _pJsonParser_JsonData;
@@ -447,9 +445,6 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 		_pJsonParser_StreammingAssets = SCManagerParserJson.DoMakeInstance( this, const_strLocalPath_INI, EResourcePath.StreamingAssets );
 		_pJsonParser_JsonData = SCManagerParserJson.DoMakeInstance( this, SCManagerParserJson.const_strFolderName, EResourcePath.Resources );
 
-		_pManagerScene = new SCSceneLoader<ENUM_Scene_Name>();
-		_pManagerScene.p_EVENT_OnSceneLoaded += ProcOnSceneLoaded;
-
         ProcParse_UserSetting();
 
         _iLocalDataLoadingCount_Request++;
@@ -500,7 +495,8 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 			_pJsonParser_Persistent.DoWriteJson( EINI_JSON_FileName.UserSetting, _pSetting_User );
 		}
 
-		Debug.Log( "Set Language " + eCurLanguage );
+        if(CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+    		Debug.Log( ConsoleProWrapper.ConvertLog_ToCore("Set Language " + eCurLanguage) );
 
 		CManagerUILocalize.instance.DoSet_Localize( eCurLanguage );
 		CheckLoadFinish_LocalDataAll();
@@ -510,8 +506,6 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 	{
 		if (CManagerUILocalize.instance != null)
 			CManagerUILocalize.instance.DoSetLocalize_CurrentScene();
-
-		p_pManagerScene.EventCheckIsLoadComplete();
 
 		instance.OnSceneLoaded( arg0, arg1 );
 		if (_OnFinishLoad_Scene != null && _strCallBackRequest_SceneName != null && _strCallBackRequest_SceneName.CompareTo( arg0.name ) == 0)

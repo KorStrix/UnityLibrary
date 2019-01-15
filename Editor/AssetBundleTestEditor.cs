@@ -19,7 +19,7 @@ public class AssetBundleTestEditor : CEditorWindowBase<AssetBundleTestEditor>
     [MenuItem("Tools/Strix_Tools/AssetBundleTestEditor")]
     public static void ShowWindow()
     {
-        GetWindow(typeof(AssetBundleTestEditor));
+        GetWindow<AssetBundleTestEditor>("AssetBundleTestEditor");
     }
 
     protected override void OnGUIWindowEditor()

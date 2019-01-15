@@ -38,6 +38,9 @@ public class CCharacterController2D_UserControl : CObjectBase
 
     public void DoSet_MoveIsLock(bool bLock)
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(ConsoleProWrapper.ConvertLog_ToCore(name + " SetMoveUnlock " + bLock), this);
+
         p_bMoveIsLock = bLock;
     }
 
@@ -53,10 +56,9 @@ public class CCharacterController2D_UserControl : CObjectBase
         _pCharacterController.EventOnAwake();
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
 
         if (!_bIsJump)
         {

@@ -33,6 +33,10 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
     [Rename_Inspector("Is 2D")]
     public bool p_bIs2D;
 
+    [Space(10)]
+    [Rename_Inspector("히트 어레이 Capacity")]
+    public int p_iHitArrayCapapcity = 10;
+
     public List<CRaycastHitWrapper> p_listLastHit { get; private set; }
 
     /* protected & private - Field declaration         */
@@ -41,6 +45,7 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
     List<Transform> _listTransform_EnterNew = new List<Transform>();
     List<Transform> _listTransform_ExitEnter = new List<Transform>();
 
+    List<RaycastHit2D> _listHit_2D = new List<RaycastHit2D>();
 
     RaycastHit2D[] _arrHit_2D;
     RaycastHit[] _arrHit;
@@ -103,6 +108,20 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             return Vector3.zero;
     }
 
+    public List<RaycastHit2D> DoRayCasting_2D(LayerMask pLayerMask_Hit)
+    {
+        int iLayerMask = pLayerMask_Hit.value;
+        iLayerMask = ~iLayerMask;
+
+        int iHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit_2D, Mathf.Infinity, iLayerMask);
+
+        _listHit_2D.Clear();
+        for (int i = 0; i < iHitCount; i++)
+            _listHit_2D.Add(_arrHit_2D[i]);
+
+        return _listHit_2D;
+    }
+
 
     public Vector3 DoRayCasting_MousePos_2D(LayerMask pLayerMask_Hit)
     {
@@ -133,26 +152,10 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         base.OnAwake();
 
         p_listLastHit = new List<CRaycastHitWrapper>();
-        if (p_pEventCamera == null)
-        {
-            Camera[] arrCamera = FindObjectsOfType<Camera>();
-            for (int i = 0; i < arrCamera.Length; i++)
-            {
-                if (arrCamera[i].gameObject.tag == "MainCamera")
-                {
-                    p_pEventCamera = arrCamera[i];
-                    break;
-                }
-            }
+        InitCamera();
 
-            if (p_pEventCamera == null)
-                p_pEventCamera = arrCamera[0];
-        }
-
-        if (p_bIs2D)
-            _arrHit_2D = new RaycastHit2D[10];
-        else
-            _arrHit = new RaycastHit[10];
+        _arrHit_2D = new RaycastHit2D[p_iHitArrayCapapcity];
+        _arrHit = new RaycastHit[p_iHitArrayCapapcity];
     }
 
     protected override IEnumerator OnEnableObjectCoroutine()
@@ -273,6 +276,13 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 
     private void CalculateInputEvent_OnPC()
     {
+        if (p_pEventCamera == null)
+        {
+            InitCamera();
+            if (p_pEventCamera == null)
+                return;
+        }
+
         bool bIsClick = Input.GetMouseButtonUp(0);
 
         if (p_bIs2D)
@@ -289,6 +299,9 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         for (int i = 0; i < _iLastHitCount; i++)
         {
             CRaycastHitWrapper pHit = _arrHit[i];
+            if (pHit.transform == null)
+                continue;
+
             p_listLastHit.Add(pHit);
             Transform pTransformHit = pHit.transform;
 
@@ -316,6 +329,9 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 
         for (int i = 0; i < _listTransform_EnterNew.Count; i++)
         {
+            if (_listTransform_EnterNew[i] == null)
+                continue;
+
             var pEnter = _listTransform_EnterNew[i].GetComponent<IPointerEnterHandler>();
             if (pEnter != null)
                 pEnter.OnPointerEnter(null);
@@ -335,5 +351,24 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         _listTransform_EnterAlready.AddRange(_listTransform_EnterNew);
     }
 
-#endregion Private
+    private void InitCamera()
+    {
+        if (p_pEventCamera == null)
+        {
+            Camera[] arrCamera = FindObjectsOfType<Camera>();
+            for (int i = 0; i < arrCamera.Length; i++)
+            {
+                if (arrCamera[i].gameObject.tag == "MainCamera")
+                {
+                    p_pEventCamera = arrCamera[i];
+                    break;
+                }
+            }
+
+            if (p_pEventCamera == null)
+                p_pEventCamera = arrCamera[0];
+        }
+    }
+
+    #endregion Private
 }

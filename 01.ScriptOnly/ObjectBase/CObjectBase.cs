@@ -25,10 +25,9 @@ public enum EDebugFilter
 {
     None = 0,
 
-    Log_Level_1 = 1 << 1,
-    Log_Level_2 = 1 << 2,
-    Debug_Level_1 = 1 << 5,
-    Debug_Level_2 = 1 << 6,
+    Debug_Level_LowLevel = 1 << 1,
+    Debug_Level_App = 1 << 2,
+    Debug_Level_Core = 1 << 3,
 }
 
 
@@ -37,6 +36,8 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
     [SerializeField]
     [Rename_Inspector("디버깅 필터")]
     protected EDebugFilter p_eDebugFilter = EDebugFilter.None;
+
+    public CObserverSubject<CObjectBase, GameObject, bool> p_Event_OnActivate { get; private set; } = new CObserverSubject<CObjectBase, GameObject, bool>();
 
     protected bool _bIsExcuteAwake = false;
     protected bool _bIsQuitApplciation = false;
@@ -82,6 +83,22 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
         _mapCoroutinePlaying.Clear();
     }
 
+    public void SetActive_GameObject(bool Active)
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
+            Debug.Log(name + " SetActive_GameObject : " + Active, this);
+
+        gameObject.SetActive(Active);
+    }
+
+    public void SetEnable_Script(bool bEnable)
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
+            Debug.Log(name + " SetEnable_Script : " + bEnable, this);
+
+        enabled = bEnable;
+    }
+
     // ========================== [ Division ] ========================== //
 
     void Reset()
@@ -98,7 +115,6 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
     void OnEnable()
     {
-        //Invoke("RegistUpdateObject", 1f);
         CManagerUpdateObject.instance.DoAddObject(this);
         OnEnableObject();
         if (_pCoroutineOnEnable != null)
@@ -106,6 +122,8 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
         if (gameObject.activeSelf)
             _pCoroutineOnEnable = StartCoroutine(OnEnableObjectCoroutine());
+
+        p_Event_OnActivate.DoNotify(this, gameObject, true);
     }
 
     private void RegistUpdateObject()
@@ -115,15 +133,31 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
     void OnDisable()
     {
-        CManagerUpdateObject.instance.DoRemoveObject(this);
         OnDisableObject();
+
+        p_Event_OnActivate.DoNotify(this, gameObject, false);
     }
 
-    void Start() { OnStart(); }
+    void Start()
+    {
+        OnStart();
+    }
+
+
+
+    private void OnDestroy()
+    {
+        CManagerUpdateObject.instance.DoRemoveObject(this);
+    }
 
     private void OnApplicationQuit()
     {
         _bIsQuitApplciation = true;
+    }
+
+    public bool IUpdateAble_IsRequireUpdate()
+    {
+        return this != null && gameObject.activeSelf;
     }
 
     // ========================== [ Division ] ========================== //
@@ -141,7 +175,6 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
                 StartCoroutine("OnAwakeCoroutine");
             }
         }
-
     }
 
     virtual protected void OnReset() { }
@@ -152,11 +185,10 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
     virtual protected IEnumerator OnEnableObjectCoroutine() { yield break; }
     virtual protected void OnDisableObject() { }
 
-    public void OnUpdate() { bool bIsCurrentUpdating = false; OnUpdate(ref bIsCurrentUpdating); }
     /// <summary>
     /// Unity Update와 동일한 로직입니다.
     /// </summary>
-    virtual public void OnUpdate(ref bool bIsCurrentUpdating) { }
+    virtual public void OnUpdate() { }
 
     // ========================== [ Division ] ========================== //
 
@@ -168,7 +200,12 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
 		OnAfterDelayAction();
 		_mapCoroutinePlaying.Remove( OnAfterDelayAction );
-	}    
+    }
+
+    protected bool CheckDebugFilter(EDebugFilter eDebugFilter)
+    {
+        return p_eDebugFilter.ContainEnumFlag(eDebugFilter);
+    }
 }
 
 #region Test

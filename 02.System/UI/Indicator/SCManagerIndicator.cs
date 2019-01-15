@@ -55,12 +55,12 @@ public class SCManagerIndicator : CSingletonNotMonoBase<SCManagerIndicator>
 	 
 	static public void DoInitIndicator()
 	{
-		CManagerPooling<EUIObject, CIndicator>.instance.p_EVENT_OnMakeResource += Instance_p_EVENT_OnMakeResource;
+		CManagerPooling_InResources<EUIObject, CIndicator>.instance.p_EVENT_OnMakeResource += Instance_p_EVENT_OnMakeResource;
 	}
 
 	static public void DoStartPooling( int iPoolingCount )
 	{
-		CManagerPooling<EUIObject, CIndicator>.instance.DoStartPooling( iPoolingCount );
+		CManagerPooling_InResources<EUIObject, CIndicator>.instance.DoStartPooling( iPoolingCount );
 	}
 
 	private static void Instance_p_EVENT_OnMakeResource( EUIObject arg1, CIndicator arg2 )
@@ -70,7 +70,7 @@ public class SCManagerIndicator : CSingletonNotMonoBase<SCManagerIndicator>
 
 	static public CIndicator DoPop( string strText, EUIObject eUIObject = EUIObject.Indicator_Nanum_InGame )
 	{
-		CIndicator pIndicator = CManagerPooling<EUIObject, CIndicator>.instance.DoPop( eUIObject );
+		CIndicator pIndicator = CManagerPooling_InResources<EUIObject, CIndicator>.instance.DoPop( eUIObject );
 		pIndicator.DoSetText( strText );
 
 		return pIndicator;
@@ -101,7 +101,7 @@ public class SCManagerIndicator : CSingletonNotMonoBase<SCManagerIndicator>
 
 	static private void OnPopIndciator( CIndicator pIndicator )
 	{
-		CManagerPooling<EUIObject, CIndicator>.instance.DoPush( pIndicator );
+		CManagerPooling_InResources<EUIObject, CIndicator>.instance.DoPush( pIndicator );
 	}
 
 	static private Vector3 ProcConvertPosition_World_To_UI( Transform pTransform, Vector3 vecPos )

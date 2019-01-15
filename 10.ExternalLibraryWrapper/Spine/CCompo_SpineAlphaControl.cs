@@ -81,10 +81,9 @@ public class CCompo_SpineAlphaControl : CObjectBase
 		_pSkeleton = _pAnimation.skeleton;
 	}
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
 
         if (_bExcutePlaying)
 			DoSetAlphaRenderer( fAlpha );

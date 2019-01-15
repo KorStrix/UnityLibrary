@@ -102,6 +102,13 @@ public static class ScriptableObjectUtility
 
         return pAsset;
     }
+
+    public static T CreateAsset<T>(string strPath = "Assets") where T : ScriptableObject
+    {
+        string strName = "New " + typeof(T).Name;
+        return CreateAsset<T>(strName, strPath);
+    }
+
 #endif
 
 }

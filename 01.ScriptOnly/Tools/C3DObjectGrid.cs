@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 /* ============================================ 
    Editor      : Strix                               
@@ -37,6 +38,7 @@ public class C3DObjectGrid : CObjectBase
     [Rename_Inspector("원형일 때 위치 값")]
     public Vector3 _vecPos_OnCircle;
 
+    [Space(10)]
     [Rename_Inspector("오브젝트들의 한가운데를 중앙으로 할것인지")]
     public bool p_bPivotIsCenter = false;
     [Rename_Inspector("항상 자동 정렬시킬것인지")]
@@ -53,6 +55,9 @@ public class C3DObjectGrid : CObjectBase
     /* public - [Do] Function
      * 외부 객체가 호출                         */
 
+#if ODIN_INSPECTOR
+    [Button]
+#endif
     public void DoSetGrid()
 	{
 		Vector3 vecOffset = Vector3.zero;
@@ -128,12 +133,6 @@ public class C3DObjectGrid : CObjectBase
 			//Debug.LogWarning("이 컴포넌트는 Editor 전용이기 때문에 실행시 자동으로 컴포넌트를 삭제합니다." + name, this);
 			//DestroyObject(this);
 		}
-
-		if (transform.childCount == 0)
-		{
-			Debug.LogWarning( name + " 자식이 없어서 정렬을 못합니다. 부모 오브젝트에게 붙여주세요", this );
-			return;
-		}
 	}
 
 #if UNITY_EDITOR
@@ -146,16 +145,15 @@ public class C3DObjectGrid : CObjectBase
     }
 #endif
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
-	{
-		base.OnUpdate(ref bCheckUpdateCount);
+    public override void OnUpdate()
+    {
+		base.OnUpdate();
 
         if (p_bUseUpdateSort == false)
             return;
         if (transform.childCount == 0)
             return;
 
-        bCheckUpdateCount = true;
         DoSetGrid();
 	}
 

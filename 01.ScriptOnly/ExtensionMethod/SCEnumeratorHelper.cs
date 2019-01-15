@@ -9,11 +9,6 @@ using NUnit.Framework;
    Version	   :
    ============================================ */
 
-public interface IList_DataContain<TData>
-{
-    void IList_DataContain(TData pData);
-}
-
 public interface IDictionaryItem<TKeyType>
 {
 	TKeyType IDictionaryItem_GetKey();
@@ -204,20 +199,6 @@ public static class SCEnumeratorHelper
         return arr[iRandomIndex];
     }
 
-    static public List<DataContainer> Create_ContainerList<DataContainer, Data>(this IEnumerable<Data> source )
-        where DataContainer : IList_DataContain<Data>, new()
-    {
-        List<DataContainer> listContainer = new List<DataContainer>();
-        IEnumerator<Data> pEnumerator = source.GetEnumerator();
-        while(pEnumerator.MoveNext())
-        {
-            DataContainer pNewContainer = new DataContainer();
-            pNewContainer.IList_DataContain(pEnumerator.Current);
-        }
-
-        return listContainer;
-    }
-
     static public string ToStringList<T>(this List<T> list)
     {
         string strString = "Count [";
@@ -280,6 +261,9 @@ public static class SCEnumeratorHelper
         while (pIter.MoveNext())
         {
             TSource pCurrent = pIter.Current;
+            if (pCurrent == null)
+                continue;
+
             TKey hDataID = pCurrent.IDictionaryItem_GetKey();
             if (mapDataTable.ContainsKey(hDataID))
                 Debug.LogWarning("에러, 데이터 테이블에 공통된 키값을 가진 데이터가 존재!!" + typeof(TSource) + " : " + hDataID);
@@ -298,11 +282,6 @@ public static class SCEnumeratorHelper
         where TSource : IDictionaryItem<TKey>
     {
         TKey hDataID = pAddSource.IDictionaryItem_GetKey();
-        if (mapDataTable.ContainsKey(hDataID))
-        {
-            mapDataTable.Remove(hDataID);
-        }
-
         mapDataTable.Add(hDataID, pAddSource);
     }
 

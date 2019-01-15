@@ -20,7 +20,8 @@ using Unity.Collections;
 
 public interface IUpdateAble
 {
-    void OnUpdate(ref bool bCheckUpdateCount);
+    bool IUpdateAble_IsRequireUpdate();
+    void OnUpdate();
 }
 
 public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
@@ -33,19 +34,17 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
 
     /* protected & private - Field declaration         */
 
-#if UNITY_EDITOR
 #if ODIN_INSPECTOR
-    [Sirenix.OdinInspector.ShowInInspectorAttribute]
+    [Sirenix.OdinInspector.ShowInInspector]
 #endif
     public List<IUpdateAble> _listObject_ForDebug = new List<IUpdateAble>();
 
     int _iPrevObjectCount;
 
-#endif
-
-    static private LinkedList<IUpdateAble> g_listObject = new LinkedList<IUpdateAble>();
+    static private List<IUpdateAble> g_listObject = new List<IUpdateAble>();
     static private HashSet<IUpdateAble> g_setUpdateObject = new HashSet<IUpdateAble>();
 
+    List<int> _listDestroyIndex = new List<int>();
     GameObject _pObjectManager;
 
     // ========================================================================== //
@@ -53,13 +52,18 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-    public void DoAddObject(IUpdateAble pObject)
+    public void DoAddObject(IUpdateAble pObject, bool bForceAdd = false)
     {
         if (g_setUpdateObject.Contains(pObject))
-            return;
+        {
+            if (bForceAdd)
+                g_setUpdateObject.Remove(pObject);
+            else
+                return;
+        }
 
         g_setUpdateObject.Add(pObject);
-        g_listObject.AddLast(pObject);
+        g_listObject.Add(pObject);
 
 #if UNITY_EDITOR
         _listObject_ForDebug.Add(pObject);
@@ -94,19 +98,21 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
     {
         while (true)
         {
+            _listDestroyIndex.Clear();
             int iUpdateObjectCount = 0;
-            int iLoopCount = g_listObject.Count;
-            var pNode = g_listObject.First;
-
-            while (pNode != null)
-            {
-                bool bCheckUpdate = false;
-                pNode.Value.OnUpdate(ref bCheckUpdate);
-                if (bCheckUpdate)
+            int iListCount = g_listObject.Count;
+            for (int i = 0; i < iListCount; i++)
+        {
+                IUpdateAble pUpdateAble = g_listObject[i];
+                if (pUpdateAble.IUpdateAble_IsRequireUpdate())
+                {
+                    pUpdateAble.OnUpdate();
                     ++iUpdateObjectCount;
-
-                pNode = pNode.Next;
+                }
             }
+
+            //for(int i = 0; i < _listDestroyIndex.Count; i++)
+            //    g_listObject.RemoveAt(_listDestroyIndex[i]);
 
 
 #if UNITY_EDITOR
@@ -120,6 +126,18 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
             yield return null;
         }
     }
+
+#if UNITY_EDITOR
+    protected override void OnReleaseSingleton()
+    {
+        base.OnReleaseSingleton();
+
+        g_setUpdateObject.Clear();
+        g_listObject.Clear();
+        _listObject_ForDebug.Clear();
+    }
+#endif
+
 
     /* protected - [abstract & virtual]         */
 

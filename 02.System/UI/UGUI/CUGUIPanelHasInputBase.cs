@@ -46,7 +46,7 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 
     /* private - Field declaration           */
 
-    private List<CUGUIScrollItem> _listScrollView = new List<CUGUIScrollItem>();
+    private List<CUGUIScrollItem> _listScrollItem = new List<CUGUIScrollItem>();
     private Dictionary<string, Toggle> _mapToggle;
 
     #endregion Field
@@ -88,12 +88,39 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
     }
 
     public void EventInitScrollView<Data_ScrollItem>(List<Data_ScrollItem> listDataScrollItem)
-        where Data_ScrollItem : IUGUIScrollItemData
+        where Data_ScrollItem : IScrollItem_Data
+    {
+        GetComponentsInChildren(true, _listScrollItem);
+        for (int i = 0; i < _listScrollItem.Count; i++)
+        {
+            _listScrollItem[i].EventOnAwake();
+            _listScrollItem[i].EventInitScrollItem<Enum_InputName>(OnScrollView_ClickItem);
+        }
+
+        listDataScrollItem.Sort(ComparerScrollItem);
+        for (int i = 0; i < _listScrollItem.Count && i < listDataScrollItem.Count; i++)
+            _listScrollItem[i].EventSetScrollData(listDataScrollItem[i]);
+    }
+
+    public void EventInitScrollView_CreateScrollItem<Data_ScrollItem>(GameObject pObjectScrollItemOrigin, Transform pTransformScrollItemParent, List<Data_ScrollItem> listDataScrollItem)
+    where Data_ScrollItem : IScrollItem_Data
     {
         listDataScrollItem.Sort(ComparerScrollItem);
-        for (int i = 0; i < _listScrollView.Count && i < listDataScrollItem.Count; i++)
-            _listScrollView[i].EventSetScrollData(listDataScrollItem[i]);
+        for (int i = 0; i < listDataScrollItem.Count; i++)
+        {
+            GameObject pObjectScrollItem = GameObject.Instantiate(pObjectScrollItemOrigin) as GameObject;
+            CUGUIScrollItem pScrollItme = pObjectScrollItem.GetComponent<CUGUIScrollItem>();
+            pScrollItme.EventOnAwake();
+            pScrollItme.EventInitScrollItem<Enum_InputName>(OnScrollView_ClickItem);
+            pScrollItme.EventSetScrollData(listDataScrollItem[i]);
+
+            pObjectScrollItem.transform.SetParent(pTransformScrollItemParent);
+            pObjectScrollItem.transform.DoResetTransform();
+        }
+
+        pObjectScrollItemOrigin.SetActive(false);
     }
+
 
     #endregion Public
 
@@ -109,15 +136,20 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
     protected virtual void OnInputFields_Submit(Enum_InputName eToggle, string strInput) { }
 
     virtual public void OnButtons_Press_And_Hold(Enum_InputName eButtonName, bool bPress) { }
-    virtual public void OnScrollView_ClickItem(CUGUIScrollItem pScrollItem, IUGUIScrollItemData pScrollData, Enum_InputName eButtonName) { }
     virtual public void OnDropDown_SelectItem(Enum_InputName eDropDownName, CUGUIDropDown.SDropDownData pData, string strItemText) { }
     virtual public void OnDropDown_HoverItem(Enum_InputName eDropDownName, CUGUIDropDown.SDropDownData pData, string strItemText) { }
     virtual public void OnSlider_SetValue(Enum_InputName eSliderName, float fSliderValue_0_1) { }
 
-	/* protected - [Event] Function           
+    virtual public void OnScrollView_ClickItem(CUGUIScrollItem pScrollItem, IScrollItem_Data pScrollData, Enum_InputName eButtonName)
+    {
+        if(CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(ConsoleProWrapper.ConvertLog_ToCore(pScrollItem.name + "OnScrollView_ClickItem - Data : " + pScrollData + " Button Name : " + eButtonName), pScrollItem);
+    }
+
+    /* protected - [Event] Function           
        자식 객체가 호출(For Child class call)		*/
 
-	protected void OnClick_Buttons_Wrapper( Enum_InputName eButtonName, Button pButton ) { OnButtons_Click( eButtonName ); }
+    protected void OnClick_Buttons_Wrapper( Enum_InputName eButtonName, Button pButton ) { OnButtons_Click( eButtonName ); }
 
 	/* protected - Override & Unity API         */
 
@@ -125,8 +157,11 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 	{
 		base.OnAwake();
 
-		Button[] arrButton = GetComponentsInChildren<Button>(true);
-		for (int i = 0; i < arrButton.Length; i++)
+        if (_mapButton == null)
+            _mapButton = new Dictionary<Enum_InputName, Button>();
+
+        Button[] arrButton = GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < arrButton.Length; i++)
 		{
 			Button pButton = arrButton[i];
 			string strButtonName = pButton.name;
@@ -135,8 +170,6 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 			if (strButtonName.ConvertEnum( out eButtonName ))
 			{
                 pButton.onClick.AddListener(() => { OnClick_Buttons_Wrapper(eButtonName, pButton); });
-				if (_mapButton == null)
-					_mapButton = new Dictionary<Enum_InputName, Button>();
 
 				if(_mapButton.ContainsKey(eButtonName))
 				{
@@ -144,7 +177,6 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 					Debug.LogWarning( name + "Already Button Exist B - " + strButtonName, pButton );
 					continue;
 				}
-
 				_mapButton.Add(eButtonName, pButton);
 
 				CUGUIButton_Press pButtonPress = pButton.GetComponent<CUGUIButton_Press>();
@@ -185,10 +217,6 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 				pDropDown.onValueChanged.AddListener( delegate { EventOnChangeDropDown( eDropDownName, pDropDown ); } );
 		}
 
-		GetComponentsInChildren( true, _listScrollView );
-		for (int i = 0; i < _listScrollView.Count; i++)
-			_listScrollView[i].EventInitScrollItem<Enum_InputName>( OnScrollView_ClickItem );
-
 		InputField[] arrInputField = GetComponentsInChildren<InputField>(true);
 		for (int i = 0; i < arrInputField.Length; i++)
 		{
@@ -228,10 +256,10 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
        찾기, 계산등 단순 로직(Simpe logic)         */
 
 	static private int ComparerScrollItem<Data_ScrollItem>( Data_ScrollItem pDataX, Data_ScrollItem pDataY )
-	where Data_ScrollItem : IUGUIScrollItemData
+	where Data_ScrollItem : IScrollItem_Data
 	{
-		int iSortOrderX = pDataX.IScrollData_GetSortOrder();
-		int iSortOrderY = pDataY.IScrollData_GetSortOrder();
+		int iSortOrderX = pDataX.IScrollItem_Data_Get_SortOrder_PosY();
+		int iSortOrderY = pDataY.IScrollItem_Data_Get_SortOrder_PosY();
 
 		if (iSortOrderX < iSortOrderY)
 			return -1;

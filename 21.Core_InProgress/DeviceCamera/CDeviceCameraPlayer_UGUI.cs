@@ -46,9 +46,9 @@ public class CDeviceCameraPlayer_UGUI : CObjectBase
         _pImage = GetComponent<RawImage>();
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
+        base.OnUpdate();
 
         if (_pImage.texture != null || _pCameraAccesser == null) return;
 

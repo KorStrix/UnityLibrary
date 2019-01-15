@@ -139,7 +139,7 @@ public static class PrimitiveHelper
 		return strText;
 	}
 
-	public static string CommaString( this int iValue )
+	public static string ToStringString_WithComma( this int iValue )
 	{
 		if (iValue.Equals( 0 )) return "0";
 
@@ -431,6 +431,11 @@ public static class PrimitiveHelper
         return (fCurrent * (fMax - fMin)) + fMin;
     }
 
+    static public bool Check_ABSValue_IsGreater(this float fCurrent, float fTarget)
+    {
+        return Mathf.Abs(fCurrent) > Mathf.Abs(fTarget);
+    }
+
     /// <summary>
     /// 테스트 코드 링크
     /// <see cref="PrimitiveHelper_Test.Test_Vector3Extension_InverseLerp"/>
@@ -452,9 +457,9 @@ public static class PrimitiveHelper
         int iEnumFlag = eEnumFlag.GetHashCode();
         int iEnum = eEnum.GetHashCode();
 
-        return (iEnumFlag & iEnum) == iEnum;
+        return (iEnumFlag & iEnum) != 0;
     }
-    
+
     public static bool ContainEnumFlag<T>(this T eEnumFlag, params T[] arrEnum)
         where T : struct, System.IConvertible, System.IComparable, System.IFormattable
     {
@@ -464,14 +469,30 @@ public static class PrimitiveHelper
         for (int i = 0; i < arrEnum.Length; i++)
         {
             int iEnum = arrEnum[i].GetHashCode();
-            bIsContain = (iEnumFlag & iEnum) == iEnum;
+            bIsContain = (iEnumFlag & iEnum) != 0;
             if (bIsContain)
                 break;
         }
 
         return bIsContain;
     }
+
+    public static Vector2 Get_Normal2D_To_RightDirection(this Vector2 vecNormal)
+    {
+        return Vector3.Cross(vecNormal, Vector3.forward);
+    }
+
+    public static Vector3 Get_Abs(this Vector3 vecTarget)
+    {
+        vecTarget.x = Mathf.Abs(vecTarget.x);
+        vecTarget.y = Mathf.Abs(vecTarget.y);
+        vecTarget.z = Mathf.Abs(vecTarget.z);
+
+        return vecTarget;
+    }
 }
+
+
 
 #region Test
 
@@ -535,7 +556,7 @@ public class PrimitiveHelper_Test
         for (int i = 0; i < listTest.Count; i++)
             pStrBuilder.Append(listTest[i]);
 
-        Assert.IsTrue(pStrBuilder.ToString() == iTestNum.CommaString());
+        Assert.IsTrue(pStrBuilder.ToString() == iTestNum.ToStringString_WithComma());
     }
 
     public enum ETestCase_FloatExtension
@@ -585,6 +606,27 @@ public class PrimitiveHelper_Test
         Assert.AreEqual(fTestLerp.ToString("F2"), fInverseLerp2.ToString("F2"));
 
     }
+
+    public List<int> GetSomthingList_Garbage()
+    {
+        List<int> listReturn = new List<int>();
+        // Logic..
+
+        return listReturn;
+    }
+
+    //========================================
+
+    List<int> listTemp = new List<int>();
+
+    public List<int> GetSomthingList_NoneGarbage()
+    {
+        listTemp.Clear();
+        // Logic..
+
+        return listTemp;
+    }
+
 }
 
 #endregion

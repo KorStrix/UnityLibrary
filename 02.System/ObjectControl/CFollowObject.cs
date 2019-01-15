@@ -87,13 +87,16 @@ public class CFollowObject : CObjectBase
         _fRemainShakePow = fShakePow;
     }
 
+#if ODIN_INSPECTOR
+    [Sirenix.OdinInspector.Button]
     public void DoInitTarget(Transform pTarget)
     {
         _pTransTarget = pTarget;
 		DoResetFollowOffset();
 	}
+#endif
 
-	public void DoResetFollowOffset()
+    public void DoResetFollowOffset()
 	{
 		if (_pTransTarget == null) return;
 
@@ -143,13 +146,12 @@ public class CFollowObject : CObjectBase
 		}
 	}
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
+        base.OnUpdate();
 
         if (p_eFollowMode == EFollowMode.Update)
         {
-            bCheckUpdateCount = true;
             DoUpdateFollow();
         }
     }

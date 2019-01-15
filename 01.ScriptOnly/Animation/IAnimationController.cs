@@ -28,19 +28,26 @@ public interface IAnimationController
 {
     event OnCallBackAnimation p_Event_OnAnimationEvent;
 
-    void DoSeekAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, float fProgress_0_1);
 
     void DoPlayAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
         where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
 
-    void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(System.Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName);
+    void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(System.Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName)
+        where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
 
     bool DoPlayAnimation_Loop<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName)
         where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
 
+    void DoPlayAnimation_ForceChange_OnSameAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
+        where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
+
+
+    void DoSeekAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, float fProgress_0_1);
+
     void DoStopAnimation();
 
     void DoResetAnimationEvent();
+
 
     bool DoCheckIsPlaying<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName)
         where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
@@ -48,4 +55,5 @@ public interface IAnimationController
     void DoSetAnimationSpeed(float fSpeed);
 
     string GetCurrentAnimation();
+
 }

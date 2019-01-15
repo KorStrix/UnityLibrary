@@ -10,25 +10,25 @@ public class CEditorWindowFindMissingScripts : EditorWindow
     [MenuItem("Tools/Strix_Tools/FindMissingScripts")]
     public static void ShowWindow()
     {
-        EditorWindow.GetWindow(typeof(CEditorWindowFindMissingScripts));
+        GetWindow<CEditorWindowFindMissingScripts>("MissingScripts Finder");
     }
 
     public void OnGUI()
     {
-        if (GUILayout.Button("Find Missing Scripts in selected GameObjects"))
+        if (GUILayout.Button("Find Missing Scripts in All Object"))
         {
             FindInSelected();
         }
     }
     private static void FindInSelected()
     {
-        GameObject[] go = Selection.gameObjects;
+        Transform[] arrTransform = FindObjectsOfType<Transform>();
         go_count = 0;
         components_count = 0;
         missing_count = 0;
-        foreach (GameObject g in go)
+        foreach (Transform pTransform in arrTransform)
         {
-            FindInGO(g);
+            FindInGO(pTransform.gameObject);
         }
         Debug.Log(string.Format("Searched {0} GameObjects, {1} components, found {2} missing", go_count, components_count, missing_count));
     }

@@ -18,7 +18,7 @@ public class CStreammingAssetGetter
 {
     public delegate void OnGetStreamingResource(string strPath_With_Extension, WWW pWWW, bool bResult, object pParam);
 
-    Dictionary<string, WWW> _mapResourceCashing = new Dictionary<string, WWW>();
+    static Dictionary<string, WWW> _mapResourceCashing = new Dictionary<string, WWW>();
     StringBuilder _pStrBuilder = new StringBuilder();
 
     MonoBehaviour _pCoroutineExcuter;

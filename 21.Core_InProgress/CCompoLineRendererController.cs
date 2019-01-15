@@ -69,10 +69,9 @@ public class CCompoLineRendererController : CObjectBase
         }
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
 
         for (int i = segmentCount - 1; i > 0; i--)
         {

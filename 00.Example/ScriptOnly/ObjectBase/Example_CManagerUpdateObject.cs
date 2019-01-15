@@ -21,20 +21,27 @@ public class Test_UpdateAbleObject : MonoBehaviour, IUpdateAble
         CManagerUpdateObject.instance.DoAddObject(this);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         CManagerUpdateObject.instance.DoRemoveObject(this);
     }
 
-    public void OnUpdate(ref bool bCheckUpdateCount)
+    public void OnUpdate()
     {
-        bCheckUpdateCount = true;
         pManagerObject.TestCase(this);
+    }
+
+    public bool IUpdateAble_IsRequireUpdate()
+    {
+        return gameObject.activeSelf;
     }
 }
 
 public class Example_CManagerUpdateObject : MonoBehaviour
 {
+    List<GameObject> _listMonobehaviour = new List<GameObject>();
+    List<GameObject> _listUpdateAble = new List<GameObject>();
+
     public bool bPrintLog = true;
     public int iTestObjectCount = 1000;
 
@@ -57,11 +64,33 @@ public class Example_CManagerUpdateObject : MonoBehaviour
             GameObject pObject_Mono = new GameObject(strObjectName_MonoUpdate + "_" + (i + 1));
             pObject_Mono.AddComponent<Test_Mono_Update>().pManagerObject = this;
             pObject_Mono.transform.SetParent(transform);
-
+            _listMonobehaviour.Add(pObject_Mono);
 
             GameObject pObject_IUpdateAble = new GameObject(strObjectName_IUpdateAble + "_" + (i + 1));
             pObject_IUpdateAble.AddComponent<Test_UpdateAbleObject>().pManagerObject = this;
             pObject_IUpdateAble.transform.SetParent(transform);
+            _listUpdateAble.Add(pObject_IUpdateAble);
+        }
+
+        StartCoroutine(CoUpdate_Enable_DisableTest());
+    }
+
+    IEnumerator CoUpdate_Enable_DisableTest()
+    {
+        bool bEnable = false;
+        while(true)
+        {
+            yield return new WaitForSeconds(1f);
+
+            for (int i = 0; i < _listMonobehaviour.Count; i++)
+                _listMonobehaviour[i].SetActive(bEnable);
+
+            yield return new WaitForSeconds(1f);
+
+            for (int i = 0; i < _listUpdateAble.Count; i++)
+                _listUpdateAble[i].SetActive(bEnable);
+
+            bEnable = !bEnable;
         }
     }
 }

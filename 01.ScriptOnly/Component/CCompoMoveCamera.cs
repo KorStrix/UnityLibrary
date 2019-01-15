@@ -34,10 +34,9 @@ public class CCompoMoveCamera : CObjectBase
         _pCam = GetComponent<Camera>();
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
         base.OnUpdate();
-        bCheckUpdateCount = true;
 
         int iTouchCount = 0;// UICamera.CountInputSources();
         if (iTouchCount == 0)

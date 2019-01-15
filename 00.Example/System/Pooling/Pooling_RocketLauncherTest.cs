@@ -9,7 +9,7 @@ public class Pooling_RocketLauncherTest : MonoBehaviour {
 
     void Start()
     {
-        CManagerPooling<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoInitPoolingObject("PoolingTest_Rocket");
+        CManagerPooling_InResources<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoInitPoolingObject("PoolingTest_Rocket");
     }
 
     // Update is called once per frame
@@ -18,13 +18,13 @@ public class Pooling_RocketLauncherTest : MonoBehaviour {
 
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
-			Pooling_RocketTest pRocket = CManagerPooling<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoPop(Pooling_RocketTest.ProjectileModel.Blue);
+			Pooling_RocketTest pRocket = CManagerPooling_InResources<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoPop(Pooling_RocketTest.ProjectileModel.Blue);
 			pRocket.DoInitRocket(_pTransMuzzle, 10);
 		}
 
 		if (Input.GetKeyDown(KeyCode.Alpha2))
 		{
-			Pooling_RocketTest pRocket = CManagerPooling<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoPop(Pooling_RocketTest.ProjectileModel.Red);
+			Pooling_RocketTest pRocket = CManagerPooling_InResources<Pooling_RocketTest.ProjectileModel, Pooling_RocketTest>.instance.DoPop(Pooling_RocketTest.ProjectileModel.Red);
 			pRocket.DoInitRocket(_pTransMuzzle, 20);
 		}
 	}

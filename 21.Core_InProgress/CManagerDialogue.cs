@@ -167,11 +167,11 @@ public class CManagerDialogue : CSingletonNotMonoBase<CManagerDialogue>
         }
     }
 
-	/* protected - Override & Unity API         */
+    /* protected - Override & Unity API         */
 
-	protected override void OnMakeSingleton()
-	{
-		base.OnMakeSingleton();
+    protected override void OnMakeSingleton(out bool bIsGenearteGameObject)
+    {
+        base.OnMakeSingleton(out bIsGenearteGameObject);
 
 		SCManagerParserJson pManagerParser = SCManagerParserJson.DoMakeInstance( null, const_strResourcesJsonDataPath, EResourcePath.Resources );
 		pManagerParser.DoReadJson_And_InitEnumerator( const_strResourcesFileName, ref _mapDataTable_Dialogue );

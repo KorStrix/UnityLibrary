@@ -83,11 +83,10 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 
 		public void DoHide(bool bAnimationPlay = true)
 		{
-			_bIsShowCurrent = false;
 			if (_pPanel.gameObject.activeSelf == false) return;
 
             StopAnimationCoroutine();
-            _pCoroutine_HideAnimation = _pPanel.StartCoroutine( CoProcHidePanel( true ) );
+            _pCoroutine_HideAnimation = _pPanel.StartCoroutine( CoProcHidePanel(bAnimationPlay) );
 		}
 
 		public void DoHide_IgnoreAnimation()
@@ -119,7 +118,7 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 			_pPanel.gameObject.SetActive( bActive );
 		}
 
-
+        // ==========================================================================================
 
 		protected IEnumerator CoProcShowPanel( int iSortOrder )
 		{
@@ -156,6 +155,7 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 				_OnFinishAnimation = null;
 			}
 
+            _bIsShowCurrent = false;
             _pPanel.IUIPanel_OnHide();
             _pPanel.gameObject.SetActive( false );
 		}

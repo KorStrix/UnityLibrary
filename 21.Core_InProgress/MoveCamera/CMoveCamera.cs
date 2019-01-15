@@ -190,10 +190,9 @@ public class CMoveCamera : CObjectBase
 
     /* protected - Override & Unity API         */
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
-	{
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
 
         // 드래깅 끝났을때 자동 스크롤
         float fSqrMagnitudeAutoDrag = _v3LastDragVelocity.sqrMagnitude;

@@ -37,8 +37,8 @@ public class CEditorWindow_SpriteEditor : CEditorWindowBase<CEditorWindow_Sprite
 	[MenuItem( "Tools/Strix_Tools/Multiple Sprite Editor" )]
 	public static void ShowWindow()
 	{
-		GetWindow( typeof( CEditorWindow_SpriteEditor ) );
-	}
+		GetWindow< CEditorWindow_SpriteEditor>("SpriteEditor");
+    }
 
 	protected override void OnGUIWindowEditor()
 	{

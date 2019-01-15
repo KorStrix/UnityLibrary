@@ -51,8 +51,8 @@ public class CCompo_OnMoveChangeTrigger : CObjectBase
             Vector3 vecCurrentPos = transform.position;
             if (vecCurrentPos.Equals(_vecPosPrev) == false)
             {
-                if (p_eDebugFilter.ContainEnumFlag(EDebugFilter.Log_Level_1) || p_eDebugFilter.ContainEnumFlag(EDebugFilter.Log_Level_2))
-                    Debug.Log(name + " Excute Trigger", this);
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+                    Debug.Log(name + ConsoleProWrapper.ConvertLog_ToCore(name + " Excute Trigger "), this);
 
                 p_listEvent.Invoke();
             }

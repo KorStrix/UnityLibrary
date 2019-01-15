@@ -184,7 +184,7 @@ public class GetComponentInParentAttribute : GetComponentAttributeBase
 
 static public class SCManagerGetComponent
 {
-    static public Component GetComponentInChildren(this Component pTarget, string strObjectName, System.Type pComponentType, bool bInclude_DeActive)
+    static public Component GetComponentInChildren_SameName(this Component pTarget, string strObjectName, System.Type pComponentType, bool bInclude_DeActive)
     {
         Component[] arrComponentFind = null;
         if (pComponentType == typeof(GameObject))
@@ -200,6 +200,24 @@ static public class SCManagerGetComponent
         }
 
         return null;
+    }
+
+    static public List<Component> GetComponentInChildrenList_SameName(this Component pTarget, string strObjectName, System.Type pComponentType, bool bInclude_DeActive)
+    {
+        Component[] arrComponentFind = null;
+        if (pComponentType == typeof(GameObject))
+            arrComponentFind = pTarget.transform.GetComponentsInChildren(typeof(Transform), true);
+        else
+            arrComponentFind = pTarget.transform.GetComponentsInChildren(pComponentType, bInclude_DeActive);
+
+        List<Component> listReturn = new List<Component>();
+        for (int i = 0; i < arrComponentFind.Length; i++)
+        {
+            if (arrComponentFind[i].name.Equals(strObjectName))
+                listReturn.Add(arrComponentFind[i]);
+        }
+
+        return listReturn;
     }
 
     static public void DoUpdateGetComponentAttribute(MonoBehaviour pTarget)
@@ -249,29 +267,31 @@ static public class SCManagerGetComponent
                 System.Type pTypeField = pMemberInfo.MemberType();
                 object pComponent = null;
 
-                if (pTypeField.IsArray)
+                if (pGetcomponentAttribute is GetComponentAttribute)
                 {
-                    pComponent = pGetcomponentAttribute.GetComponent(pTargetMono, pTypeField.GetElementType());
-                }
-                else if (pTypeField.IsGenericType)
-                {
-                    pComponent = ProcUpdateComponent_Generic(pTargetMono, pMemberInfo, (GetComponentInChildrenAttribute)pGetcomponentAttribute, pTypeField);
-                }
-                else
-                {
-                    if (pGetcomponentAttribute is GetComponentAttribute)
+                    if (pTypeField.IsArray)
+                        pComponent = pGetcomponentAttribute.GetComponent(pTargetMono, pTypeField.GetElementType());
+                    else
                         pComponent = pTargetMono.GetComponent(pTypeField);
-                    else if (pGetcomponentAttribute is GetComponentInChildrenAttribute)
+                }
+                else if (pGetcomponentAttribute is GetComponentInChildrenAttribute)
+                {
+                    GetComponentInChildrenAttribute pAttributeInChildren = (GetComponentInChildrenAttribute)pGetcomponentAttribute;
+
+                    if (pTypeField.IsGenericType)
+                        pComponent = ProcUpdateComponent_Generic(pTargetMono, pMemberInfo, pAttributeInChildren, pTypeField);
+                    else if (pTypeField.IsArray)
+                        pComponent = pGetcomponentAttribute.GetComponent(pTargetMono, pTypeField.GetElementType());
+                    else
                     {
-                        GetComponentInChildrenAttribute pAttributeInChildren = (GetComponentInChildrenAttribute)pGetcomponentAttribute;
                         if (pAttributeInChildren.bSearch_By_ComponentName)
-                            pComponent = pTargetMono.GetComponentInChildren(pAttributeInChildren.strComponentName, pTypeField, pAttributeInChildren.bInclude_DeActive);
+                            pComponent = pTargetMono.GetComponentInChildren_SameName(pAttributeInChildren.strComponentName, pTypeField, pAttributeInChildren.bInclude_DeActive);
                         else
                             pComponent = pTargetMono.GetComponentInChildren(pTypeField, pAttributeInChildren.bInclude_DeActive);
                     }
-                    else if (pGetcomponentAttribute is GetComponentInParentAttribute)
-                        pComponent = pTargetMono.GetComponentInParent(pTypeField);
                 }
+                else if (pGetcomponentAttribute is GetComponentInParentAttribute)
+                    pComponent = pTargetMono.GetComponentInParent(pTypeField);
 
                 if (pComponent == null && pGetcomponentAttribute.bIsPrint_OnNotFound)
                 {
@@ -303,9 +323,26 @@ static public class SCManagerGetComponent
         if (pTypeField_Generic == typeof(List<>))
         {
             // List의 경우 GetComponentsInChildren 을 통해 Array를 얻은 뒤
-            pComponent = pGetComponentAttribute.GetComponent(pTargetMono, arrArgumentsType[0]);
-            // List 생성자에 Array를 집어넣는다.
-            pMember.SetValue_Extension(pTargetMono, System.Activator.CreateInstance(pTypeField, pComponent));
+            if (pGetComponentAttribute.bSearch_By_ComponentName)
+            {
+                var pInstanceList = System.Activator.CreateInstance(pTypeField);
+
+                var Method_Add = pTypeField.GetMethod("Add", new[] {
+                                arrArgumentsType[0] });
+
+                // 이함수를 통해 얻어올 경우 List<T>가 아니라 List<Component> 라서 일일이 Add로 추가해야 한다.
+                List<Component> listComponent = pTargetMono.GetComponentInChildrenList_SameName(pGetComponentAttribute.strComponentName, arrArgumentsType[0], pGetComponentAttribute.bInclude_DeActive);
+                for(int i = 0; i < listComponent.Count; i++)
+                    Method_Add.Invoke(pInstanceList, new object[] { listComponent[i] });
+
+                pMember.SetValue_Extension(pTargetMono, pInstanceList);
+            }
+            else
+            {
+                pComponent = pGetComponentAttribute.GetComponent(pTargetMono, arrArgumentsType[0]);
+                // List 생성자에 Array를 집어넣는다.
+                pMember.SetValue_Extension(pTargetMono, System.Activator.CreateInstance(pTypeField, pComponent));
+            }
         }
         else if (pTypeField_Generic == typeof(Dictionary<,>))
         {
@@ -328,7 +365,6 @@ static public class SCManagerGetComponent
         var Method_Add = pTypeField.GetMethod("Add", new[] {
                                 pType_DictionaryKey, pType_DictionaryValue });
 
-        // Reflection의 메소드는 Instance에서만 호출할수 있다.
         var pInstanceDictionary = System.Activator.CreateInstance(pTypeField);
         bool bIsDerived_DictionaryItem = false;
         Type[] arrInterfaces = pType_DictionaryValue.GetInterfaces();
@@ -347,9 +383,17 @@ static public class SCManagerGetComponent
             for (int i = 0; i < arrComponent.Length; i++)
             {
                 UnityEngine.Object pComponentChild = arrComponent.GetValue(i) as UnityEngine.Object;
-                Method_Add.Invoke(pInstanceDictionary, new object[] {
+
+                try
+                {
+                    Method_Add.Invoke(pInstanceDictionary, new object[] {
                                 pComponentChild.name,
                                 pComponentChild });
+                }
+                catch
+                {
+                    Debug.LogError(pComponentChild.name + " Get Compeont Overlap Key Error ");
+                }
             }
 
         }

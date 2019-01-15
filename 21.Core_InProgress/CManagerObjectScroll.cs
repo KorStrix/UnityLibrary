@@ -59,7 +59,7 @@ public class CManagerObjectScroll : CObjectBase
 
 	static public void DoClearPoolingObject()
 	{
-		CManagerPooling<string, CScrollObject>.instance.DoPushAll();
+		CManagerPooling_InResources<string, CScrollObject>.instance.DoPushAll();
 	}
 
 	public void DoResetScroll()
@@ -73,7 +73,7 @@ public class CManagerObjectScroll : CObjectBase
 		IEnumerator<CScrollObject> pEnumerator = _listScrollObject_Instance.GetEnumerator();
 		while(pEnumerator.MoveNext())
 		{
-			CManagerPooling<string, CScrollObject>.instance.DoPush( pEnumerator.Current );
+			CManagerPooling_InResources<string, CScrollObject>.instance.DoPush( pEnumerator.Current );
 		}
 		_listScrollObject_Instance.Clear();
 
@@ -95,7 +95,7 @@ public class CManagerObjectScroll : CObjectBase
 		if (fTargetPos + _fCameraWidth > (_pScrollObject_Last.transform.position.x - _fObjectWidth_Last) / 2f)
 		{
 			//Debug.Log( name + _pScrollObject_Last  + "Clear" );
-			CManagerPooling<string, CScrollObject>.instance.DoPush( _pScrollObject_Last );
+			CManagerPooling_InResources<string, CScrollObject>.instance.DoPush( _pScrollObject_Last );
 		}
 		//Debug.Log( name + " fTargetPos + _fCameraWidth : " + (fTargetPos + _fCameraWidth).ToString() + "[>] _pScrollObject_Last.p_vecPos.x - _fObjectWidth_Last : " + (_pScrollObject_Last.p_vecPos.x - _fObjectWidth_Last) );
 	}
@@ -148,8 +148,8 @@ public class CManagerObjectScroll : CObjectBase
 		//int iInstanceID = GetInstanceID();
 		//CManagerRandomTable<CScrollObject>.instance[iInstanceID].DoClearRandomItemTable();
 		//CManagerRandomTable<CScrollObject>.instance[iInstanceID].DoAddRandomItem_Range( _listScrollObject_Origin );
-		CManagerPooling<string, CScrollObject>.instance.DoInitPoolingObject( listObject );
-		CManagerPooling<string, CScrollObject>.instance.DoStartPooling( p_iPoolingCount );
+		CManagerPooling_InResources<string, CScrollObject>.instance.DoInitPoolingObject( listObject );
+		CManagerPooling_InResources<string, CScrollObject>.instance.DoStartPooling( p_iPoolingCount );
 
 		for (int i = 0; i < _listScrollObject_Origin.Count; i++)
 			_listScrollObject_Origin[i].SetActive( false );
@@ -167,10 +167,9 @@ public class CManagerObjectScroll : CObjectBase
 		DoResetScroll();
 	}
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
-	{
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
 
         if (p_pTransTarget == null) return;
 
@@ -231,7 +230,7 @@ public class CManagerObjectScroll : CObjectBase
 
 	private void ProcPlacement_ScrollObject( CScrollObject pObjectRandom )
 	{
-		CScrollObject pObjectRandomNew = CManagerPooling<string, CScrollObject>.instance.DoPop( pObjectRandom.p_strName );
+		CScrollObject pObjectRandomNew = CManagerPooling_InResources<string, CScrollObject>.instance.DoPop( pObjectRandom.p_strName );
 		pObjectRandomNew.transform.SetParent( transform );
 
 		Vector3 vecPos = pObjectRandom.transform.position;
@@ -256,7 +255,7 @@ public class CManagerObjectScroll : CObjectBase
 	{
 		// Debug.Log( "ProcDisable_ScrollObject : " + _pScrollObject_Old.name, _pScrollObject_Old );
 		
-		CManagerPooling<string, CScrollObject>.instance.DoPush( _pScrollObject_Old );
+		CManagerPooling_InResources<string, CScrollObject>.instance.DoPush( _pScrollObject_Old );
 		_listScrollObject_Instance.RemoveFirst();
 
 		ProcUpdate_ScrollObject_Old();

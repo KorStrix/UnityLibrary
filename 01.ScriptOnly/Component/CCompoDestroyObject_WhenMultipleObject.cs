@@ -70,7 +70,7 @@ public class CCompoDestroyObject_WhenMultipleObject : CObjectBase
 			if (g_mapSingleton[name] == this)
 				g_mapSingleton.Remove( name );
 		}
-	}
+    }
 
 	#endregion Protected
 

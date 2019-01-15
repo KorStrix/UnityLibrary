@@ -14,11 +14,11 @@ using System;
    Version	   :
    ============================================ */
 
-public class WaitForAnimationAll : CustomYieldInstruction
+public class WaitFor_SpineAnimationAll : CustomYieldInstruction
 {
     CSpineController _pController;
 
-    public WaitForAnimationAll(CSpineController pController)
+    public WaitFor_SpineAnimationAll(CSpineController pController)
     {
         _pController = pController;
     }
@@ -33,14 +33,14 @@ public class WaitForAnimationAll : CustomYieldInstruction
 }
 
 
-public class WaitForAnimation : CustomYieldInstruction
+public class WaitFor_SpineAnimation : CustomYieldInstruction
 {
     string _strAnimation_Started;
     CSpineController _pController;
     bool _bWaitForAnimation;
     float _fTimeFinish;
 
-    public WaitForAnimation(CSpineController pController)
+    public WaitFor_SpineAnimation(CSpineController pController)
     {
         _pController = pController;
         if (_pController.p_bIsPlaying)
@@ -49,11 +49,13 @@ public class WaitForAnimation : CustomYieldInstruction
             _strAnimation_Started = _pController.p_strCurrentAnimationName;
             _pController.p_pAnimation.state.Interrupt += State_Interrupt;
             _pController.p_pAnimation.state.Complete += State_Complete;
+
             _fTimeFinish = Time.time + _pController.p_fAnimationStartTime + Time.deltaTime;
         }
         else
             _bWaitForAnimation = false;
     }
+
 
     private void State_Interrupt(TrackEntry trackEntry)
     {
@@ -73,6 +75,9 @@ public class WaitForAnimation : CustomYieldInstruction
     {
         get
         {
+            if (string.IsNullOrEmpty(_strAnimation_Started) || string.IsNullOrEmpty(_pController.p_strCurrentAnimationName))
+                return false;
+
             if (_strAnimation_Started != _pController.p_strCurrentAnimationName)
                 return false;
 
@@ -94,12 +99,11 @@ public class CSpineController : CObjectBase, IAnimationController
     /* enum & struct declaration                */
 
     /* public - Variable declaration            */
-    
+
     public event OnCallBackAnimation p_Event_OnAnimationEvent;
     public event OnCallBackAnimation p_Event_OnAnimation_Start;
     public event OnFinishAnimation p_Event_OnAnimation_Finish;
 
-    public bool p_bIsDebug;
     public string p_strCurrentAnimationName { get { return p_pAnimation.AnimationName; } }
 
     [Rename_Inspector("애니메이션 이벤트 이름 출력")]
@@ -145,7 +149,7 @@ public class CSpineController : CObjectBase, IAnimationController
 
     public void DoSet_TimeScale(float fTimeScale)
     {
-        if(p_pAnimation != null)
+        if (p_pAnimation != null)
             p_pAnimation.timeScale = fTimeScale;
     }
 
@@ -153,9 +157,9 @@ public class CSpineController : CObjectBase, IAnimationController
     {
         string strAnimName = eAnimName.ToString();
         bool bSuccess = _pSkeletonData.FindAnimation(strAnimName) != null;
-        if(bSuccess)
+        if (bSuccess)
             _queueAnimationWait.Enqueue(strAnimName);
-        
+
         return bSuccess;
     }
 
@@ -173,17 +177,18 @@ public class CSpineController : CObjectBase, IAnimationController
         bool bSuccess = _pSkeletonData.FindAnimation(strAnimName) != null;
         if (bSuccess)
         {
+            p_pAnimation.loop = false;
             p_pAnimation.AnimationName = "";
             p_pAnimation.AnimationName = strAnimName;
             TrackEntry pTrackEntry = p_pAnimation.state.GetCurrent(0);
             pTrackEntry.TrackTime = pTrackEntry.AnimationEnd * fProgress_0_1;
 
-            if (p_bPrintAnimationName)
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                 Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " " + name + " Seek Animation Name : " + strAnimName, this);
         }
         else
         {
-            if (p_bIsDebug)
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                 Debug.LogError(name + " Spine - NotFoundAnimation - " + strAnimName, this);
         }
     }
@@ -194,13 +199,13 @@ public class CSpineController : CObjectBase, IAnimationController
     /// <typeparam name="ENUM_ANIM_NAME"></typeparam>
     /// <param name="eAnimName"></param>
     /// <returns></returns>
-    public bool DoPlayAnimation<ENUM_ANIMATION_NAME>( ENUM_ANIMATION_NAME eAnimName )
-	{
+    public bool DoPlayAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName)
+    {
         if (_pSkeletonData == null || eAnimName == null)
             return false;
 
-		string strAnimName = eAnimName.ToString();
-		bool bSuccess = _pSkeletonData.FindAnimation( strAnimName ) != null;
+        string strAnimName = eAnimName.ToString();
+        bool bSuccess = _pSkeletonData.FindAnimation(strAnimName) != null;
         if (bSuccess)
         {
             p_pAnimation.loop = false;
@@ -224,57 +229,57 @@ public class CSpineController : CObjectBase, IAnimationController
         }
         else
         {
-            if (p_bIsDebug)
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                 Debug.LogError(Time.realtimeSinceStartup.ToString("F2") + name + " Spine - NotFoundAnimation - " + strAnimName, this);
         }
         p_bIsLooping = false;
 
         return bSuccess;
-	}
+    }
 
     public void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(System.Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName)
+        where ENUM_ANIMATION_NAME : IConvertible, IComparable
     {
         DoPlayAnimation(arrAnimName[0]);
 
-        for(int i = 1; i < arrAnimName.Length; i++)
+        for (int i = 1; i < arrAnimName.Length; i++)
             DoAddQueue_AnimationContinuedly(arrAnimName[i]);
 
         _OnFinishAnimation_Continudly = OnFinishAnimationAll;
     }
 
-    public void DoPlayAnimation_ForceChange_OnSameAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName)
+    public void DoPlayAnimation_ForceChange_OnSameAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
+        where ENUM_ANIMATION_NAME : IConvertible, IComparable
     {
         p_pAnimation.AnimationName = "";
-        DoPlayAnimation(eAnimName);
+        DoPlayAnimation(eAnimName, OnFinishAnimation);
     }
 
-	public void DoPlayAnimation<ENUM_ANIM_NAME>( ENUM_ANIM_NAME eAnimName, OnFinishAnimation OnFinishAnimation )
-			where ENUM_ANIM_NAME : System.IConvertible, System.IComparable
-	{
-		bool bSuccess = DoPlayAnimation( eAnimName );
-		if(bSuccess)
+    public void DoPlayAnimation<ENUM_ANIM_NAME>(ENUM_ANIM_NAME eAnimName, OnFinishAnimation OnFinishAnimation)
+            where ENUM_ANIM_NAME : System.IConvertible, System.IComparable
+    {
+        bool bSuccess = DoPlayAnimation(eAnimName);
+        if (bSuccess)
         {
-            if(p_bIsDebug)
-            {
-                Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " " + name + " Play Spine Animation Name : " + p_pAnimation.state.GetCurrent(0).Animation.Name + " Set Finish Animation " + OnFinishAnimation.Method.Name + " Current Animation : " + p_pAnimation.state.GetCurrent(0).Animation.Name, this);
-            }
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+                Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " " + name + " Play Spine Animation Name : " + p_pAnimation.state.GetCurrent(0).Animation.Name + " Current Animation : " + p_pAnimation.state.GetCurrent(0).Animation.Name, this);
 
             Add_OnFinishAnimation(eAnimName.ToString(), OnFinishAnimation);
-		}
-	}
-	
-	public bool DoPlayAnimation_Loop<ENUM_ANIM_NAME>( ENUM_ANIM_NAME eAnimName )
-		where ENUM_ANIM_NAME : System.IConvertible, System.IComparable
-	{
-        if(eAnimName == null)
+        }
+    }
+
+    public bool DoPlayAnimation_Loop<ENUM_ANIM_NAME>(ENUM_ANIM_NAME eAnimName)
+        where ENUM_ANIM_NAME : System.IConvertible, System.IComparable
+    {
+        if (eAnimName == null)
         {
             Debug.LogError(name + "DoPlayAnimation_Loop Animation Name is Null", this);
             return false;
         }
 
-		string strAnimName = eAnimName.ToString();
+        string strAnimName = eAnimName.ToString();
 
-		if(_pSkeletonData == null)
+        if (_pSkeletonData == null)
         {
             EventOnAwake();
             if (_pSkeletonData == null)
@@ -312,26 +317,26 @@ public class CSpineController : CObjectBase, IAnimationController
         return bSuccess;
     }
 
-    public bool DoCheckIsPlaying<ENUM_ANIMATION_NAME>( ENUM_ANIMATION_NAME eAnimName )
-		where ENUM_ANIMATION_NAME : IConvertible, IComparable
-	{
+    public bool DoCheckIsPlaying<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName)
+        where ENUM_ANIMATION_NAME : IConvertible, IComparable
+    {
         if (eAnimName == null)
             return false;
 
-		return p_pAnimation.AnimationName == eAnimName.ToString();
-	}
+        return p_pAnimation.AnimationName == eAnimName.ToString();
+    }
 
 
-	public void DoSetOrderInLayer(int iOrder)
-	{
-		MeshRenderer pRenderer = p_pAnimation.GetComponent<MeshRenderer>();
-		pRenderer.sortingOrder = iOrder;
-	}
+    public void DoSetOrderInLayer(int iOrder)
+    {
+        MeshRenderer pRenderer = p_pAnimation.GetComponent<MeshRenderer>();
+        pRenderer.sortingOrder = iOrder;
+    }
 
-	public void DoResetAnimationEvent()
-	{
-		p_Event_OnAnimationEvent = null;
-	}
+    public void DoResetAnimationEvent()
+    {
+        p_Event_OnAnimationEvent = null;
+    }
 
     public void DoStopAnimation()
     {
@@ -362,20 +367,20 @@ public class CSpineController : CObjectBase, IAnimationController
     /* protected - Override & Unity API         */
 
     protected override void OnAwake()
-	{
-		base.OnAwake();
+    {
+        base.OnAwake();
 
-		if (p_pAnimation.SkeletonDataAsset == null)
-		{
-			Debug.LogWarning( name + "스켈레톤 데이터 에셋이 없다", this );
-			return;
-		}
+        if (p_pAnimation.SkeletonDataAsset == null)
+        {
+            Debug.LogWarning(name + "스켈레톤 데이터 에셋이 없다", this);
+            return;
+        }
 
         p_pAnimation.Initialize(false);
         _pSkeletonData = p_pAnimation.SkeletonDataAsset.GetSkeletonData(false);
-		// _pSkeleton = p_pAnimation.skeleton;
-	}
-    
+        // _pSkeleton = p_pAnimation.skeleton;
+    }
+
     // ========================================================================== //
 
     /* private - [Proc] Function             
@@ -391,9 +396,9 @@ public class CSpineController : CObjectBase, IAnimationController
             Debug.Log(name + " Animation Event Name : " + strKeyName, this);
     }
 
-    private void OnFinish_AnimationState( TrackEntry trackEntry )
-	{
-        if (p_bIsDebug)
+    private void OnFinish_AnimationState(TrackEntry trackEntry)
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
             Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " " + name + " State_End - Animation : " + trackEntry.Animation.Name + " Current Animation : " + p_pAnimation.state.GetCurrent(0).Animation.Name);
 
         if (trackEntry.Animation.Name != p_pAnimation.state.GetCurrent(0).Animation.Name)
@@ -409,7 +414,7 @@ public class CSpineController : CObjectBase, IAnimationController
         {
             if (_OnFinishAnimation_Continudly != null)
             {
-                if (p_bIsDebug)
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                     Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " " + name + " State_End - Animation : " + trackEntry.Animation.Name + " Current OnFinish Animation : " + _OnFinishAnimation_Continudly.Method.Name + " Current Animation : " + p_pAnimation.state.GetCurrent(0).Animation.Name);
 
                 var OnFinishAnimationBackup = _OnFinishAnimation_Continudly;
@@ -444,7 +449,7 @@ public class CSpineController : CObjectBase, IAnimationController
 
     private void Add_OnFinishAnimation(string strAnimationName, OnFinishAnimation OnFinishAnimation)
     {
-        if(OnFinishAnimation != null)
+        if (OnFinishAnimation != null)
         {
             if (_mapOnFinishAnimation.ContainsKey(strAnimationName))
                 _mapOnFinishAnimation[strAnimationName] = OnFinishAnimation;

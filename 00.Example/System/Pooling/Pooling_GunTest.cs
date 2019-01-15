@@ -6,12 +6,12 @@ public class Pooling_GunTest : MonoBehaviour {
 
 	[SerializeField]
 	private Transform _pTransMuzzle = null;
-	private CManagerPooling<Pooling_BulletTest.ProjectileModel, Pooling_BulletTest> _pManagerPool_Bullet;
+	private CManagerPooling_InResources<Pooling_BulletTest.ProjectileModel, Pooling_BulletTest> _pManagerPool_Bullet;
 
 	// Use this for initialization
 	void Start()
 	{
-		_pManagerPool_Bullet = CManagerPooling<Pooling_BulletTest.ProjectileModel, Pooling_BulletTest>.instance;
+		_pManagerPool_Bullet = CManagerPooling_InResources<Pooling_BulletTest.ProjectileModel, Pooling_BulletTest>.instance;
         _pManagerPool_Bullet.DoInitPoolingObject("PoolingTest_Bullet");
 
         _pManagerPool_Bullet.p_EVENT_OnMakeResource += _pManagerPool_Bullet_p_EVENT_OnMakeResource;

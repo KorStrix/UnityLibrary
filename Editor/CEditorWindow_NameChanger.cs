@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
    Edit Log    : 
    ============================================ */
 
-public class CEditorWindow_NameChanger : EditorWindow
+public class CEditorWindow_NameChanger : ScriptableWizard
 {
 	public enum ENameChangeType
 	{
@@ -69,10 +69,10 @@ public class CEditorWindow_NameChanger : EditorWindow
 	/* public - [Do] Function
      * 외부 객체가 호출                         */
 
-	[MenuItem("Tools/Strix_Tools/NameChanger")]
+	[MenuItem("Test/NameChanger", false, 9999)]
 	public static void ShowWindow()
 	{
-		GetWindow(typeof(CEditorWindow_NameChanger), true, "NameChanger");
+		GetWindow<CEditorWindow_NameChanger>("NameChanger");
 	}
 
 	/* public - [Event] Function             
@@ -373,7 +373,7 @@ public class CEditorWindow_NameChanger : EditorWindow
 		else if (iSiblingIndexX > iSiblingIndexY)
 			return 1;
 		else
-			return 0;
+            return Comparer_GameObject(pObjectX.transform.parent.gameObject, pObjectY.transform.parent.gameObject);
     }
 
 	private int Comparer_Object( Object pObjectX, Object pObjectY )

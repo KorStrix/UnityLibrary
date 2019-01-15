@@ -23,9 +23,12 @@ public class CTweenPosition : CTweenBase
 
     /* public - Field declaration            */
 
+    [Rename_Inspector("트윈 시작 위치")]
     public Vector3 p_vecPosStart;
+    [Rename_Inspector("트윈 도착 위치")]
     public Vector3 p_vecPosDest;
 
+    [Rename_Inspector("Local Position으로 할지")]
     public bool p_bIsLocal;
 
     /* protected & private - Field declaration         */

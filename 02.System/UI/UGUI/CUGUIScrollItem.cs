@@ -18,10 +18,9 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public interface IUGUIScrollItemData
+public interface IScrollItem_Data
 {
-	void IScrollData_Update( CUGUIScrollItem pScrollItem );
-	int IScrollData_GetSortOrder();
+	int IScrollItem_Data_Get_SortOrder_PosY();
 }
 
 public class CUGUIScrollItem : CUIObjectBase
@@ -38,7 +37,7 @@ public class CUGUIScrollItem : CUIObjectBase
 
 	/* private - Field declaration           */
 
-	private IUGUIScrollItemData _pScrollData;
+	protected IScrollItem_Data _pScrollData { get; private set; }
 
 	#endregion Field
 
@@ -52,50 +51,51 @@ public class CUGUIScrollItem : CUIObjectBase
 	/* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/
 
-	public void EventSetScrollData( IUGUIScrollItemData pScrollData)
+	public void EventSetScrollData( IScrollItem_Data pScrollData)
 	{
 		_pScrollData = pScrollData;
-		_pScrollData.IScrollData_Update(this);
-	}
+        OnEventSetScrollData(_pScrollData);
 
-	public void EventInitScrollItem<Enum_ButtonName>( System.Action<CUGUIScrollItem, IUGUIScrollItemData, Enum_ButtonName> OnClick_ScrollItemButton)
+    }
+
+	public void EventInitScrollItem<Enum_ButtonName>( System.Action<CUGUIScrollItem, IScrollItem_Data, Enum_ButtonName> OnClick_ScrollItemButton)
 	{
 		Button[] arrButton = GetComponentsInChildren<Button>();
 		for (int i = 0; i < arrButton.Length; i++)
 		{
 			Button pButton = arrButton[i];
-			pButton.onClick.RemoveAllListeners();
-
 			Enum_ButtonName eButtonName;
 			if (pButton.name.ConvertEnum( out eButtonName ))
-				pButton.onClick.AddListener( delegate { OnClick_ScrollItemButton( this, _pScrollData, eButtonName ); } );
-		}
+                pButton.onClick.AddListener(delegate { OnClick_ScrollItemButton(this, _pScrollData, eButtonName); });
+        }
 	}
 
-	#endregion Public
+    #endregion Public
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	#region Protected
+    #region Protected
 
-	/* protected - [abstract & virtual]         */
+    /* protected - [abstract & virtual]         */
 
-	/* protected - [Event] Function           
+    virtual protected void OnEventSetScrollData(IScrollItem_Data pScrollData) { }
+
+    /* protected - [Event] Function           
        자식 객체가 호출(For Child class call)		*/
 
-	/* protected - Override & Unity API         */
+    /* protected - Override & Unity API         */
 
-	#endregion Protected
+    #endregion Protected
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	#region Private
+    #region Private
 
-	/* private - [Proc] Function             
+    /* private - [Proc] Function             
        로직을 처리(Process Local logic)           */
 
-	/* private - Other[Find, Calculate] Func 
+    /* private - Other[Find, Calculate] Func 
        찾기, 계산등 단순 로직(Simpe logic)         */
 
-	#endregion Private
+    #endregion Private
 }

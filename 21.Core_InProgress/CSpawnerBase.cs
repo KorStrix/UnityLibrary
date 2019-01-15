@@ -66,7 +66,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 
 	/* private - Variable declaration           */
 
-	private CManagerPooling<Enum_Key, Class_Resource> _pManagerPool;
+	private CManagerPooling_InResources<Enum_Key, Class_Resource> _pManagerPool;
 	private System.Func<IEnumerator> _pPattern;
 	private System.Action _OnFinishPattern;
 
@@ -130,7 +130,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 	{
 		base.OnAwake();
 
-		_pManagerPool = CManagerPooling<Enum_Key, Class_Resource>.instance;
+		_pManagerPool = CManagerPooling_InResources<Enum_Key, Class_Resource>.instance;
 	}
 	
 	protected override void OnEnableObject()

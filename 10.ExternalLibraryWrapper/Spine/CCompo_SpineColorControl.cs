@@ -80,10 +80,8 @@ public class CCompo_SpineColorControl : CObjectBase
 	}
 
 #if UNITY_EDITOR
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    private void Update()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-
         if (p_bEditUpdate)
             DoSetColor(p_pColorEdit);
     }

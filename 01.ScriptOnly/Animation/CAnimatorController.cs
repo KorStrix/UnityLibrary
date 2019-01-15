@@ -26,8 +26,6 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	public string strDefaultAnimation;
 	public bool bDefaultIsLoop = true;
 
-    public bool p_bIsDebuging = false;
-
 	public event OnCallBackAnimation p_Event_OnAnimationEvent;
 
 	private OnFinishAnimation _OnFinishAnimation;
@@ -210,11 +208,20 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	}
 
     public void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName)
+        where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable
     {
     }
 
     public void DoSeekAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, float fProgress_0_1)
     {
+    }
+
+
+
+    public void DoPlayAnimation_ForceChange_OnSameAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
+        where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable
+    {
+        DoPlayAnimation(eAnimName, OnFinishAnimation);
     }
 
     public string GetCurrentAnimation()
@@ -240,8 +247,8 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	{
 		if (gameObject.activeInHierarchy == false)
 		{
-            if (p_eDebugFilter.ContainEnumFlag(EDebugFilter.Debug_Level_1) || p_eDebugFilter.ContainEnumFlag(EDebugFilter.Debug_Level_2))
-    			Debug.LogWarning( name + " ProcPlayAnim - gameObject.activeInHierarchy == false", this );
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+    			Debug.LogWarning(ConsoleProWrapper.ConvertLog_ToCore(name + " ProcPlayAnim - gameObject.activeInHierarchy == false"), this);
 
 			return;
 		}
@@ -253,7 +260,7 @@ public class CAnimatorController : CObjectBase, IAnimationController
 		}
 		
 		_strCurrentAnimName = eAnimName.ToString();
-        if (p_bIsDebuging)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
             Debug.Log(name + " Play Animation : " + _strCurrentAnimName, this);
 
         if (_pAnimator.enabled == false)
@@ -305,7 +312,7 @@ public class CAnimatorController : CObjectBase, IAnimationController
 			// 에러인 경우
 			if (bFindAnimation == false)
 			{
-                if (p_bIsDebuging)
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                     Debug.LogError("Error! bFindAnimation == false _strCurrentAnimName : " + _strCurrentAnimName);
 
                 //OnFinishAnimation();

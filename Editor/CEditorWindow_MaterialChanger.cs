@@ -34,8 +34,8 @@ public class CEditorWindow_MaterialChanger : CEditorWindowBase<CEditorWindow_Mat
 	[MenuItem("Tools/Strix_Tools/MaterialChanger")]
 	public static void ShowWindow()
 	{
-		GetWindow(typeof(CEditorWindow_MaterialChanger));
-	}
+		GetWindow<CEditorWindow_MaterialChanger>("MaterialChanger");
+    }
 
 	/* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/

@@ -352,10 +352,9 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
         }
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
-        base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+        base.OnUpdate();
 
         Update_RecieveMessageQueue();
     }

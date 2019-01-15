@@ -14,6 +14,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
+// 인스펙터 노출을 위한 오브젝트
 public class CSOAttacher : MonoBehaviour
 {
     static public bool g_bIsQuit { get; private set; }
@@ -56,6 +57,13 @@ abstract public class CSingletonSOBase<T> : ScriptableObject
         }
     }
 
+    void OnDestroy()
+    {
+        OnReleaseSingleton();
+        _pInstance = null;
+    }
+
     protected virtual void OnGenerate_SingletonInstance() { }
     protected virtual void OnGenerate_SingletonGameObject() { }
+    protected virtual void OnReleaseSingleton() { }
 }

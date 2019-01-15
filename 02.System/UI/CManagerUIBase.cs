@@ -72,6 +72,21 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
     }
 
     /// <summary>
+    /// 주의) Panel의 Hide Animation 이벤트가 호출되지 않습니다.
+    /// </summary>
+    /// <param name="bAlwaysShowHide"></param>
+    public void DoHideAllPanel(params ENUM_Panel_Name[] arrPanelName_IgnoreHide_IfShow)
+    {
+        List<CUIPanelData> listPanelDataAll = _mapPanelData.Values.ToList();
+        for (int i = 0; i < listPanelDataAll.Count; i++)
+        {
+            CUIPanelData pUIPanelData = listPanelDataAll[i];
+            if (arrPanelName_IgnoreHide_IfShow.Contains(pUIPanelData.p_ePanelName) == false)
+                pUIPanelData.SetActive(false);
+        }
+    }
+
+    /// <summary>
     /// 지정된 Panel을 열거나 끕니다.
     /// </summary>
     /// <param name="ePanel">Panel 이름의 Enum</param>
@@ -87,6 +102,9 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 
         if (bShow)
         {
+            if (pPanel.p_bIsShowCurrent)
+                return pPanel.p_pPanel;
+
             int iSortOrder = 0;
             if (pPanel.p_pPanel.p_bIsFixedSortOrder == false)
                 iSortOrder = CaculateSortOrder_Top();
@@ -116,6 +134,36 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
             _Stack_OpendPanel.Push(pPanel.p_pPanel);
 
         pPanel.SetActive(bShow);
+
+        return pPanel.p_pPanel;
+    }
+
+    /// <summary>
+    /// 지정된 Panel가 열려있으면 끄고, 꺼져있으면 켭니다.
+    /// </summary>
+    /// <param name="ePanel">Panel 이름의 Enum</param>
+    /// <param name="bShow"></param>
+    public CLASS_Panel DoShowHide_Panel_Toggle(ENUM_Panel_Name ePanel)
+    {
+        CUIPanelData pPanel = _mapPanelData[ePanel];
+        if (pPanel == null)
+        {
+            Debug.LogWarning(ePanel + "이 없습니다.. 하이어라키를 확인해주세요");
+            return null;
+        }
+
+        bool bShow = !pPanel.p_bIsShowCurrent;
+        if (bShow)
+        {
+            int iSortOrder = 0;
+            if (pPanel.p_pPanel.p_bIsFixedSortOrder == false)
+                iSortOrder = CaculateSortOrder_Top();
+
+            _Stack_OpendPanel.Push(pPanel.p_pPanel);
+            pPanel.DoShow(iSortOrder);
+        }
+        else
+            pPanel.DoHide();
 
         return pPanel.p_pPanel;
     }
@@ -291,7 +339,9 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
         base.OnAwake();
 
         InitUIPanelInstance();
-        p_pUICamera = GetComponentInChildren<Camera>();
+        p_pUICamera = GetComponentInParent<Camera>();
+        if (p_pUICamera == null)
+            p_pUICamera = GetComponentInChildren<Camera>();
     }
 
     protected override void OnEnableObject()

@@ -29,7 +29,7 @@ public class Pooling_BulletTest : MonoBehaviour {
 
 	void OnDisable()
 	{
-		CManagerPooling<ProjectileModel, Pooling_BulletTest>.instance.DoPush(this);
+		CManagerPooling_InResources<ProjectileModel, Pooling_BulletTest>.instance.DoPush(this);
 	}
 
 	private void DisableObject()

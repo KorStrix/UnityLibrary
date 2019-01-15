@@ -111,10 +111,9 @@ abstract public class CFSMBase<FSM, ENUM_STATE, STATE> : CObjectBase
             DoStartState(_eStateDefault, EStateInsertType.Change);
     }
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
+    public override void OnUpdate()
     {
         base.OnUpdate();
-        bCheckUpdateCount = true;
 
         if (_pStateCurrent != null)
             _pStateCurrent.EventStateUpdate();

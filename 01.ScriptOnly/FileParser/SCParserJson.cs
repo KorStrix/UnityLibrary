@@ -106,6 +106,8 @@ public class SCParserJson : CSingletonNotMonoBase<SCParserJson>
         where T : class, new()
     {
         bool bSuccess = true;
+        sData = new T();
+
         try
         {
             string strText = "";
@@ -114,9 +116,41 @@ public class SCParserJson : CSingletonNotMonoBase<SCParserJson>
             if (System.IO.File.Exists(strFilePath))
                 strText = System.IO.File.ReadAllText(strFilePath);
 
-            sData = JsonUtility.FromJson<T>(strText);
+            JsonUtility.FromJsonOverwrite(strText, sData);
         }
-        catch { sData = null; bSuccess = false; }
+        catch (System.Exception e)
+        {
+            sData = null; bSuccess = false;
+            Debug.LogError("경고 Json Write 에러 파일이름 : " + strFileName + " 에러 : " + e);
+        }
+
+        if (sData == null)
+            bSuccess = false;
+
+        return bSuccess;
+    }
+
+    static public bool DoReadJson_SO<T>(string strFolderPath, string strFileName, out T sData)
+    where T : ScriptableObject
+    {
+        bool bSuccess = true;
+        sData = ScriptableObject.CreateInstance<T>();
+
+        try
+        {
+            string strText = "";
+            strFolderPath = Application.persistentDataPath + "/" + strFolderPath;
+            string strFilePath = ExtractFilePath(strFileName, strFolderPath);
+            if (System.IO.File.Exists(strFilePath))
+                strText = System.IO.File.ReadAllText(strFilePath);
+
+            JsonUtility.FromJsonOverwrite(strText, sData);
+        }
+        catch (System.Exception e)
+        {
+            sData = null; bSuccess = false;
+            Debug.LogError("경고 Json Write 에러 파일이름 : " + strFileName + " 에러 : " + e);
+        }
 
         if (sData == null)
             bSuccess = false;

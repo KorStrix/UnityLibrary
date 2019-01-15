@@ -39,7 +39,7 @@ public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> : CObjectBase
                 {
 #if UNITY_EDITOR
                     if(Application.isPlaying == false)
-                        return new CLASS_SingletoneTarget();
+                        return new CLASS_SingletoneTarget(); // Exception 방지를 위한 코드, 어차피 Editor에서 PlayMode -> EditMode로 돌아가는 과정이라 App 성능에 영향가지 않는다.
 #endif
 
                     _instance = FindObjectOfType<CLASS_SingletoneTarget>();
@@ -88,9 +88,9 @@ public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> : CObjectBase
 		_pTransManager.DoResetTransform();
 	}
 
-	// ========================== [ Division ] ========================== //
+    // ========================== [ Division ] ========================== //
 
-	virtual protected void OnReleaseSingleton() { }
+    virtual protected void OnReleaseSingleton() { }
 
 	// ========================== [ Division ] ========================== //
     

@@ -87,10 +87,9 @@ public class CCompoEventTouch : CObjectBase
 
     /* protected - Override & Unity API         */
 
-    public override void OnUpdate(ref bool bCheckUpdateCount)
-	{
-		base.OnUpdate(ref bCheckUpdateCount);
-        bCheckUpdateCount = true;
+    public override void OnUpdate()
+    {
+		base.OnUpdate();
 
         int iTouchCount = 0;
 

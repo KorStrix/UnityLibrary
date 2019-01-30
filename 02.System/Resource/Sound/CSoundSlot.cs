@@ -243,7 +243,7 @@ public class CSoundSlot : CObjectBase
             _pAudioSource.volume = Mathf.Lerp(_pAudioSource.volume, fDestVolume, fFadeProgress);
             fFadeProgress += 0.1f;
 
-            yield return SCManagerYield.GetWaitForSecond(0.1f);
+            yield return YieldManager.GetWaitForSecond(0.1f);
         }
 
         if(bFadeOut)
@@ -278,7 +278,7 @@ public class CSoundSlot : CObjectBase
             while (fPlayingSec < _pAudioClip.length)
 			{
 				name = string.Format("{0} Time[ {1}s / {2}s ] Volume[ {3} ] {4}", _strOriginName, fPlayingSec, iAudioLength, _pAudioSource.volume, strAudioName);
-                yield return new WaitForSecondsRealtime( 1f );
+                yield return YieldManager.GetWaitForSecondRealTime( 1f );
                 yield return new CYield_IsWaitingSoundSlot();
                 fPlayingSec += 1f;
 			}
@@ -292,7 +292,7 @@ public class CSoundSlot : CObjectBase
 		{
             _pAudioSource.Play();
             yield return new CYield_IsWaitingSoundSlot();
-            yield return new WaitForSecondsRealtime(_pAudioClip.length);
+            yield return YieldManager.GetWaitForSecondRealtime(_pAudioClip.length);
         } while (_bLoopSound);
 
 #endif

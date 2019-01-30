@@ -39,10 +39,10 @@ public class ScriptableObjectTest : ScriptableObject
     public string strTest;
 }
 
-public class 스크립테이블오브젝트_테스트
+public class ScriptableObject_Test
 {
     [Test]
-    public void Json파싱테스트()
+    public void JsonParsing_Test()
     {
         ScriptableObjectTest pObjectTest = ScriptableObjectTest.CreateInstance<ScriptableObjectTest>();
         pObjectTest.iTest = 1;

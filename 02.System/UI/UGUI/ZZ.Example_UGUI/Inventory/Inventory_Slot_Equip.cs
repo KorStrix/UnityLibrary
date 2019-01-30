@@ -66,7 +66,7 @@ public class Inventory_Slot_Equip : CUGUIInventorySlot<Inventory_Slot_Equip, Inv
 	{
 		base.OnAwake();
 
-		_pGoImage_Icon = this.GetGameObject( EImage.Image_Icon );
+		_pGoImage_Icon = this.GetGameObject_InChildren( EImage.Image_Icon );
 		//_pGoImage_Slot = GetGameObject( EImage.Image_Slot );
 		//_pGoImage_Rune = GetGameObject( EImage.Image_Rune );
 	}

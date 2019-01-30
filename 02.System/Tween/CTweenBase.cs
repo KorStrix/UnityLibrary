@@ -444,9 +444,9 @@ abstract public class CTweenBase : CObjectBase
         if (p_fFirstDelaySec != 0f)
         {
             if (p_bIgnoreTimeScale)
-                yield return new WaitForSecondsRealtime(p_fFirstDelaySec);
+                yield return YieldManager.GetWaitForSecondRealTime(p_fFirstDelaySec);
             else
-                yield return new WaitForSeconds(p_fFirstDelaySec);
+                yield return YieldManager.GetWaitForSecond(p_fFirstDelaySec);
         }
 
         DoInitTween(eTweenDirection, bReset_Progress);
@@ -476,12 +476,12 @@ abstract public class CTweenBase : CObjectBase
     // 이렇게 하면 안된다..
     //public WaitForSeconds_Custom OnCreate_YieldForSecond()
     //{
-    //    return new WaitForSeconds_Custom(Time.deltaTime);
+    //    return YieldManager.GetWaitForSecond_Custom(Time.deltaTime);
     //}
 
     //public WaitForSecondsRealtime OnCreate_YieldForSecond_Real()
     //{
-    //    return new WaitForSecondsRealtime(Time.unscaledDeltaTime);
+    //    return YieldManager.GetWaitForSecondRealtime(Time.unscaledDeltaTime);
     //}
 
     public void OnCreate_YieldForSecond(out CustomYieldInstruction pReturn)

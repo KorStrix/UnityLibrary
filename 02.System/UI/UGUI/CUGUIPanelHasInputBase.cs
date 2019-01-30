@@ -275,7 +275,7 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 #if UNITY_EDITOR
 
 [Category("StrixLibrary")]
-public class UGUI_인풋패널_테스트 : CUGUIPanelHasInputBase<UGUI_인풋패널_테스트.EInput>
+public class UGUI_Panel_Test : CUGUIPanelBase, IUIObject_HasButton<UGUI_Panel_Test.EInput>
 {
     public enum EInput
     {
@@ -284,10 +284,10 @@ public class UGUI_인풋패널_테스트 : CUGUIPanelHasInputBase<UGUI_인풋패
     static EInput eLastInput;
 
     [UnityTest]
-    public IEnumerator 인풋입력테스트()
+    public IEnumerator UGUIPanel_HasButtonTest()
     {
         EventSystem.current = new GameObject().AddComponent<EventSystem>();
-        UGUI_인풋패널_테스트 pTestPanel = new GameObject().AddComponent<UGUI_인풋패널_테스트>();
+        UGUI_Panel_Test pTestPanel = new GameObject().AddComponent<UGUI_Panel_Test>();
         Button pButtonTest = new GameObject(EInput.Button_Test.ToString()).AddComponent<Button>();
         Button pButtonTest2 = new GameObject(EInput.Button_Test2.ToString()).AddComponent<Button>();
 
@@ -307,7 +307,10 @@ public class UGUI_인풋패널_테스트 : CUGUIPanelHasInputBase<UGUI_인풋패
         yield break;
     }
 
-    public override void OnButtons_Click(EInput eButtonName) { eLastInput = eButtonName; }
+    public void IUIObject_HasButton_OnClickButton(EInput eButtonName)
+    {
+        eLastInput = eButtonName;
+    }
 }
 #endif
 #endregion

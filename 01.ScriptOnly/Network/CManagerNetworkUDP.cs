@@ -10,7 +10,7 @@
  *	패킷 생성은 하단 링크의 구조체 마샬링 부분과 Test 코드 참조
  *	https://docs.microsoft.com/ko-kr/dotnet/framework/interop/marshaling-classes-structures-and-unions
    ============================================ */
-/// <see cref="네트워크_UDP_테스트.SPacketTest_Struct">
+/// <see cref="Network_UDP_Test.SPacketTest_Struct">
 
 #endregion Header
 
@@ -195,23 +195,27 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
 
     public Dictionary<string, Class_SessionDerived> p_mapNetworkSession { get; protected set; }
 
+    public float p_fTimeOutSecond { get { return _fTimeOutSecond; } }
+    public float p_fTimeDeleteSession { get { return _fTimeDeleteSession; } }
+
+
     /* protected & private - Field declaration         */
 
-    protected Dictionary<string, CircularBuffer<byte>> _mapRecvBuffer = new Dictionary<string, CircularBuffer<byte>>();
+    protected Dictionary<string, CCircularBuffer<byte>> _mapRecvBuffer = new Dictionary<string, CCircularBuffer<byte>>();
     //protected Dictionary<string, Queue<byte>> _mapRecvBuffer = new Dictionary<string, Queue<byte>>();
 
     List<Class_SessionDerived> _listSessionTemp = new List<Class_SessionDerived>();
     public List<CNetworkSession.ReliablePacketWrapper> _listReliablePacketTemp = new List<CNetworkSession.ReliablePacketWrapper>();
     Queue<InnerThread_To_ThreadMessage> _pQueueRecieveThreadMessage = new Queue<InnerThread_To_ThreadMessage>();
 
-    CircularBuffer<byte> _pBufferSend = new CircularBuffer<byte>(1024);
+    CCircularBuffer<byte> _pBufferSend = new CCircularBuffer<byte>(1024);
     UdpClient _pClientUDP_Recv;
     UdpClient _pClientUDP_Send = new UdpClient();
 
     Thread _ThreadReceive;
 
     float _fTimeOutSecond;
-    float _fTimeDeleteSessionSecond;
+    float _fTimeDeleteSession;
     int _iPacketHeaderSize = SCByteHelper.SizeOf<Packet_Header>();
 
     // ========================================================================== //
@@ -315,7 +319,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
         base.OnAwake();
 
         p_mapNetworkSession = new Dictionary<string, Class_SessionDerived>();
-        OnInitManager(out _fTimeOutSecond, out _fTimeDeleteSessionSecond);
+        OnInitManager(out _fTimeOutSecond, out _fTimeDeleteSession);
     }
 
     protected override IEnumerator OnEnableObjectCoroutine()
@@ -324,7 +328,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
 
         while(true)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return YieldManager.GetWaitForSecondRealTime(0.1f);
 
             Check_SessionConnection();
         }
@@ -348,7 +352,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
                 }
             }
 
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return YieldManager.GetWaitForSecondRealTime(0.1f);
         }
     }
 
@@ -457,7 +461,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
         foreach (var pSession in p_mapNetworkSession.Values)
         {
             float fSecondGap = pSession.GetLastConnectionTimeGap_Second(ref pDateTimeNow);
-            if (fSecondGap > _fTimeDeleteSessionSecond)
+            if (fSecondGap > _fTimeDeleteSession)
             {
                 _listSessionTemp.Add(pSession);
                 pSession.DoChangeConnectionState(ENetworkConnectionState.연결끊김);
@@ -485,7 +489,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
         string strIP = pIP.Address.ToString();
 
         if (_mapRecvBuffer.ContainsKey(strIP) == false)
-            _mapRecvBuffer.Add(strIP, new CircularBuffer<byte>(10240));
+            _mapRecvBuffer.Add(strIP, new CCircularBuffer<byte>(10240));
 
         //if (_mapRecvBuffer.ContainsKey(strIP) == false)
         //    _mapRecvBuffer.Add(strIP, new Queue<byte>(10240));
@@ -592,7 +596,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
 #region Test
 #if UNITY_EDITOR
 
-public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UDP_테스트, 네트워크_UDP_테스트.STestSession, 네트워크_UDP_테스트.SPacketHeader>
+public class Network_UDP_Test : CManagerNetworkUDPBase<Network_UDP_Test, Network_UDP_Test.STestSession, Network_UDP_Test.SPacketHeader>
 {
     const string const_strPacketHeaderCheck = "패킷헤더체크";
 
@@ -685,7 +689,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
     [UnityTest]
     [Category("StrixLibrary")]
-    public IEnumerator 구조체에서_바이트변환_다시_구조체로변환_테스트()
+    public IEnumerator Convert_Struct_To_Byte_To_Struct_Test()
     {
         SPacketTest_Struct pPacket1 = new SPacketTest_Struct(1, "테스트Test123!@#");
         SPacketTest_Struct pPacket2 = new SPacketTest_Struct();
@@ -709,13 +713,13 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
     [UnityTest]
     [Category("StrixLibrary")]
-    public IEnumerator 로컬_UDP송수신_기본테스트()
+    public IEnumerator LocalUDP_Test()
     {
         pPacketCheckRecieve = SPacketTest_Struct.Dummy();
         Assert.AreEqual(pPacketCheckRecieve, SPacketTest_Struct.Dummy());
 
-        네트워크_UDP_테스트.EventMakeSingleton();
-        네트워크_UDP_테스트.instance.DoStartListen_UDP(iTestPort);
+        Network_UDP_Test.EventMakeSingleton();
+        Network_UDP_Test.instance.DoStartListen_UDP(iTestPort);
 
         bIsRecievePacket_OnFail = false;
         SPacketTest_Struct pSendPacket = new SPacketTest_Struct(1, "보냈다");
@@ -724,7 +728,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
         Assert.AreNotEqual(pPacketCheckRecieve.iValue, pSendPacket.iValue);
         Assert.AreNotEqual(pPacketCheckRecieve.strValue, pSendPacket.strValue);
 
-        네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
+        Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
         while (bIsRecievePacket_OnFail == false)
         {
             yield return null;
@@ -737,23 +741,23 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
     [UnityTest]
     [Category("StrixLibrary")]
-    public IEnumerator 로컬_UDP송수신_세션연결및_해제_테스트()
+    public IEnumerator Local_UDP_Connect_Session_Test()
     {
-        네트워크_UDP_테스트.EventMakeSingleton(true);
-        네트워크_UDP_테스트.instance.DoStartListen_UDP(iTestPort);
+        Network_UDP_Test.EventMakeSingleton(true);
+        Network_UDP_Test.instance.DoStartListen_UDP(iTestPort);
 
         // 세션이 하나도 없어야 한다.
-        while (네트워크_UDP_테스트.instance.p_mapNetworkSession.Count != 0)
+        while (Network_UDP_Test.instance.p_mapNetworkSession.Count != 0)
         {
-            yield return new WaitForSeconds(.1f);
+            yield return YieldManager.GetWaitForSecond(.1f);
         }
-        Assert.IsTrue(네트워크_UDP_테스트.instance.p_mapNetworkSession.Count == 0, 네트워크_UDP_테스트.instance.p_mapNetworkSession.ToString());
+        Assert.IsTrue(Network_UDP_Test.instance.p_mapNetworkSession.Count == 0, Network_UDP_Test.instance.p_mapNetworkSession.ToString());
 
         SPacketTest_Class pSendPacket = new SPacketTest_Class(2, "보냈다");
-        네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
+        Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
 
-        yield return new WaitForSeconds(.05f);
-        STestSession pSession = 네트워크_UDP_테스트.instance.p_mapNetworkSession.Values.First();
+        yield return YieldManager.GetWaitForSecond(.05f);
+        STestSession pSession = Network_UDP_Test.instance.p_mapNetworkSession.Values.First();
 
         DateTime pDateTime = DateTime.Now;
         float fSecond = pSession.GetLastConnectionTimeGap_Second(ref pDateTime);
@@ -762,15 +766,15 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
         Assert.IsTrue(pSession.p_eConnectionState == ENetworkConnectionState.새로접속 || pSession.p_eConnectionState == ENetworkConnectionState.연결중, pSession.p_eConnectionState.ToString());
 
         // 타임아웃보다 조금 더 기다린다.
-        yield return new WaitForSeconds(0.35f);
+        yield return YieldManager.GetWaitForSecond(p_fTimeOutSecond + 0.5f);
 
         pDateTime = DateTime.Now;
         fSecond = pSession.GetLastConnectionTimeGap_Second(ref pDateTime);
-        Assert.IsTrue(pSession.p_eConnectionState == ENetworkConnectionState.연결잠시끊김, pSession.p_eConnectionState.ToString() + "Last Connection Second : " + fSecond);
+        Assert.IsTrue(pSession.p_eConnectionState == ENetworkConnectionState.연결잠시끊김, pSession.p_eConnectionState.ToString() + " Last Connection Second : " + fSecond);
 
         // 타임아웃에서 연결종료시간보다 조금 더 기다린다.
-        yield return new WaitForSeconds(0.35f);
-        Assert.IsTrue(pSession.p_eConnectionState == ENetworkConnectionState.연결끊김);
+        yield return YieldManager.GetWaitForSecond(p_fTimeDeleteSession - p_fTimeOutSecond + 0.5f);
+        Assert.IsTrue(pSession.p_eConnectionState == ENetworkConnectionState.연결끊김, pSession.p_eConnectionState.ToString() + " Last Connection Second : " + fSecond);
     }
 
 
@@ -825,26 +829,26 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
     [UnityTest]
     [Category("StrixLibrary")]
-    public IEnumerator 로컬_UDP송수신_릴라이어블패킷_테스트()
+    public IEnumerator Local_UDP_ReliablePacket_Test()
     {
-        네트워크_UDP_테스트.EventMakeSingleton();
-        네트워크_UDP_테스트.instance.DoStartListen_UDP(iTestPort);
+        Network_UDP_Test.EventMakeSingleton();
+        Network_UDP_Test.instance.DoStartListen_UDP(iTestPort);
 
         iReliableRecvCount = 0;
         bIsRecievePacket_OnFail = false;
         SPacketTest_ReliableSend pSendPacket = new SPacketTest_ReliableSend();
-        네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
+        Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, pSendPacket);
 
-        yield return new WaitForSeconds(0.1f);
+        yield return YieldManager.GetWaitForSecond(0.1f);
 
-        STestSession pSesion = 네트워크_UDP_테스트.instance.p_mapNetworkSession.Values.First();
+        STestSession pSesion = Network_UDP_Test.instance.p_mapNetworkSession.Values.First();
         Assert.IsTrue(pSesion.CheckIsRequire_ReliablePacket());
 
         // 릴라이어블 패킷은 정해진 시간동안 기다렸다가 설정한 응답 패킷이 오지 않으면 재전송을 한다.
         // 테스트 케이스의 경우 0.1초마다 재전송을 한다.
         while (pSesion.CheckIsRequire_ReliablePacket())
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return YieldManager.GetWaitForSecond(0.1f);
         }
         Assert.IsTrue(iReliableRecvCount >= 3); // 릴라이어블 패킷 Send를 받으면 ++이 된다.
         Debug.Log(" Finsih - iReliableRecvCount  : " + iReliableRecvCount);
@@ -854,7 +858,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
     [Test]
     [Category("StrixLibrary")]
-    public void 링버퍼_인큐_디큐_테스트()
+    public void RingBuffer_Enqueue_Dequeue_Test()
     {
         SPacketTest_Struct pPacketTest = new SPacketTest_Struct(1, "인큐_디큐_테스트");
         SPacketTest_Struct pPacketTest2 = new SPacketTest_Struct(2, "더미데이터");
@@ -862,7 +866,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
         byte[] arrPacketData = SCByteHelper.ConvertByteArray(pPacketTest);
         int iDataSize = arrPacketData.Length;
 
-        var pBuffer = new CircularBuffer<byte>(10240);
+        var pBuffer = new CCircularBuffer<byte>(10240);
         pBuffer.Enqueue(arrPacketData);
 
         Assert.AreNotEqual(pPacketTest.iValue, pPacketTest2.iValue);
@@ -889,7 +893,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
     // 테스트 코드이므로 생략
     protected override void OnRecievePacket(STestSession pSessionSender, SPacketHeader pPacketHeader, byte[] arrRecieveData, string strIP)
     {
-        /// <see cref="네트워크_UDP_테스트.로컬_UDP송수신_패킷헤더및_패킷디큐_테스트"/>
+        /// <see cref="Network_UDP_Test.로컬_UDP송수신_패킷헤더및_패킷디큐_테스트"/>
         switch (pPacketHeader.ePacketType)
         {
             case ETestPacketType.Test_Struct:
@@ -898,7 +902,7 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
                     if (arrRecieveData.Convert_ToStruct(out pPacketTest1))
                     {
                         pPacketCheckRecieve = pPacketTest1;
-                        네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_Struct(2, "받았다"));
+                        Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_Struct(2, "받았다"));
                         bIsRecievePacket_OnFail = true;
                     }
                 }
@@ -910,11 +914,11 @@ public class 네트워크_UDP_테스트 : CManagerNetworkUDPBase<네트워크_UD
 
             case ETestPacketType.Test_Reliable_Send:
                 if (iReliableRecvCount++ >= 3)
-                    네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_ReliableRespond("정상응답"));
+                    Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_ReliableRespond("정상응답"));
                 else
                 {
                     Debug.Log("릴라이어블 리시브 카운트 : " + iReliableRecvCount + " " + DateTime.Now.ToString("mm:ss.") + DateTime.Now.Millisecond);
-                    네트워크_UDP_테스트.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_ReliableRespond("거짓응답"));
+                    Network_UDP_Test.instance.DoSendPacket(strTestTargetIP, iTestPort, new SPacketTest_ReliableRespond("거짓응답"));
                 }
 
                 break;

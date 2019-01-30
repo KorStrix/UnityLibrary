@@ -100,8 +100,8 @@ public class CSpineController : CObjectBase, IAnimationController
 
     /* public - Variable declaration            */
 
-    public event OnCallBackAnimation p_Event_OnAnimationEvent;
-    public event OnCallBackAnimation p_Event_OnAnimation_Start;
+    public event OnAnimationEvent p_Event_OnAnimationEvent;
+    public event OnPlayAnimation p_Event_OnAnimation_Start;
     public event OnFinishAnimation p_Event_OnAnimation_Finish;
 
     public string p_strCurrentAnimationName { get { return p_pAnimation.AnimationName; } }
@@ -390,7 +390,7 @@ public class CSpineController : CObjectBase, IAnimationController
     {
         string strKeyName = e.Data.Name;
         if (p_Event_OnAnimationEvent != null)
-            p_Event_OnAnimationEvent(strKeyName);
+            p_Event_OnAnimationEvent(trackEntry.Animation.Name, strKeyName);
 
         if (p_bPrintAnimationEvent)
             Debug.Log(name + " Animation Event Name : " + strKeyName, this);

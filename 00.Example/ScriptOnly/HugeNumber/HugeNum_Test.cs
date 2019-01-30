@@ -60,7 +60,7 @@ public class HugeNum_Test : MonoBehaviour {
 	{
 		Debug.Log( "Start TestCase_Operator_2" );
 
-		CManagerProfiler.instance.DoStartTestCase( "Test" );
+		SCManagerProfiler.DoStartTestCase( "Test" );
 		for(int i = 0; i < 1000; i++)
 		{
 			SHugeNumber sHugeNum1 = new SHugeNumber( 1, SHugeNumber.EUnit.None );
@@ -70,7 +70,7 @@ public class HugeNum_Test : MonoBehaviour {
 			sHugeNum3 += sHugeNum2;
 			sHugeNum3 -= sHugeNum2;
 		}
-		CManagerProfiler.instance.DoFinishTestCase( "Test" );
-		CManagerProfiler.instance.DoPrintResult( false );
+		SCManagerProfiler.DoFinishTestCase( "Test" );
+		SCManagerProfiler.DoPrintResult( false );
 	}
 }

@@ -38,6 +38,9 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoSet_PrevTimeScale()
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoSet_PrevTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " _stackTimeScale.Count : " + _stackTimeScale.Count, this);
+
         if (_stackTimeScale.Count == 0)
             return;
 
@@ -46,16 +49,25 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoAddTimeScale(float fAddTimeScale)
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoAddTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fAddTimeScale : " + fAddTimeScale, this);
+
         SetTimeScale(p_fCurrentTimeScale + fAddTimeScale);
     }
 
     public void DoSetTimeScale(float fTimeScale)
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale, this);
+
         SetTimeScale(fTimeScale);
     }
 
     public void DoSetTimeScale_Fade(float fTimeScale, float fFadeDuration)
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoSetTimeScale_Fade p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale + " fFadeDuration : " + fFadeDuration, this);
+
         if (_pCoroutine_Fade != null)
             StopCoroutine(_pCoroutine_Fade);
 
@@ -64,6 +76,9 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoSetTimeScale()
     {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoSetTimeScale : " + p_fCurrentTimeScale, this);
+
         SetTimeScale(p_fCurrentTimeScale);
     }
 
@@ -87,7 +102,7 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     private void SetTimeScale(float fTimeScale, bool bEnqueueStack = true)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
             Debug.Log(name + " SetTimeScale : " + fTimeScale, this);
 
         Time.timeScale = fTimeScale;

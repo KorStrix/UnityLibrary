@@ -188,7 +188,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 					OnPatternPlay();
 					StartCoroutine( CoLookAtTarget() );
 					yield return StartCoroutine( _pPattern() );
-					yield return SCManagerYield.GetWaitForSecond( _fDelaySec_Pattern );
+					yield return YieldManager.GetWaitForSecond( _fDelaySec_Pattern );
 					OnPatternStop();
 				}
 			}
@@ -203,7 +203,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 					OnPatternPlay();
 					StartCoroutine( CoLookAtTarget() );
 					yield return StartCoroutine( _pPattern() );
-					yield return SCManagerYield.GetWaitForSecond( _fDelaySec_Pattern );
+					yield return YieldManager.GetWaitForSecond( _fDelaySec_Pattern );
 					OnPatternStop();
 				}
 			}
@@ -234,7 +234,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 			}
 
 			float fDelaySecRandom = Random.Range( _fDelaySec_GenerateMin, _fDelaySec_Generate_Max );
-			yield return SCManagerYield.GetWaitForSecond( fDelaySecRandom );
+			yield return YieldManager.GetWaitForSecond( fDelaySecRandom );
 		}
 	}
 
@@ -249,7 +249,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 			}
 
 			float fDelaySecRandom = Random.Range( _fDelaySec_GenerateMin, _fDelaySec_Generate_Max );
-			yield return SCManagerYield.GetWaitForSecond( fDelaySecRandom );
+			yield return YieldManager.GetWaitForSecond( fDelaySecRandom );
 		}
 	}
 

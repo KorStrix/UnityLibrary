@@ -24,18 +24,7 @@ public static class CExtension_Mono
             pTransformTarget.GetChild(i).SetLayer_Recursive(iLayer);
     }
 
-    static public void SetActive(this Component pObj, bool bEnable)
-    {
-        if (pObj == null)
-        {
-            Debug.Log(" SetActive - Component == null");
-            return;
-        }
-
-        pObj.gameObject.SetActive(bEnable);
-    }
-
-    static public GameObject GetGameObject<TObjectName>(this Component pTarget, TObjectName tGameObjName, bool bPrintError = true)
+    static public GameObject GetGameObject_InChildren<TObjectName>(this Component pTarget, TObjectName tGameObjName, bool bPrintError = true)
     {
         if (tGameObjName == null)
             return null;
@@ -70,7 +59,7 @@ public static class CExtension_Mono
     static public bool GetComponentInChildren<COMPONENT>(this Component pTarget, string strObjectName, out COMPONENT pComponent)
     where COMPONENT : UnityEngine.Component
     {
-        GameObject pObjectFind = pTarget.GetGameObject(strObjectName, false);
+        GameObject pObjectFind = pTarget.GetGameObject_InChildren(strObjectName, false);
         if (pObjectFind != null)
             pComponent = pObjectFind.GetComponent<COMPONENT>();
         else

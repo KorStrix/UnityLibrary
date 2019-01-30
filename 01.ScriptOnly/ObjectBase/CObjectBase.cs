@@ -31,7 +31,14 @@ public enum EDebugFilter
 }
 
 
-public class CObjectBase : MonoBehaviour, IUpdateAble
+
+public class CObjectBase :
+#if ODIN_INSPECTOR
+    Sirenix.OdinInspector.SerializedMonoBehaviour, IUpdateAble
+#else
+    MonoBehaviour, IUpdateAble
+#endif
+
 {
     [SerializeField]
     [Rename_Inspector("디버깅 필터")]
@@ -43,7 +50,34 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
     protected bool _bIsQuitApplciation = false;
     private Coroutine _pCoroutineOnEnable;
 
+    new public bool enabled
+    {
+        get { return base.enabled; }
+        set { SetEnable_Script(value); }
+    }
+
+    bool _bIsDestroy =false;
+
     // ========================== [ Division ] ========================== //
+
+    public void SetActive(bool bActive)
+    {
+        if (_bIsDestroy)
+            return;
+
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
+            Debug.Log(name + " SetActive_GameObject : " + bActive, this);
+
+        gameObject.SetActive(bActive);
+    }
+
+    public void SetEnable_Script(bool bEnable)
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
+            Debug.Log(name + " SetEnable_Script : " + bEnable, this);
+
+        base.enabled = bEnable;
+    }
 
     public void EventOnAwake()
     {
@@ -81,22 +115,6 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
             StopCoroutine(pCoroutine);
 
         _mapCoroutinePlaying.Clear();
-    }
-
-    public void SetActive_GameObject(bool Active)
-    {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
-            Debug.Log(name + " SetActive_GameObject : " + Active, this);
-
-        gameObject.SetActive(Active);
-    }
-
-    public void SetEnable_Script(bool bEnable)
-    {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
-            Debug.Log(name + " SetEnable_Script : " + bEnable, this);
-
-        enabled = bEnable;
     }
 
     // ========================== [ Division ] ========================== //
@@ -147,6 +165,8 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
     private void OnDestroy()
     {
+        _bIsDestroy = true;
+
         CManagerUpdateObject.instance.DoRemoveObject(this);
     }
 
@@ -196,21 +216,28 @@ public class CObjectBase : MonoBehaviour, IUpdateAble
 
 	protected IEnumerator CoDelayAction( System.Action OnAfterDelayAction, float fDelaySec )
 	{
-		yield return SCManagerYield.GetWaitForSecond( fDelaySec );
+		yield return YieldManager.GetWaitForSecond( fDelaySec );
 
 		OnAfterDelayAction();
 		_mapCoroutinePlaying.Remove( OnAfterDelayAction );
     }
 
-    protected bool CheckDebugFilter(EDebugFilter eDebugFilter)
+    public bool CheckDebugFilter(EDebugFilter eDebugFilter)
     {
         return p_eDebugFilter.ContainEnumFlag(eDebugFilter);
+    }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public void DoPrintLog(EDebugFilter eDebugFilter, string strLog)
+    {
+        if(CheckDebugFilter(eDebugFilter))
+            Debug.Log(strLog);
     }
 }
 
 #region Test
 [Category("StrixLibrary")]
-public class CObjectBase_테스트 : CObjectBase
+public class CObjectBase_Test : CObjectBase
 {
     [GetComponent]
     [HideInInspector]
@@ -224,7 +251,7 @@ public class CObjectBase_테스트 : CObjectBase
     public IEnumerator Test_ObjectBase_GetComponent_Attribute()
     {
         GameObject pObjectNew = new GameObject();
-        CObjectBase_테스트 pTarget = pObjectNew.AddComponent<CObjectBase_테스트>();
+        CObjectBase_Test pTarget = pObjectNew.AddComponent<CObjectBase_Test>();
         pTarget.EventOnAwake();
 
         yield return null;
@@ -236,9 +263,9 @@ public class CObjectBase_테스트 : CObjectBase
     public IEnumerator Test_ObjectBase_GetComponentInChildren_Attribute()
     {
         GameObject pObjectNew = new GameObject();
-        CObjectBase_테스트 pTargetParents = pObjectNew.AddComponent<CObjectBase_테스트>();
+        CObjectBase_Test pTargetParents = pObjectNew.AddComponent<CObjectBase_Test>();
 
-        CObjectBase_테스트 pTarget = pObjectNew.AddComponent<CObjectBase_테스트>();
+        CObjectBase_Test pTarget = pObjectNew.AddComponent<CObjectBase_Test>();
         pTarget.transform.SetParent(pTargetParents.transform);
         pTarget.EventOnAwake();
 

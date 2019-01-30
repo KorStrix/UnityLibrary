@@ -186,7 +186,7 @@ public class CUITextAnimation : CObjectBase
 
 	private IEnumerator CoPlayTest()
 	{
-		yield return new WaitForSeconds( p_fStartDelay_Test );
+		yield return YieldManager.GetWaitForSecond( p_fStartDelay_Test );
 
 		DoPlayAnimation_Number( p_iNum_Start_Test, p_iNum_Dest_Test, "{0:#,###,###,###}", p_fDuration_Test );
 	}
@@ -226,9 +226,9 @@ public class CUITextAnimation : CObjectBase
     private IEnumerator CoPlayUILabelAnimation_Number(float fStartDelaySec)
     {
 		if(_bIgnoreTimeScale)
-			yield return new WaitForSecondsRealtime( fStartDelaySec );
+			yield return YieldManager.GetWaitForSecondRealtime( fStartDelaySec );
 		else
-			yield return new WaitForSeconds( fStartDelaySec );
+			yield return YieldManager.GetWaitForSecond( fStartDelaySec );
 
 		_fPrevTime = _bIgnoreTimeScale ? RealTime.time : Time.time;
 		while (true)

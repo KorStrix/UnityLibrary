@@ -92,7 +92,7 @@ public class CUGUITextAnimation : MonoBehaviour
                 p_pTextComponent.text = p_arrTextAnimation[iIndex];
 
                 iIndex++;
-                yield return new WaitForSeconds(p_fDuration / p_arrTextAnimation.Length);
+                yield return YieldManager.GetWaitForSecond(p_fDuration / p_arrTextAnimation.Length);
             }
         }
     }
@@ -107,7 +107,7 @@ public class CUGUITextAnimation : MonoBehaviour
                 p_pTextComponent.text = p_arrTextAnimation[iIndex];
 
                 iIndex++;
-                yield return new WaitForSecondsRealtime(p_fDuration / p_arrTextAnimation.Length);
+                yield return YieldManager.GetWaitForSecondRealTime(p_fDuration / p_arrTextAnimation.Length);
             }
         }
     }

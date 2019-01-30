@@ -68,7 +68,7 @@ public class CCompoEnableComponent : CCompoEventTrigger
 
 	private IEnumerator CoDelayAction( SEnableComponentEvent pEvent )
 	{
-		yield return SCManagerYield.GetWaitForSecond( pEvent.fDelayTimeSec );
+		yield return YieldManager.GetWaitForSecond( pEvent.fDelayTimeSec );
 
 		pEvent.pUnityComponent.enabled = pEvent.bEnable;
 	}

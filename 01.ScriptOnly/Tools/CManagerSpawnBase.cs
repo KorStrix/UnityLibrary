@@ -151,7 +151,7 @@ abstract public class CManagerSpawnBase<Class_Manager, Enum_SpawnName, Class_Spa
 			}
 
 			float fRandomDelay = Random.Range( _fSpawnDelay_Min, _fSpawnDelay_Max ) * _fDelayOffset;
-			yield return SCManagerYield.GetWaitForSecond( fRandomDelay );
+			yield return YieldManager.GetWaitForSecond( fRandomDelay );
 		}
 	}
 

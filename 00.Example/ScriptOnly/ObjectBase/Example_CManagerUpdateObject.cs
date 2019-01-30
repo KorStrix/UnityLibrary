@@ -80,12 +80,12 @@ public class Example_CManagerUpdateObject : MonoBehaviour
         bool bEnable = false;
         while(true)
         {
-            yield return new WaitForSeconds(1f);
+            yield return YieldManager.GetWaitForSecond(1f);
 
             for (int i = 0; i < _listMonobehaviour.Count; i++)
                 _listMonobehaviour[i].SetActive(bEnable);
 
-            yield return new WaitForSeconds(1f);
+            yield return YieldManager.GetWaitForSecond(1f);
 
             for (int i = 0; i < _listUpdateAble.Count; i++)
                 _listUpdateAble[i].SetActive(bEnable);

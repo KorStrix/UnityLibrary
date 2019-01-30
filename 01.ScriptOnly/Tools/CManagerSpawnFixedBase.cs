@@ -171,7 +171,7 @@ public class CManagerSpawnFixedBase<Class_Manager, Enum_SpawnName, Class_Spawner
 				iLoopCount = 0;
 				_iDifficulty_OnAuto += _iIncreaseDifficulty;
 			}
-			yield return SCManagerYield.GetWaitForSecond(_fSpawnDelay);
+			yield return YieldManager.GetWaitForSecond(_fSpawnDelay);
 		}
 	}
 

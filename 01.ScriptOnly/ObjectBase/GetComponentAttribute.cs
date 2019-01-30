@@ -297,9 +297,9 @@ static public class SCManagerGetComponent
                 {
                     GetComponentInChildrenAttribute pAttribute = (GetComponentInChildrenAttribute)pGetcomponentAttribute;
                     if (pAttribute != null && pAttribute.bSearch_By_ComponentName)
-                        Debug.LogWarning(pTargetMono.name + string.Format(".{0}<{1}>({2}) Result == null", pGetcomponentAttribute.GetType().Name, pTypeField, pAttribute.strComponentName), pTargetMono);
+                        Debug.LogError(pTargetMono.name + string.Format(".{0}<{1}>({2}) Result == null", pGetcomponentAttribute.GetType().Name, pTypeField, pAttribute.strComponentName), pTargetMono);
                     else
-                        Debug.LogWarning(pTargetMono.name + string.Format(".{0}<{1}> Result == null", pGetcomponentAttribute.GetType().Name, pTypeField), pTargetMono);
+                        Debug.LogError(pTargetMono.name + string.Format(".{0}<{1}> Result == null", pGetcomponentAttribute.GetType().Name, pTypeField), pTargetMono);
                     continue;
                 }
 
@@ -491,7 +491,7 @@ public class GetComponentAttribute_Test : MonoBehaviour
     }
 
     [UnityTest]
-    static public IEnumerator GetComponent_자식_필드_테스트()
+    static public IEnumerator GetComponentChildren_Field_Test()
     {
         GameObject pObjectParents = new GameObject("GetComponent_Test_Field");
 
@@ -536,7 +536,7 @@ public class GetComponentAttribute_Test : MonoBehaviour
     }
 
     [UnityTest]
-    static public IEnumerator GetComponent_자식_Enum_테스트()
+    static public IEnumerator GetComponent_Child_Enum_Test()
     {
         GameObject pObjectParents = new GameObject("GetComponent_Test_Enum");
 
@@ -563,7 +563,7 @@ public class GetComponentAttribute_Test : MonoBehaviour
     }
 
     [UnityTest]
-    static public IEnumerator GetComponent_자식_Property_테스트()
+    static public IEnumerator GetComponentChildren_Property_Test()
     {
         GameObject pObjectParents = new GameObject("GetComponent_Test_Property");
 
@@ -586,7 +586,7 @@ public class GetComponentAttribute_Test : MonoBehaviour
     }
 
     [UnityTest]
-    static public IEnumerator GetComponent_Array_테스트()
+    static public IEnumerator GetComponent_Array_Test()
     {
         GameObject pObjectParents = new GameObject("GetComponent_Test_GetComponentArray");
 

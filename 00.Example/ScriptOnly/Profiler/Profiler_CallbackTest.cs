@@ -15,22 +15,22 @@ public class Profiler_CallbackTest : MonoBehaviour {
 	
 	private void OnEnable()
 	{
-		CManagerProfiler.instance.DoStartTestCase("EventTestCall");
+		SCManagerProfiler.DoStartTestCase("EventTestCall");
 		for(int i = 0; i < iTestCount; i++)
 			_EventTestCall();
-		CManagerProfiler.instance.DoFinishTestCase("EventTestCall");
+		SCManagerProfiler.DoFinishTestCase("EventTestCall");
 
-		CManagerProfiler.instance.DoStartTestCase("CallBack");
+		SCManagerProfiler.DoStartTestCase("CallBack");
 		for (int i = 0; i < iTestCount; i++)
 			_CallBack();
-		CManagerProfiler.instance.DoFinishTestCase("CallBack");
+		SCManagerProfiler.DoFinishTestCase("CallBack");
 
-		CManagerProfiler.instance.DoStartTestCase("SendMessage");
+		SCManagerProfiler.DoStartTestCase("SendMessage");
 		for (int i = 0; i < iTestCount; i++)
 			SendMessage("TestCall");
-		CManagerProfiler.instance.DoFinishTestCase("SendMessage");
+		SCManagerProfiler.DoFinishTestCase("SendMessage");
 
-		CManagerProfiler.instance.DoPrintResult(false);
+		SCManagerProfiler.DoPrintResult(false);
 	}
 
 	void TestCall()

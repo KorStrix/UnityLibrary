@@ -154,7 +154,7 @@ public class CCompoAddForce : CCompoEventTrigger
 		{
 			transform.Rotate( vecAngularVelocity );
 
-			yield return new WaitForSeconds(0.02f);
+			yield return YieldManager.GetWaitForSecond(0.02f);
 		}
 	}
 

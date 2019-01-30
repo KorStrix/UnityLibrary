@@ -94,7 +94,7 @@ public static class SCByteHelper
 
 #region Test
 [Category("StrixLibrary")]
-public class 바이트핸들러_테스트
+public class ByteHandler_Test
 {
     public enum ETest
     {
@@ -102,7 +102,7 @@ public class 바이트핸들러_테스트
     }
 
     [Test]
-    static public void 바이트_To_BitArray()
+    static public void Byte_To_BitArray()
     {
         Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(1) == 1);
         Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(1, 8, 1) == 0);

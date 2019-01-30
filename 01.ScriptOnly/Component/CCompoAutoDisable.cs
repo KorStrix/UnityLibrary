@@ -69,7 +69,7 @@ public class CCompoAutoDisable : CCompoEventTrigger
 
     private IEnumerator CoDelayDisable()
 	{
-		yield return SCManagerYield.GetWaitForSecond(fAutoDisableTime);
+		yield return YieldManager.GetWaitForSecond(fAutoDisableTime);
 
 		gameObject.SetActive( false );
 		if(_OnDisable != null)

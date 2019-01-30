@@ -69,7 +69,7 @@ public class CEditorWindow_NameChanger : ScriptableWizard
 	/* public - [Do] Function
      * 외부 객체가 호출                         */
 
-	[MenuItem("Test/NameChanger", false, 9999)]
+	[MenuItem("Tools/Strix_Tools/NameChanger", false, 9999)]
 	public static void ShowWindow()
 	{
 		GetWindow<CEditorWindow_NameChanger>("NameChanger");

@@ -30,6 +30,7 @@ public class CEditorInspector_Attribute_Rename : OdinAttributeDrawer<Rename_Insp
     protected override void DrawPropertyLayout(InspectorProperty property, Rename_InspectorAttribute attribute, GUIContent label)
     {
         var context = property.Context.Get<StringMemberHelper>(this, "StringContext", (StringMemberHelper)null);
+
         if (context.Value == null)
             context.Value = new StringMemberHelper(property.ParentType, attribute.strInspectorName);
 

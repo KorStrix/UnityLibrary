@@ -139,19 +139,22 @@ public class CPhysicsTrigger : CObjectBase
 
     public void DoClear_InColliderList()
     {
+        _listCollider2D_Enter.Clear();
         _listCollider2D_Stay.Clear();
+        _listCollider2D_Exit.Clear();
+
         _listCollider3D_Enter.Clear();
+        _listCollider3D_Stay.Clear();
+        _listCollider3D_Exit.Clear();
     }
 
     public List<Collider2D> GetColliderList_2D_Enter() { return _listCollider2D_Enter; }
     public List<Collider2D> GetColliderList_2D_Stay() { return _listCollider2D_Stay; }
     public List<Collider2D> GetColliderList_2D_Exit() { return _listCollider2D_Exit; }
 
-
-    public List<Collider> GetList_InCollider3D()
-    {
-        return _listCollider3D_Enter;
-    }
+    public List<Collider> GetColliderList_3D_Enter() { return _listCollider3D_Enter; }
+    public List<Collider> GetColliderList_3D_Stay() { return _listCollider3D_Stay; }
+    public List<Collider> GetColliderList_3D_Exit() { return _listCollider3D_Exit; }
 
     public bool DoCheck_IsInner(Collider2D pCollider)
     {
@@ -244,7 +247,7 @@ public class CPhysicsTrigger : CObjectBase
         {
             while (true)
             {
-                yield return new WaitForSeconds(p_fPhysicsCheckDelay);
+                yield return YieldManager.GetWaitForSecond(p_fPhysicsCheckDelay);
 
                 if (_bIsLock_CalculatePhysics)
                     continue;
@@ -256,7 +259,7 @@ public class CPhysicsTrigger : CObjectBase
         {
             while (true)
             {
-                yield return new WaitForSeconds(p_fPhysicsCheckDelay);
+                yield return YieldManager.GetWaitForSecond(p_fPhysicsCheckDelay);
 
                 if (_bIsLock_CalculatePhysics)
                     continue;

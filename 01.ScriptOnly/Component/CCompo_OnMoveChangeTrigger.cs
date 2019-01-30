@@ -58,7 +58,7 @@ public class CCompo_OnMoveChangeTrigger : CObjectBase
             }
 
             _vecPosPrev = vecCurrentPos;
-            yield return new WaitForSeconds(p_fUpdateTimeDelta);
+            yield return YieldManager.GetWaitForSecond(p_fUpdateTimeDelta);
         }
     }
 

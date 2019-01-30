@@ -79,7 +79,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 					vecStartPos += (Vector3)_vecPosGap;
 				}
 				float fDelaySecRandom = Random.Range( _fDelaySec_GenerateMin, _fDelaySec_Generate_Max );
-				yield return SCManagerYield.GetWaitForSecond( fDelaySecRandom );
+				yield return YieldManager.GetWaitForSecond( fDelaySecRandom );
 			}
 		}
 		else
@@ -119,7 +119,7 @@ public partial class CSpawnerBase<Enum_Key, Class_Resource> : CObjectBase
 			}
 
 			float fDelaySecRandom = Random.Range( _fDelaySec_GenerateMin, _fDelaySec_Generate_Max );
-			yield return SCManagerYield.GetWaitForSecond( fDelaySecRandom );
+			yield return YieldManager.GetWaitForSecond( fDelaySecRandom );
 		}
 	}
 

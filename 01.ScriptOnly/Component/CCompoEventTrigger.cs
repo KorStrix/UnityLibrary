@@ -175,7 +175,7 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
         {
             DoPlayEventTrigger();
 
-            yield return new WaitForSeconds(p_fUpdateTimeDelta);
+            yield return YieldManager.GetWaitForSecond(p_fUpdateTimeDelta);
         }
     }
 
@@ -264,7 +264,7 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
 
     private IEnumerator CoDelayActionEventTrigger(System.Action OnAfterDelayAction, float fDelaySec)
     {
-        yield return SCManagerYield.GetWaitForSecond(fDelaySec);
+        yield return YieldManager.GetWaitForSecond(fDelaySec);
         yield return new CYield_IsWaitingEventTrigger();
         OnAfterDelayAction();
     }

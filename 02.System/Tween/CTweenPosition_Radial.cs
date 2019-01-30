@@ -163,7 +163,14 @@ public class CTweenPosition_Radial : CTweenBase
             Vector3 vecDirection = new Vector3(Mathf.Sin(fAngleDelta), Mathf.Cos(fAngleDelta), 0f);
             vecDirection *= p_fDistance_Start * (1f - fProgress_0_1) + p_fDistance_Dest * fProgress_0_1;
 
-            pTransformChild.localPosition = vecDirection;
+            try
+            {
+                pTransformChild.localPosition = vecDirection;
+            }
+            catch
+            {
+                pTransformChild.localPosition = vecDirection;
+            }
         }
     }
 
@@ -210,7 +217,7 @@ public class CTweenPosition_Radial : CTweenBase
             for (int i = 0; i < _listChildEmpty_Managing.Count; i++)
             {
                 _listChildEmpty_Managing[i].name = (i + 1).ToString();
-                _listChildEmpty_Managing[i].SetActive(true);
+                _listChildEmpty_Managing[i].gameObject.SetActive(true);
             }
         }
     }
@@ -229,7 +236,7 @@ public class CTweenPosition_Radial : CTweenBase
             }
         }
         for (int i = 0; i < _listChildEmpty_Instance.Count; i++)
-            _listChildEmpty_Instance[i].SetActive(false);
+            _listChildEmpty_Instance[i].gameObject.SetActive(false);
 
     }
 
@@ -277,10 +284,10 @@ public class CTweenPosition_Radial : CTweenBase
 #if UNITY_EDITOR
 
 [Category("StrixLibrary")]
-public class 트윈_방사형_테스트
+public class CTweenPosition_Radial_Test
 {
     [UnityTest]
-    public IEnumerator 가까운방향의_자식인덱스구하기()
+    public IEnumerator GetChildIndex_ClosestDirection_Test()
     {
         GameObject pObject = new GameObject("방사형트윈_가까운방향의_자식인덱스구하기");
         CTweenPosition_Radial pTweenTest = pObject.AddComponent<CTweenPosition_Radial>();

@@ -96,14 +96,14 @@ public class CManagerUGUIBase_Test : CManagerUGUIBase<CManagerUGUIBase_Test, CMa
         protected override IEnumerator OnShowPanel_PlayingAnimation(int iSortOrder)
         {
             p_bIsPlaying_Show_Animation = true;
-            yield return new WaitForSeconds(const_fShowAnimation_DurationSec);
+            yield return YieldManager.GetWaitForSecond(const_fShowAnimation_DurationSec);
             p_bIsPlaying_Show_Animation = false;
         }
     }
     public class 패널테스트_2 : CUGUIPanelBase { }
 
     [UnityTest]
-    public IEnumerator 패널관리테스트()
+    public IEnumerator ManagerPanel_Test()
     {
         GameObject pObjectManager = new GameObject();
         패널테스트_1 pPanelTest = new GameObject(typeof(패널테스트_1).ToString()).AddComponent<패널테스트_1>();
@@ -120,7 +120,7 @@ public class CManagerUGUIBase_Test : CManagerUGUIBase<CManagerUGUIBase_Test, CMa
         Assert.AreEqual(pPanelTest.transform.GetSiblingIndex(), pManager.transform.childCount - 1);
 
         Assert.AreEqual(pPanelTest.p_bIsPlaying_Show_Animation, true);
-        yield return new WaitForSeconds(const_fShowAnimation_DurationSec); yield return null;
+        yield return YieldManager.GetWaitForSecond(const_fShowAnimation_DurationSec); yield return null;
         Assert.AreEqual(pPanelTest.p_bIsPlaying_Show_Animation, false);
 
         pManager.DoShowHide_Panel(EUIPanel.패널테스트_1, false); yield return null;

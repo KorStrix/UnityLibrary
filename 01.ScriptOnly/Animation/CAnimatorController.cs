@@ -26,7 +26,7 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	public string strDefaultAnimation;
 	public bool bDefaultIsLoop = true;
 
-	public event OnCallBackAnimation p_Event_OnAnimationEvent;
+	public event OnAnimationEvent p_Event_OnAnimationEvent;
 
 	private OnFinishAnimation _OnFinishAnimation;
 	private Animator _pAnimator;	public Animator p_pAnimator {  get { return _pAnimator; } }
@@ -201,10 +201,10 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	}
 
 
-	public void EventAnimationListen( string strAnimationEvent )
+	public void EventAnimationListen( string strAnimationName, string strAnimationEvent )
 	{
 		if (p_Event_OnAnimationEvent != null)
-			p_Event_OnAnimationEvent(strAnimationEvent);
+			p_Event_OnAnimationEvent(strAnimationName, strAnimationEvent);
 	}
 
     public void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName)

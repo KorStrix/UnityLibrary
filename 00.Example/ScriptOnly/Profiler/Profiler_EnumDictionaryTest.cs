@@ -34,54 +34,54 @@ public class Profiler_EnumDictionaryTest : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			print("Test Setter Start");
-			CManagerProfiler.instance.DoStartTestCase("mapInt_Setter");
+			SCManagerProfiler.DoStartTestCase("mapInt_Setter");
 			for (int i = 0; i < iTestCount; i++)
 				_mapInt[0] = i;
-			CManagerProfiler.instance.DoFinishTestCase("mapInt_Setter");
+			SCManagerProfiler.DoFinishTestCase("mapInt_Setter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumNormal_Setter");
+			SCManagerProfiler.DoStartTestCase("mapEnumNormal_Setter");
 			for (int i = 0; i < iTestCount; i++)
 				_mapEnumNormal[ETestEnum.Test] = i;
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumNormal_Setter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumNormal_Setter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumComparer_Setter");
+			SCManagerProfiler.DoStartTestCase("mapEnumComparer_Setter");
 			for (int i = 0; i < iTestCount; i++)
 				_mapEnumComparer[ETestEnum.Test] = i;
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumComparer_Setter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumComparer_Setter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumCustom_Setter");
+			SCManagerProfiler.DoStartTestCase("mapEnumCustom_Setter");
 			for (int i = 0; i < iTestCount; i++)
 				_mapEnumCustom[ETestEnum.Test] = i;
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumCustom_Setter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumCustom_Setter");
 
-			CManagerProfiler.instance.DoPrintResult(false);
+			SCManagerProfiler.DoPrintResult(false);
 		}
 
 		if (Input.GetKeyDown(KeyCode.Alpha2))
 		{
 			print("Test Getter Start");
 			int iTestNum = 0;
-			CManagerProfiler.instance.DoStartTestCase("mapInt_Getter");
+			SCManagerProfiler.DoStartTestCase("mapInt_Getter");
 			for (int i = 0; i < iTestCount; i++)
 				iTestNum = _mapInt[0];
-			CManagerProfiler.instance.DoFinishTestCase("mapInt_Getter");
+			SCManagerProfiler.DoFinishTestCase("mapInt_Getter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumNormal_Getter");
+			SCManagerProfiler.DoStartTestCase("mapEnumNormal_Getter");
 			for (int i = 0; i < iTestCount; i++)
 				iTestNum = _mapEnumNormal[ETestEnum.Test];
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumNormal_Getter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumNormal_Getter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumComparer_Getter");
+			SCManagerProfiler.DoStartTestCase("mapEnumComparer_Getter");
 			for (int i = 0; i < iTestCount; i++)
 				iTestNum = _mapEnumComparer[ETestEnum.Test];
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumComparer_Getter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumComparer_Getter");
 
-			CManagerProfiler.instance.DoStartTestCase("mapEnumCustom_Getter");
+			SCManagerProfiler.DoStartTestCase("mapEnumCustom_Getter");
 			for (int i = 0; i < iTestCount; i++)
 				iTestNum = _mapEnumCustom[ETestEnum.Test];
-			CManagerProfiler.instance.DoFinishTestCase("mapEnumCustom_Getter");
+			SCManagerProfiler.DoFinishTestCase("mapEnumCustom_Getter");
 
-			CManagerProfiler.instance.DoPrintResult(false);
+			SCManagerProfiler.DoPrintResult(false);
 		}
 
 	}

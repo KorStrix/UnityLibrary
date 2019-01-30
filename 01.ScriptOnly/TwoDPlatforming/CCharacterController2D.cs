@@ -31,6 +31,12 @@ public class CCharacterController2D : CObjectBase
 
     /* public - Field declaration            */
 
+    /// <summary>
+    /// Prev, Current
+    /// </summary>
+    public CObserverSubject<ECharacterControllerState, ECharacterControllerState> p_Event_OnChangePlatformerState { get; private set; } = new CObserverSubject<ECharacterControllerState, ECharacterControllerState>();
+    public CObserverSubject<bool> p_Event_OnGround { get; private set; } = new CObserverSubject<bool>();
+
     public ECharacterControllerState p_ePlatformerState_Current { get; private set; }
     public ECharacterControllerState p_ePlatformerState_Prev { get; private set; }
 
@@ -239,6 +245,12 @@ public class CCharacterController2D : CObjectBase
     }
 
 
+    public void DoClear_AddforceCustom()
+    {
+        _bInputAddForce_Custom = false;
+        _bInputSetForce_Custom = false;
+    }
+
     public void DoUpdate_CharacterController()
     {
         Logic_CharacterControll();
@@ -258,6 +270,8 @@ public class CCharacterController2D : CObjectBase
 
     public void DoSetVelocity_Custom(Vector2 vecVelocity, float fMoveLockSecond)
     {
+        // Debug.Log(name + " DoSetVelocity_Custom : " + vecVelocity + " fMoveLockSecond : " + fMoveLockSecond, this);
+
         _bInputSetForce_Custom = true;
         _vecAddForce_Custom = vecVelocity;
 
@@ -271,6 +285,8 @@ public class CCharacterController2D : CObjectBase
 
     public void DoAddForce_Custom(Vector2 vecAddForce, float fMoveLockSecond)
     {
+        // Debug.Log(name + " DoAddForce_Custom : " + vecAddForce + " fMoveLockSecond : " + fMoveLockSecond, this);
+
         _bInputAddForce_Custom = true;
         _bInputSetForce_Custom_Velocity_IsZero = false;
         _vecAddForce_Custom = vecAddForce;
@@ -423,7 +439,7 @@ public class CCharacterController2D : CObjectBase
         {
             _listBoxCollider_LeftCheck_Origin = _listBoxCollider_LeftCheck;
             for(int i = 0; i < _listBoxCollider_LeftCheck.Count; i++)
-                _listBoxCollider_LeftCheck[i].SetActive(false);
+                _listBoxCollider_LeftCheck[i].gameObject.SetActive(false);
 
             _listBoxCollider_LeftCheck.Sort(SortBoxCollider_Height_Greater);
         }
@@ -432,22 +448,22 @@ public class CCharacterController2D : CObjectBase
         {
             _listBoxCollider_RightCheck_Origin = _listBoxCollider_RightCheck;
             for (int i = 0; i < _listBoxCollider_RightCheck.Count; i++)
-                _listBoxCollider_RightCheck[i].SetActive(false);
+                _listBoxCollider_RightCheck[i].gameObject.SetActive(false);
 
             _listBoxCollider_RightCheck.Sort(SortBoxCollider_Height_Greater);
         }
 
         if (_pCapsuleCollider_OnCrouch)
-            _pCapsuleCollider_OnCrouch.SetActive(false);
+            _pCapsuleCollider_OnCrouch.gameObject.SetActive(false);
 
         if (_pCollider_Ground)
-            _pCollider_Ground.SetActive(true);
+            _pCollider_Ground.gameObject.SetActive(true);
 
         for (int i = 0; i < _listBoxColliderLeft_OnCrouch.Count; i++)
-            _listBoxColliderLeft_OnCrouch[i].SetActive(false);
+            _listBoxColliderLeft_OnCrouch[i].gameObject.SetActive(false);
 
         for(int i = 0; i < _listBoxColliderRight_OnCrouch.Count; i++)
-            _listBoxColliderRight_OnCrouch[i].SetActive(false);
+            _listBoxColliderRight_OnCrouch[i].gameObject.SetActive(false);
 
         _listBoxColliderLeft_OnCrouch.Sort(SortBoxCollider_Height_Greater);
         _listBoxColliderRight_OnCrouch.Sort(SortBoxCollider_Height_Greater);
@@ -466,16 +482,7 @@ public class CCharacterController2D : CObjectBase
         if (p_eUpdateMode == EUpdateMode.Update)
             Logic_CharacterControll();
 
-        if(p_bUseSlopeSliding && _pRigidbody.velocity.y < 0f)
-        {
-            if (_queueVelocityPrev.Count > 2)
-                _queueVelocityPrev.Dequeue();
-
-            _queueVelocityPrev.Enqueue(_pRigidbody.velocity);
-        }
-
-        if (p_bUseSlopeSliding && _fSlopeAngle >= p_fSlopeAngle)
-            _fSkipSlopeSlidingElapsTime += Time.deltaTime;
+        Logic_SlopeSliding();
     }
 
     private void FixedUpdate()
@@ -573,6 +580,8 @@ public class CCharacterController2D : CObjectBase
         p_ePlatformerState_Current = eState;
         for (int i = 0; i < _listCharacterControllerListener.Count; i++)
             _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeState(p_ePlatformerState_Prev, p_ePlatformerState_Current);
+
+        p_Event_OnChangePlatformerState.DoNotify(p_ePlatformerState_Prev, p_ePlatformerState_Current);
     }
 
     virtual protected float GetMoveSpeed(float fSpeed_OnWalking, float fSpeed_OnRunning, float fMoveDelta_0_1)
@@ -724,6 +733,20 @@ public class CCharacterController2D : CObjectBase
 
     #region Private
 
+    private void Logic_SlopeSliding()
+    {
+        if (p_bUseSlopeSliding && _pRigidbody.velocity.y < 0f)
+        {
+            if (_queueVelocityPrev.Count > 2)
+                _queueVelocityPrev.Dequeue();
+
+            _queueVelocityPrev.Enqueue(_pRigidbody.velocity);
+        }
+
+        if (p_bUseSlopeSliding && _fSlopeAngle >= p_fSlopeAngle)
+            _fSkipSlopeSlidingElapsTime += Time.deltaTime;
+    }
+
     private void Logic_CharacterControll()
     {
         bool bSkipMove = _bInputJump || _bInputAddForce_Custom;
@@ -809,6 +832,8 @@ public class CCharacterController2D : CObjectBase
 
     private void Logic_AddForce_Custom()
     {
+        // Debug.Log(name + " Logic_AddForce_Custom _vecAddForce_Custom : " + _vecAddForce_Custom, this);
+
         _bInputAddForce_Custom = false;
         if(_bInputSetForce_Custom_Velocity_IsZero)
         {
@@ -823,6 +848,8 @@ public class CCharacterController2D : CObjectBase
 
     private void Logic_SetForce_Custom()
     {
+        // Debug.Log(name + " Logic_SetForce_Custom _vecAddForce_Custom : " + _vecAddForce_Custom, this);
+
         _bInputSetForce_Custom = false;
         SetVelocity(_vecAddForce_Custom);
     }
@@ -856,6 +883,7 @@ public class CCharacterController2D : CObjectBase
     private void OnAirborne()
     {
         p_bIsGround = false;
+        p_Event_OnGround.DoNotify(p_bIsGround);
         _fSlopeAngle = 0f;
 
         Set_SlopeSliding(false);
@@ -866,6 +894,7 @@ public class CCharacterController2D : CObjectBase
     {
         bool bIsGroundOrigin = p_bIsGround;
         p_bIsGround = true;
+        p_Event_OnGround.DoNotify(p_bIsGround);
         p_bIsJumping = false;
 
         DoSetFalling(false);

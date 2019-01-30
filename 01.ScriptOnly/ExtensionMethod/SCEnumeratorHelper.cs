@@ -76,8 +76,11 @@ public static class SCEnumeratorHelper
         return new List<TSource>(source);
     }
 
-    public static void ToList<TSource>(this IEnumerable<TSource> source, List<TSource> listOut)
+    public static void ToList<TSource>(this IEnumerable<TSource> source, List<TSource> listOut, bool bIsClear_And_Add = true)
     {
+        if (bIsClear_And_Add)
+            listOut.Clear();
+
         listOut.AddRange(source);
     }
 
@@ -93,7 +96,7 @@ public static class SCEnumeratorHelper
     static List<int> listRandomIndexTemp = new List<int>();
 
     /// 테스트 코드 링크
-    /// <see cref="SCEnumeratorHelper_테스트.GetRandom_테스트"/>
+    /// <see cref="SCEnumeratorHelper_Test.GetRandom_Test"/>
     /// <summary>
     /// 예외를 제외한 랜덤을 리턴합니다.
     /// </summary>
@@ -372,10 +375,10 @@ public static class SCEnumeratorHelper
 
 #region Test
 
-public class SCEnumeratorHelper_테스트
+public class SCEnumeratorHelper_Test
 {
     [Test]
-    public void GetRandom_테스트()
+    public void GetRandom_Test()
     {
         List<int> arrTest = new List<int>() { 1, 3, 5 };
         int iRandomValue = arrTest.GetRandom_Filter(1, 2, 3, 4);

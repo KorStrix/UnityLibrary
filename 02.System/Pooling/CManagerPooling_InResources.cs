@@ -1,7 +1,7 @@
 ﻿/* ============================================ 
    Editor      : Strix                               
    Date        : 2017-06-25 오전 12:03:32
-   Description : 
+   Description : CManagerPooling과는 다르게 Resources 폴더 안에 있으면 오브젝트의 이름으로 바로 사용할 수 있습니다.
    Edit Log    : 
    ============================================ */
 
@@ -423,7 +423,8 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
 #region Test
 
-public class 풀링_테스트
+[Category("StrixLibrary")]
+public class ObjectPooling_InResourcesTest
 {
     public enum ETestPoolingObjectName
     {
@@ -441,9 +442,10 @@ public class 풀링_테스트
         private void OnDisable() { g_mapActiveCount[eTestType]--; }
     }
 
-    [UnityTest] [Category("StrixLibrary")]
-    public IEnumerator 풀링_기본테스트()
+    [UnityTest] 
+    public IEnumerator Working_Test()
     {
+        // 풀링 매니져를 Init합니다.
         CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> pPoolingManager = InitGeneratePoolingTest();
 
         Assert.AreEqual(0, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test1]);
@@ -473,8 +475,8 @@ public class 풀링_테스트
     static public Dictionary<ETestPoolingObjectName, int> g_mapPopCount;
     static public Dictionary<ETestPoolingObjectName, int> g_mapPushCount;
 
-    [UnityTest] [Category("StrixLibrary")]
-    public IEnumerator 풀링_이벤트테스트()
+    [UnityTest]
+    public IEnumerator Event_Test()
     {
         g_mapMakeCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test3, 0 } };
         g_mapPopCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test3, 0 } };
@@ -535,6 +537,11 @@ public class 풀링_테스트
 
         CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> pPoolingManager = CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject>.instance;
         pPoolingManager.DoInitPoolingObject(listObjectPooling);
+
+        pPoolingManager.p_EVENT_OnMakeResource -= PPoolingManager_p_EVENT_OnMakeResource;
+        pPoolingManager.p_EVENT_OnPopResource -= PPoolingManager_p_EVENT_OnPopResource;
+        pPoolingManager.p_EVENT_OnPushResource -= PPoolingManager_p_EVENT_OnPushResource;
+
         return pPoolingManager;
     }
 }

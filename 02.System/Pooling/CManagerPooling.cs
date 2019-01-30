@@ -15,39 +15,61 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 #endif
 
-public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPooling<Class_GetType>>
+public class CManagerPooling<Class_GetType> : CManagerPoolingBase<CManagerPooling<Class_GetType>, Class_GetType>
+    where Class_GetType : class, new()
+{
+    protected override Class_GetType OnCreateClass_WhenEmptyPool(Class_GetType pObjectCopyTarget, int iID)
+    {
+        return new Class_GetType();
+    }
+}
+
+public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingletonNotMonoBase<Class_Driven>
 #if UNITY_EDITOR
-    ,IUpdateAble // 하이어라키 실시간 풀링 상황 모니터링을 위한 UpdateAble
+    , IUpdateAble // 하이어라키 실시간 풀링 상황 모니터링을 위한 UpdateAble
 #endif
-    where Class_GetType : UnityEngine.Component
+    where Class_Driven : CManagerPoolingBase<Class_Driven, Class_GetType>, new()
+    where Class_GetType : class
 {
     /* const & readonly declaration             */
 
     /* enum & struct declaration                */
 
+    public class IntComparer : EqualityComparer<int>
+    {
+        public override bool Equals(int x, int y)
+        {
+            return x.Equals(y);
+        }
+
+        public override int GetHashCode(int obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+
     /* public - Field declaration            */
 
     public bool p_bIsDebug = false;
 
+    public int p_iInstanceCount { get { return _mapAllInstance.Count; } }
+
     /* protected & private - Field declaration         */
 
-    public Dictionary<Class_GetType, int> _mapAllInstance = new Dictionary<Class_GetType, int>();
-    //public Dictionary<Class_GetType, GameObject> _mapRootObject = new Dictionary<Class_GetType, GameObject>();
+    protected Dictionary<Class_GetType, int> _mapAllInstance = new Dictionary<Class_GetType, int>();
 
     // 본래 LinkedList를 사용했으나, C#에선 LinkedList가 오히려 더 느리다..
     // https://stackoverflow.com/questions/5983059/why-is-a-linkedlist-generally-slower-than-a-list
 
-    public Dictionary<int, HashSet<Class_GetType>> _mapUsed = new Dictionary<int, HashSet<Class_GetType>>();
-    public Dictionary<int, List<Class_GetType>> _mapUnUsed = new Dictionary<int, List<Class_GetType>>();
-
-    public Dictionary<int, int> _mapLayerBackup = new Dictionary<int, int>();
-
+    protected Dictionary<int, HashSet<Class_GetType>> _mapUsed = new Dictionary<int, HashSet<Class_GetType>>(new IntComparer());
+    protected Dictionary<int, List<Class_GetType>> _mapUnUsed = new Dictionary<int, List<Class_GetType>>(new IntComparer());
+    
     // ========================================================================== //
 
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-    public void DoPrePooling(GameObject pObjectCopyTarget, int iCount)
+    public void DoPrePooling(Class_GetType pObjectCopyTarget, int iCount)
     {
         if (pObjectCopyTarget == null)
             return;
@@ -68,7 +90,7 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
             DoPush(pPrePoolingObject);
     }
 
-    public Class_GetType DoPop(GameObject pObjectCopyTarget, Vector3 vecPos, bool bAutoReturn_OnDisable = true)
+    public Class_GetType DoPop(Class_GetType pObjectCopyTarget)
     {
         if (pObjectCopyTarget == null)
             return null;
@@ -76,29 +98,15 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
         int iID = pObjectCopyTarget.GetHashCode();
         Add_NewObjectType(pObjectCopyTarget, iID);
 
-        Class_GetType pComponentUnUsed = Get_UnusedObject(pObjectCopyTarget, iID);
+        Class_GetType pUnUsed = Get_UnusedObject(pObjectCopyTarget, iID);
         if (p_bIsDebug)
-            Debug.Log(name + " Pooling Simple Pop - " + pComponentUnUsed.name);
+            Debug.Log(name + " Pooling Simple Pop - " + pUnUsed.ToString());
 
-        CCompoEventTrigger_OnDisable pEventTrigger_AutoReturn = pComponentUnUsed.GetComponent<CCompoEventTrigger_OnDisable>();
-        if(bAutoReturn_OnDisable)
-        {
-            pEventTrigger_AutoReturn.p_Event_OnDisable -= DoPush;
-            pEventTrigger_AutoReturn.p_Event_OnDisable += DoPush;
-        }
-        else
-            pEventTrigger_AutoReturn.p_Event_OnDisable -= DoPush;
+        OnPopObject(pUnUsed);
 
-
-        pComponentUnUsed.transform.position = vecPos;
-        pComponentUnUsed.SetActive(true);
-        return pComponentUnUsed;
+        return pUnUsed;
     }
 
-    public Class_GetType DoPop(GameObject pObjectCopyTarget, bool bAutoReturn_OnDisable = true)
-    {
-        return DoPop(pObjectCopyTarget, Vector3.zero, bAutoReturn_OnDisable);
-    }
 
     public void DoPush(GameObject pObjectReturn)
     {
@@ -107,16 +115,18 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
 
     public void DoPush(Class_GetType pClassType)
     {
+        if (pClassType == null)
+            return;
+
         if (_mapAllInstance.ContainsKey(pClassType) == false)
             return;
 
         Remove_UsedList(pClassType);
 
         if (p_bIsDebug)
-            Debug.Log("Pooling Simple Pushed - " + pClassType.name, this);
+            Debug.Log("Pooling Simple Pushed - " + pClassType, this);
 
-        if (pClassType.gameObject.activeSelf)
-            pClassType.gameObject.SetActive(false);
+        OnPushObject(pClassType);
     }
 
     public void DoPushAll()
@@ -125,19 +135,11 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
             DoPush(pObject);
     }
 
-    public void DoDestroyAll()
+    virtual public void DoDestroyAll()
     {
-        var arrDestroy = _mapAllInstance.Keys.ToArray();
-        foreach (var pObject in arrDestroy)
-        {
-            if(pObject != null)
-                DestroyImmediate(pObject.gameObject);
-        }
-
         _mapAllInstance.Clear();
         _mapUsed.Clear();
         _mapUnUsed.Clear();
-        _mapLayerBackup.Clear();
     }
 
     public void Event_RemovePoolObject(GameObject pObjectDestroyed)
@@ -208,22 +210,25 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
 
     /* protected - [abstract & virtual]         */
 
+    abstract protected Class_GetType OnCreateClass_WhenEmptyPool(Class_GetType pObjectCopyTarget, int iID);
+
+    virtual protected void OnPopObject(Class_GetType pClassType) { }
+    virtual protected void OnPushObject(Class_GetType pClassType) { }
 
     // ========================================================================== //
 
     #region Private
 
-    private void Add_NewObjectType(GameObject pObjectCopyTarget, int iID)
+    private void Add_NewObjectType(Class_GetType pObjectCopyTarget, int iID)
     {
         if (_mapUnUsed.ContainsKey(iID) == false)
         {
             _mapUsed.Add(iID, new HashSet<Class_GetType>());
             _mapUnUsed.Add(iID, new List<Class_GetType>());
-            _mapLayerBackup.Add(iID, pObjectCopyTarget.layer);
         }
     }
 
-    private Class_GetType Get_UnusedObject(GameObject pObjectCopyTarget, int iID)
+    private Class_GetType Get_UnusedObject(Class_GetType pObjectCopyTarget, int iID)
     {
         Class_GetType pComponentUnUsed;
         if (_mapUnUsed[iID].Count != 0)
@@ -234,18 +239,16 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
         }
         else
         {
-            GameObject pObjectUnUsed = Instantiate(pObjectCopyTarget.gameObject);
-            pObjectUnUsed.name = string.Format("{0}_{1}", pObjectCopyTarget.name, _mapUnUsed[iID].Count + _mapUsed[iID].Count);
-            pObjectUnUsed.transform.SetParent(transform);
+            pComponentUnUsed = OnCreateClass_WhenEmptyPool(pObjectCopyTarget, iID);
 
-            CCompoEventTrigger_OnDisable pEventTrigger = pObjectUnUsed.AddComponent<CCompoEventTrigger_OnDisable>();
-            pEventTrigger.p_Event_OnDestroy += Event_RemovePoolObject;
-
-            pComponentUnUsed = pObjectUnUsed.GetComponent<Class_GetType>();
-            if(pComponentUnUsed == null)
-                Debug.LogError(name + " 풀링 매니져 에러 - pComponentNew == null, Origin Object : " + pObjectCopyTarget.name, pObjectCopyTarget);
-
-            _mapAllInstance.Add(pComponentUnUsed, iID);
+            try
+            {
+                _mapAllInstance.Add(pComponentUnUsed, iID);
+            }
+            catch
+            {
+                _mapAllInstance.Add(pComponentUnUsed, iID);
+            }
         }
 
         _mapUsed[iID].Add(pComponentUnUsed);
@@ -261,10 +264,6 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
 
             if (_mapUnUsed.ContainsKey(iID))
                 _mapUnUsed[iID].Add(pObjectReturn);
-
-            if (pObjectReturn.gameObject.activeInHierarchy &&
-                pObjectReturn.transform.parent != transform)
-                pObjectReturn.transform.SetParent(transform);
         }
     }
 
@@ -277,97 +276,53 @@ public class CManagerPooling<Class_GetType> : CSingletonNotMonoBase<CManagerPool
 
 public class CManagerPooling_Test
 {
-    public enum ETestPoolingObjectName
+    public class PoolingObjectTest
     {
-        Test1,
-        Test2,
-
-        Max,
+        public string strText;
     }
 
-    public class TestPoolingObject : MonoBehaviour
+    /// <summary>
+    /// 일반 클래스 풀링 테스트
+    /// </summary>
+    [Test]
+    public void NormalClass_PoolTest()
     {
-        static protected Dictionary<ETestPoolingObjectName, int> g_mapActiveCount;
-        public ETestPoolingObjectName eTestType;
+        PoolingObjectTest pPoolingOrigin = new PoolingObjectTest();
+        pPoolingOrigin.strText = "원본 클래스";
+        Assert.AreEqual(pPoolingOrigin.strText, "원본 클래스");
 
-        static public void ResetActiveCount()
-        {
-            g_mapActiveCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test1, 0 }, { ETestPoolingObjectName.Test2, 0 } };
-        }
-
-        static public int GetActiveCount(ETestPoolingObjectName eTestPoolingObjectName)
-        {
-            return g_mapActiveCount[eTestPoolingObjectName];
-        }
-
-        private void OnEnable() { g_mapActiveCount[eTestType]++; }
-        private void OnDisable() { g_mapActiveCount[eTestType]--; }
-    }
-
-    [UnityTest]
-    [Category("StrixLibrary")]
-    public IEnumerator ManagerPoolingGeneric_IsWorking()
-    {
-        CManagerPooling<TestPoolingObject> pPoolingManager = CManagerPooling<TestPoolingObject>.instance;
-        Dictionary <ETestPoolingObjectName, GameObject> mapObjectInstance = InitTest();
-
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test1));
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test2));
-
-
-        // Test1
-        List<TestPoolingObject> listObjectPooling = new List<TestPoolingObject>();
+        List<PoolingObjectTest> listPooling = new List<PoolingObjectTest>();
         for (int i = 0; i < 10; i++)
-            listObjectPooling.Add(pPoolingManager.DoPop(mapObjectInstance[ETestPoolingObjectName.Test1]));
-
-        Assert.AreEqual(10, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test1));
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test2));
-
-        for (int i = 0; i < listObjectPooling.Count; i++)
-            pPoolingManager.DoPush(listObjectPooling[i]);
-
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test1));
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test2));
-
-
-        // Test2
-        listObjectPooling.Clear();
-        for (int i = 0; i < 5; i++)
-            listObjectPooling.Add(pPoolingManager.DoPop(mapObjectInstance[ETestPoolingObjectName.Test2]));
-
-        // Active Check
-        for (int i = 0; i < listObjectPooling.Count; i++)
-            Assert.AreEqual(true, listObjectPooling[i].gameObject.activeSelf);
-
-        Assert.AreEqual(5, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test2));
-
-        for (int i = 0; i < listObjectPooling.Count; i++)
-            pPoolingManager.DoPush(listObjectPooling[i]);
-
-        // Active Check - 리턴했기 때문에 False
-        for (int i = 0; i < listObjectPooling.Count; i++)
-            Assert.AreEqual(false, listObjectPooling[i].gameObject.activeSelf);
-
-        Assert.AreEqual(0, TestPoolingObject.GetActiveCount(ETestPoolingObjectName.Test2));
-
-        yield break;
-    }
-
-    private Dictionary<ETestPoolingObjectName, GameObject> InitTest()
-    {
-        TestPoolingObject.ResetActiveCount();
-
-        Dictionary<ETestPoolingObjectName, GameObject> mapObjectPooling = new Dictionary<ETestPoolingObjectName, GameObject>();
-        for (int i = 0; i < (int)ETestPoolingObjectName.Max; i++)
         {
-            ETestPoolingObjectName eTest = (ETestPoolingObjectName)i;
-            GameObject pObjectOrigin_Test = new GameObject(eTest.ToString());
-            pObjectOrigin_Test.gameObject.SetActive(false);
-            pObjectOrigin_Test.AddComponent<TestPoolingObject>().eTestType = eTest;
-            mapObjectPooling.Add(eTest, pObjectOrigin_Test.gameObject);
+            PoolingObjectTest pPoolObject = CManagerPooling<PoolingObjectTest>.instance.DoPop(pPoolingOrigin);
+            pPoolObject.strText = i.ToString(); // 인스턴스가 각자 다르기 때문에 다른 값이 세팅
+
+            listPooling.Add(pPoolObject);
         }
 
-        return mapObjectPooling;
+        for(int i = 0; i < listPooling.Count; i++)
+        {
+            PoolingObjectTest pPoolObject = listPooling[i];
+            Assert.AreEqual(pPoolObject.strText, i.ToString()); // 인스턴스가 각자 다른지 확인
+        }
+
+        CManagerPooling<PoolingObjectTest>.instance.DoPushAll();
+
+        // 10번 생성 후 모두 리턴을 5번씩
+        for(int i = 0; i < 5; i++)
+        {
+            listPooling.Clear();
+            for (int j = 0; j < 10; j++)
+            {
+                PoolingObjectTest pPoolObject = CManagerPooling<PoolingObjectTest>.instance.DoPop(pPoolingOrigin);
+                listPooling.Add(pPoolObject);
+            }
+
+            CManagerPooling<PoolingObjectTest>.instance.DoPushAll();
+        }
+
+        Assert.AreEqual(CManagerPooling<PoolingObjectTest>.instance.p_iInstanceCount, 10); // 최대 생성 수는 10번이다.
+        Assert.AreEqual(pPoolingOrigin.strText, "원본 클래스"); // 원본 오브젝트는 변함이 없다.
     }
 }
 

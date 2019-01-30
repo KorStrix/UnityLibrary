@@ -89,12 +89,12 @@ public class CFollowObject : CObjectBase
 
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.Button]
+#endif
     public void DoInitTarget(Transform pTarget)
     {
         _pTransTarget = pTarget;
 		DoResetFollowOffset();
 	}
-#endif
 
     public void DoResetFollowOffset()
 	{
@@ -151,9 +151,7 @@ public class CFollowObject : CObjectBase
         base.OnUpdate();
 
         if (p_eFollowMode == EFollowMode.Update)
-        {
             DoUpdateFollow();
-        }
     }
 
     private void FixedUpdate()

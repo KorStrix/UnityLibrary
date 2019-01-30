@@ -118,10 +118,10 @@ public class CSineVFXLaser : CObjectBase
         _iHitCount = 0;
 
         if (_pTransformStart)
-            _pTransformStart.SetActive(true);
+            _pTransformStart.gameObject.SetActive(true);
 
         if (_pTransformExplosion)
-            _pTransformExplosion.SetActive(false);
+            _pTransformExplosion.gameObject.SetActive(false);
 
         _pLineRenderer.material.SetFloat("_Progress", 0f);
         _pLineRenderer.widthMultiplier = 0f;
@@ -146,13 +146,13 @@ public class CSineVFXLaser : CObjectBase
         if (pObjectStartPrefab)
         {
             _pTransformStart = Instantiate(pObjectStartPrefab, transform).transform;
-            _pTransformStart.SetActive(false);
+            _pTransformStart.gameObject.SetActive(false);
         }
 
         if (pObjectExplosionPrefab)
         {
             _pTransformExplosion = Instantiate(pObjectExplosionPrefab, transform).transform;
-            _pTransformExplosion.SetActive(false);
+            _pTransformExplosion.gameObject.SetActive(false);
         }
 
         particleSpawnPositions = new Vector3[(int)(fLaserLength * 2f)];
@@ -203,10 +203,10 @@ public class CSineVFXLaser : CObjectBase
     private void OnFinishLaser()
     {
         if (_pTransformExplosion)
-            _pTransformExplosion.SetActive(false);
+            _pTransformExplosion.gameObject.SetActive(false);
 
         if (_pTransformStart)
-            _pTransformStart.SetActive(false);
+            _pTransformStart.gameObject.SetActive(false);
     }
 
     // Updating and Fading
@@ -221,7 +221,7 @@ public class CSineVFXLaser : CObjectBase
         bool bActiveExplosionEffect = _bPlayExplosionEffect && fPlayExplosion_Progress_Min <=_fProgress_0_1 && _fProgress_0_1 <= fPlayExplosion_Progress_Max;
         if (_pTransformExplosion)
         {
-            _pTransformExplosion.SetActive(bActiveExplosionEffect);
+            _pTransformExplosion.gameObject.SetActive(bActiveExplosionEffect);
             _pTransformExplosion.position = _vecPosition_ForExplosion;
         }
     }

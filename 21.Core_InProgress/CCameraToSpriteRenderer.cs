@@ -101,7 +101,7 @@ public class CCameraToSpriteRenderer : CObjectBase
 			System.IntPtr pTexturePointer = _pRenderTexture.GetNativeTexturePtr();
 			_pTextureCopy.UpdateExternalTexture( pTexturePointer );
 
-			yield return SCManagerYield.GetWaitForSecond( p_fUpdateDelaySec );
+			yield return YieldManager.GetWaitForSecond( p_fUpdateDelaySec );
 		}
 	}
 

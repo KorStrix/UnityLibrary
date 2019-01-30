@@ -84,7 +84,7 @@ public class C2DSpriteAnimation : CObjectBase
                 {
                     bool bIsFinishAnimation = CalculateNextAnimation();
 
-                    yield return new WaitForSeconds(1 / p_fFPS);
+                    yield return YieldManager.GetWaitForSecond(1 / p_fFPS);
 
                     if (bIsFinishAnimation && p_bIsLoop == false)
                         break;

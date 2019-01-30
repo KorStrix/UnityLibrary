@@ -149,7 +149,7 @@ public class CSpineRandomPlayer : CObjectBase
 
 				_pSpineController.DoPlayAnimation( pCurrentRandomAnimation.strAnimation );
 
-				yield return new WaitForSeconds( pCurrentRandomAnimation.GetRandomDuration() );
+				yield return YieldManager.GetWaitForSecond( pCurrentRandomAnimation.GetRandomDuration() );
 			}
 		}
 	}

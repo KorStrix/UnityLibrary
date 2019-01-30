@@ -21,12 +21,13 @@ public enum EAnimationEvent
     AnimationFinish = 4,
 }
 
+public delegate void OnPlayAnimation(string strAnimationName);
 public delegate void OnFinishAnimation(string strAnimationName, bool bIsInterrupted);
-public delegate void OnCallBackAnimation(string strAnimationName);
+public delegate void OnAnimationEvent(string strAnimationName, string strEventName);
 
 public interface IAnimationController
 {
-    event OnCallBackAnimation p_Event_OnAnimationEvent;
+    event OnAnimationEvent p_Event_OnAnimationEvent;
 
 
     void DoPlayAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)

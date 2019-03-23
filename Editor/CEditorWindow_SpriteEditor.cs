@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
    Edit Log    : 
    ============================================ */
 
-public class CEditorWindow_SpriteEditor : CEditorWindowBase<CEditorWindow_SpriteEditor>
+public class CEditorWindow_SpriteEditor : CEditorWindow
 {
 	/* const & readonly declaration             */
 
@@ -45,24 +45,24 @@ public class CEditorWindow_SpriteEditor : CEditorWindowBase<CEditorWindow_Sprite
 		base.OnGUIWindowEditor();
 
 		EditorGUILayout.HelpBox( "Project View에서 폴더 한개만 선택해주세요.\n", MessageType.Info );
-		GUILayout.Space( 20f );
+        Space( 20f );
 
-		GUILayout.BeginHorizontal();
+		BeginHorizontal();
 		_eSpriteMeshType = (SpriteMeshType)EditorGUILayout.EnumPopup( "SpriteMeshType", _eSpriteMeshType );
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 
-		GUILayout.BeginHorizontal();
-		EditorGUILayout.LabelField( "Sprite Tag" );
+		BeginHorizontal();
+        LabelField( "Sprite Tag" );
 		_strSpriteTag = EditorGUILayout.TextField( _strSpriteTag );
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 
-		GUILayout.BeginHorizontal();
-		EditorGUILayout.LabelField( "iSprite Extrude" );
+		BeginHorizontal();
+        LabelField( "iSprite Extrude" );
 		_iSpriteExtrude = EditorGUILayout.IntField( _iSpriteExtrude );
-		GUILayout.EndHorizontal();
-		
-		GUILayout.Space( 20f );
-		if (GUILayout.Button( "폴더 내 모든 Texture 수정하기" ))
+		EndHorizontal();
+
+        Space( 20f );
+		if (Button( "폴더 내 모든 Texture 수정하기" ))
 		{
 			DoEditTextureAll();
 		}

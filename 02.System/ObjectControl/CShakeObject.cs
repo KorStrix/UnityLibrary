@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[ExecuteInEditMode]
 public class CShakeObject : CObjectBase
 {
     public enum EShakePos
@@ -15,10 +16,13 @@ public class CShakeObject : CObjectBase
     }
 
     [SerializeField]
+    [Rename_Inspector("흔들리기 적용위치")]
     private EShakePos _eShakePosType = EShakePos.All;
     [SerializeField]
+    [Rename_Inspector("기본 흔드는 힘")]
     private float _fDefaultShakePow = 1f;
     [SerializeField]
+    [Rename_Inspector("흔드는 힘을 깎는 양")]
     private float _fShakeMinusDelta = 0.1f;
 	//[SerializeField]
 	//private bool _bMachineShaking = false;
@@ -26,7 +30,7 @@ public class CShakeObject : CObjectBase
 	private Vector3 _vecOriginPos;
     private float _fRemainShakePow;
 
-    Coroutine _pCoroutine;
+    bool _bIsShaking;
 
 	// ========================== [ Division ] ========================== //
 
@@ -40,51 +44,55 @@ public class CShakeObject : CObjectBase
 #endif
     public void DoShakeObject()
     {
-        _fRemainShakePow = _fDefaultShakePow;
+        DoShakeObject(_fDefaultShakePow);
+    }
 
-        if (_pCoroutine != null)
-            StopCoroutine(_pCoroutine);
-        _pCoroutine = StartCoroutine(CoStartShake());
-	}
-
-	public void DoShakeObject(float fShakePow)
+    public void DoShakeObject(float fShakePow)
     {
-        transform.localPosition = _vecOriginPos;
-        _fRemainShakePow = fShakePow;
+        if(_bIsShaking)
+            transform.localPosition = _vecOriginPos;
 
-        if (_pCoroutine != null)
-            StopCoroutine(_pCoroutine);
-        _pCoroutine = StartCoroutine(CoStartShake());
+        _bIsShaking = true;
+        _fRemainShakePow = fShakePow;
+        _vecOriginPos = transform.localPosition;
     }
 
     // ========================== [ Division ] ========================== //
 
-    private IEnumerator CoStartShake()
+    protected override void OnAwake()
     {
-        _vecOriginPos = transform.localPosition;
-        while (_fRemainShakePow > 0f)
+        base.OnAwake();
+
+        _vecOriginPos = Vector3.one * float.MaxValue; // 더미값
+    }
+
+    private void Update()
+    {
+        if(_bIsShaking)
         {
-            Vector3 vecShakePos = PrimitiveHelper.RandomRange(_vecOriginPos.AddFloat(-_fRemainShakePow), _vecOriginPos.AddFloat(_fRemainShakePow));
-            if(_eShakePosType != EShakePos.All)
+            if (_fRemainShakePow > 0f)
             {
-                if (_eShakePosType == EShakePos.Y || _eShakePosType == EShakePos.YZ || _eShakePosType == EShakePos.Z)
-                    vecShakePos.x = _vecOriginPos.x;
+                Vector3 vecShakePos = PrimitiveHelper.RandomRange(_vecOriginPos.AddFloat(-_fRemainShakePow), _vecOriginPos.AddFloat(_fRemainShakePow));
+                if (_eShakePosType != EShakePos.All)
+                {
+                    if (_eShakePosType == EShakePos.Y || _eShakePosType == EShakePos.YZ || _eShakePosType == EShakePos.Z)
+                        vecShakePos.x = _vecOriginPos.x;
 
-                if (_eShakePosType == EShakePos.X || _eShakePosType == EShakePos.XZ|| _eShakePosType == EShakePos.Z)
-                    vecShakePos.y = _vecOriginPos.y;
+                    if (_eShakePosType == EShakePos.X || _eShakePosType == EShakePos.XZ || _eShakePosType == EShakePos.Z)
+                        vecShakePos.y = _vecOriginPos.y;
 
-                if (_eShakePosType == EShakePos.X || _eShakePosType == EShakePos.XY || _eShakePosType == EShakePos.Y)
-                    vecShakePos.z = _vecOriginPos.z;
+                    if (_eShakePosType == EShakePos.X || _eShakePosType == EShakePos.XY || _eShakePosType == EShakePos.Y)
+                        vecShakePos.z = _vecOriginPos.z;
+                }
+
+                transform.localPosition = vecShakePos;
+                _fRemainShakePow -= _fShakeMinusDelta;
             }
-
-            transform.localPosition = vecShakePos;
-            _fRemainShakePow -= _fShakeMinusDelta;
-
-            yield return null;
+            else
+            {
+                transform.localPosition = _vecOriginPos;
+                _bIsShaking = false;
+            }
         }
-
-        transform.localPosition = _vecOriginPos;
-
-        yield break;
     }
 }

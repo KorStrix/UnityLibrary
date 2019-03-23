@@ -22,9 +22,9 @@ public static class ScriptableObjectUtility_Editor
     /// <summary>
     //	This makes it easy to create, name and place unique new ScriptableObject asset files.
     /// </summary>
-    public static void CreateAsset<T>() where T : ScriptableObject
+    public static T CreateAsset<T>() where T : ScriptableObject
     {
-        T asset = ScriptableObject.CreateInstance<T>();
+        T pAsset = ScriptableObject.CreateInstance<T>();
 
         string path = AssetDatabase.GetAssetPath(Selection.activeObject);
         if (path == "")
@@ -38,11 +38,13 @@ public static class ScriptableObjectUtility_Editor
 
         string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + typeof(T).ToString() + ".asset");
 
-        AssetDatabase.CreateAsset(asset, assetPathAndName);
+        AssetDatabase.CreateAsset(pAsset, assetPathAndName);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EditorUtility.FocusProjectWindow();
-        Selection.activeObject = asset;
+        Selection.activeObject = pAsset;
+
+        return pAsset;
     }
 }

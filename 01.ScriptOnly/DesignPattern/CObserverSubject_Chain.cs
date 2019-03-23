@@ -47,6 +47,19 @@ public class CObserverSubject_ChainData<TChainData>
     protected Dictionary<OnChainData, Data_HasOrder<OnChainData>> _mapDelegate_And_HasOrderInstance = new Dictionary<OnChainData, Data_HasOrder<OnChainData>>();
     protected List<Data_HasOrder<OnChainData>> _listListener = new List<Data_HasOrder<OnChainData>>();
 
+    public event OnChainData Subscribe
+    {
+        add
+        {
+            DoRegist_Listener(value, 0);
+        }
+
+        remove
+        {
+            DoRemove_Listener(value);
+        }
+    }
+
     public TChainData DoNotify(TChainData pValue)
     {
         TChainData pOrigin = pValue;
@@ -120,6 +133,19 @@ public class CObserverSubject_ChainData<T1, TChainData>
 
     protected Dictionary<OnChainData, Data_HasOrder<OnChainData>> _mapDelegate_And_HasOrderInstance = new Dictionary<OnChainData, Data_HasOrder<OnChainData>>();
     protected List<Data_HasOrder<OnChainData>> _listListener = new List<Data_HasOrder<OnChainData>>();
+
+    public event OnChainData Subscribe
+    {
+        add
+        {
+            DoRegist_Listener(value, 0);
+        }
+
+        remove
+        {
+            DoRemove_Listener(value);
+        }
+    }
 
     public TChainData DoNotify(T1 arg, TChainData pValue)
     {
@@ -197,6 +223,19 @@ public class CObserverSubject_ChainData<T1, T2, TChainData>
 
     protected Dictionary<OnChainData, Data_HasOrder<OnChainData>> _mapDelegate_And_HasOrderInstance = new Dictionary<OnChainData, Data_HasOrder<OnChainData>>();
     protected List<Data_HasOrder<OnChainData>> _listListener = new List<Data_HasOrder<OnChainData>>();
+
+    public event OnChainData Subscribe
+    {
+        add
+        {
+            DoRegist_Listener(value, 0);
+        }
+
+        remove
+        {
+            DoRemove_Listener(value);
+        }
+    }
 
     public TChainData DoNotify(T1 arg1, T2 arg2, TChainData pValue)
     {
@@ -278,6 +317,19 @@ public class CObserverSubject_ChainData<T1, T2, T3, TChainData>
 
     protected Dictionary<OnChainData, Data_HasOrder<OnChainData>> _mapDelegate_And_HasOrderInstance = new Dictionary<OnChainData, Data_HasOrder<OnChainData>>();
     protected List<Data_HasOrder<OnChainData>> _listListener = new List<Data_HasOrder<OnChainData>>();
+
+    public event OnChainData Subscribe
+    {
+        add
+        {
+            DoRegist_Listener(value, 0);
+        }
+
+        remove
+        {
+            DoRemove_Listener(value);
+        }
+    }
 
     public TChainData DoNotify(T1 arg1, T2 arg2, T3 arg3, TChainData pValue)
     {

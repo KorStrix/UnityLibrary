@@ -278,7 +278,7 @@ public class CSoundSlot : CObjectBase
             while (fPlayingSec < _pAudioClip.length)
 			{
 				name = string.Format("{0} Time[ {1}s / {2}s ] Volume[ {3} ] {4}", _strOriginName, fPlayingSec, iAudioLength, _pAudioSource.volume, strAudioName);
-                yield return YieldManager.GetWaitForSecondRealTime( 1f );
+                yield return new WaitForSecondsRealtime( 1f );
                 yield return new CYield_IsWaitingSoundSlot();
                 fPlayingSec += 1f;
 			}
@@ -292,7 +292,7 @@ public class CSoundSlot : CObjectBase
 		{
             _pAudioSource.Play();
             yield return new CYield_IsWaitingSoundSlot();
-            yield return YieldManager.GetWaitForSecondRealtime(_pAudioClip.length);
+            yield return new WaitForSecondsRealtime(_pAudioClip.length);
         } while (_bLoopSound);
 
 #endif

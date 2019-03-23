@@ -50,7 +50,7 @@ public class CEffect : CObjectBase
 	private CNGUI2DSpriteAnimation _pNGUISpriteAnimation = null;
 
     [GetComponentInChildren]
-    C2DSpriteAnimation _pSpriteAnimation = null;
+    CSpriteRendererAnimator _pSpriteAnimation = null;
 
 	private System.Action _OnFinishEffect_OneShot;
     private bool _bIsStop = false;

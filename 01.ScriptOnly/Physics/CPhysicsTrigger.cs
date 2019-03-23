@@ -15,7 +15,7 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 #endif
 
-public class CPhysicsTrigger : CObjectBase
+public class CPhysicsTrigger : CObjectBase, IPhysicsWrapper
 {
     /* const & readonly declaration             */
 
@@ -34,20 +34,10 @@ public class CPhysicsTrigger : CObjectBase
         BoxCollider_2D,
     }
 
-    public enum EPhysicsEventCustom
-    {
-        Enter,
-        Stay,
-        Exit
-    }
-
     /* public - Field declaration            */
 
-    public delegate void OnPhysicsEvent2D(List<Collider2D> listCollider, EPhysicsEventCustom ePhysicsEvent);
-    public delegate void OnPhysicsEvent3D(List<Collider> listCollider, EPhysicsEventCustom ePhysicsEvent);
-
-    public event OnPhysicsEvent2D p_Event_OnPhysicsEvent_Custom2D;
-    public event OnPhysicsEvent3D p_Event_OnPhysicsEvent_Custom3D;
+    public event OnPhysicsEvent2D p_Event_IPhysicsWrapper_OnPhysicsEvent_2D;
+    public event OnPhysicsEvent3D p_Event_IPhysicsWrapper_OnPhysicsEvent_3D;
 
     [Rename_Inspector("컬라이더 On")]
     public bool p_bColliderOn = false;
@@ -353,9 +343,9 @@ public class CPhysicsTrigger : CObjectBase
 
         OnCalculate_Inner_And_ExitCollider_3D(_listCollider3D_Enter, _listCollider3D_Stay, _listCollider3D_Exit);
 
-        ExcutePhysicsEvent_3D(_listCollider3D_Stay, EPhysicsEventCustom.Enter);
-        ExcutePhysicsEvent_3D(_listCollider3D_Enter, EPhysicsEventCustom.Stay);
-        ExcutePhysicsEvent_3D(_listCollider3D_Exit, EPhysicsEventCustom.Exit);
+        ExcutePhysicsEvent_3D(_listCollider3D_Stay, EPhysicsEvent.Enter);
+        ExcutePhysicsEvent_3D(_listCollider3D_Enter, EPhysicsEvent.Stay);
+        ExcutePhysicsEvent_3D(_listCollider3D_Exit, EPhysicsEvent.Exit);
 
         _listCollider3D_Enter.AddRange(_listCollider3D_Stay);
 
@@ -376,9 +366,9 @@ public class CPhysicsTrigger : CObjectBase
 
         OnCalculate_Inner_And_ExitCollider_2D(_listCollider2D_Stay, _listCollider2D_Enter, _listCollider2D_Exit);
 
-        ExcutePhysicsEvent_2D(_listCollider2D_Enter, EPhysicsEventCustom.Enter);
-        ExcutePhysicsEvent_2D(_listCollider2D_Stay, EPhysicsEventCustom.Stay);
-        ExcutePhysicsEvent_2D(_listCollider2D_Exit, EPhysicsEventCustom.Exit);
+        ExcutePhysicsEvent_2D(_listCollider2D_Enter, EPhysicsEvent.Enter);
+        ExcutePhysicsEvent_2D(_listCollider2D_Stay, EPhysicsEvent.Stay);
+        ExcutePhysicsEvent_2D(_listCollider2D_Exit, EPhysicsEvent.Exit);
 
         _listCollider2D_Stay.AddRange(_listCollider2D_Enter);
 
@@ -386,28 +376,28 @@ public class CPhysicsTrigger : CObjectBase
             _listCollider2D_Stay.Remove(_listCollider2D_Exit[i]);
 
         if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(Time.realtimeSinceStartup.ToString("F2") + " Current - " + _listCollider2D_Stay.ToStringList());
+            Debug.Log(" Current - " + _listCollider2D_Stay.ToStringList());
     }
 
 
 
 
-    private void ExcutePhysicsEvent_3D(List<Collider> listCollider, EPhysicsEventCustom ePhysicsEventCustom)
+    private void ExcutePhysicsEvent_3D(List<Collider> listCollider, EPhysicsEvent ePhysicsEventCustom)
     {
         if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(Time.realtimeSinceStartup.ToString("F2") + ePhysicsEventCustom.ToString() + " - " + listCollider.ToStringList());
+            Debug.Log(ePhysicsEventCustom.ToString() + " - " + listCollider.ToStringList());
 
-        if (listCollider.Count != 0 && p_Event_OnPhysicsEvent_Custom3D != null)
-            p_Event_OnPhysicsEvent_Custom3D.Invoke(listCollider, ePhysicsEventCustom);
+        if (listCollider.Count != 0 && p_Event_IPhysicsWrapper_OnPhysicsEvent_3D != null)
+            p_Event_IPhysicsWrapper_OnPhysicsEvent_3D.Invoke(listCollider, ePhysicsEventCustom);
     }
 
-    private void ExcutePhysicsEvent_2D(List<Collider2D> listCollider, EPhysicsEventCustom ePhysicsEventCustom)
+    private void ExcutePhysicsEvent_2D(List<Collider2D> listCollider, EPhysicsEvent ePhysicsEventCustom)
     {
         if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(Time.realtimeSinceStartup.ToString("F2") + ePhysicsEventCustom.ToString() + " - " + listCollider.ToStringList());
+            Debug.Log(ePhysicsEventCustom.ToString() + " - " + listCollider.ToStringList());
 
-        if (listCollider.Count != 0 && p_Event_OnPhysicsEvent_Custom2D != null)
-            p_Event_OnPhysicsEvent_Custom2D.Invoke(listCollider, ePhysicsEventCustom);
+        if (listCollider.Count != 0 && p_Event_IPhysicsWrapper_OnPhysicsEvent_2D != null)
+            p_Event_IPhysicsWrapper_OnPhysicsEvent_2D.Invoke(listCollider, ePhysicsEventCustom);
     }
 
 

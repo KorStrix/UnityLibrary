@@ -85,10 +85,14 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 
     /* protected - Field declaration         */
 
+    protected Dictionary<string, Text> _mapText = new Dictionary<string, Text>();
+
     /* private - Field declaration           */
 
     private IManagerUI _pManagerUI;
 	private int _iHashCode;
+
+    Text[] _arrChildText;
 
 	#endregion Field
 
@@ -152,6 +156,25 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
         OnHidePanel();
     }
 
+    public Text GetText_OrNull<TextName>(TextName strTextName)
+    {
+        string strText = strTextName.ToString();
+        if (_mapText.ContainsKey(strText) == false)
+        {
+            for (int i = 0; i < _arrChildText.Length; i++)
+            {
+                Text pText = _arrChildText[i];
+                if (pText.name == strText)
+                {
+                    _mapText.Add(pText.name, pText);
+                    break;
+                }
+            }
+        }
+
+        return _mapText[strText];
+    }
+
     /* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/
 
@@ -173,6 +196,13 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
        자식 객체가 호출(For Child class call)		*/
 
     /* protected - Override & Unity API         */
+
+    protected override void OnAwake()
+    {
+        base.OnAwake();
+
+        _arrChildText = GetComponentsInChildren<Text>();
+    }
 
     #endregion Protected
 

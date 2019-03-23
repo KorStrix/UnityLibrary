@@ -70,7 +70,7 @@ public class CPointEffector2D : CObjectBase
     {
         base.OnAwake();
 
-        _pCustomTrigger.p_Event_OnPhysicsEvent_Custom2D += _pCustomTrigger_p_Event_OnPhysicsEvent_Custom2D;
+        _pCustomTrigger.p_Event_IPhysicsWrapper_OnPhysicsEvent_2D += _pCustomTrigger_p_Event_OnPhysicsEvent_Custom2D;
     }
 
     protected override void OnEnableObject()
@@ -80,13 +80,13 @@ public class CPointEffector2D : CObjectBase
         _mapEffectorTarget.Clear();
     }
 
-    private void _pCustomTrigger_p_Event_OnPhysicsEvent_Custom2D(List<Collider2D> listCollider, CPhysicsTrigger.EPhysicsEventCustom ePhysicsEvent)
+    private void _pCustomTrigger_p_Event_OnPhysicsEvent_Custom2D(List<Collider2D> listCollider, EPhysicsEvent ePhysicsEvent)
     {
-        if (ePhysicsEvent == CPhysicsTrigger.EPhysicsEventCustom.Enter || ePhysicsEvent == CPhysicsTrigger.EPhysicsEventCustom.Stay)
+        if (ePhysicsEvent == EPhysicsEvent.Enter || ePhysicsEvent == EPhysicsEvent.Stay)
         {
             Logic_PointEffector(listCollider, Time.deltaTime);
         }
-        else if (ePhysicsEvent == CPhysicsTrigger.EPhysicsEventCustom.Exit)
+        else if (ePhysicsEvent == EPhysicsEvent.Exit)
         {
             Remove_CheckTimeList(listCollider);
         }

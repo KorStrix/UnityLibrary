@@ -76,7 +76,7 @@ public class CEditorProjectView_GetObjectNameList : Editor
 		}
 
 		ProcPrintListObject( listObject, false );
-	}
+    }
 
 	[MenuItem( "Assets/StrixTool/Get Object Name List by Enter", false, 0 )]
 	[MenuItem( "GameObject/StrixTool/Get Object Name List by Enter", false, 15 )]

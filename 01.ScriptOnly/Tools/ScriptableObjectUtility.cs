@@ -88,6 +88,17 @@ public static class ScriptableObjectUtility
         return pAsset;
     }
 
+    public static T CreateAsset<T>(T pAsset, string strPath = "Assets/Default.asset") where T : ScriptableObject
+    {
+        string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(strPath);
+        AssetDatabase.CreateAsset(pAsset, assetPathAndName);
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.FocusProjectWindow();
+
+        return pAsset;
+    }
 
     public static T CreateAsset<T>(string strName, string strPath = "Assets") where T : ScriptableObject
     {

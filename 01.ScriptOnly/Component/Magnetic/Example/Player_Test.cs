@@ -50,7 +50,7 @@ public class Player_Test : CObjectBase
 
 	private void OnTriggerEnter(Collider pCollider)
 	{
-		print(name + " " + pCollider.name);
+		print(name + " OnTriggerEnter " + pCollider.name);
 	}
 
 	#endregion Protected

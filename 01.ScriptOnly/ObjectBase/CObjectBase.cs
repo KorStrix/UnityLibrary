@@ -40,9 +40,8 @@ public class CObjectBase :
 #endif
 
 {
-    [SerializeField]
     [Rename_Inspector("디버깅 필터")]
-    protected EDebugFilter p_eDebugFilter = EDebugFilter.None;
+    public EDebugFilter p_eDebugFilter = EDebugFilter.None;
 
     public CObserverSubject<CObjectBase, GameObject, bool> p_Event_OnActivate { get; private set; } = new CObserverSubject<CObjectBase, GameObject, bool>();
 

@@ -115,6 +115,7 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
 
 		public void SetActive(bool bActive)
 		{
+            _bIsShowCurrent = bActive;
 			_pPanel.gameObject.SetActive( bActive );
 		}
 

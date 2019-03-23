@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-public class AssetBundleTestEditor : CEditorWindowBase<AssetBundleTestEditor>
+public class AssetBundleTestEditor : CEditorWindow
 {
     static readonly string const_strBundlePathOutput = "Assets/StreamingAssets/AssetBundle";
 

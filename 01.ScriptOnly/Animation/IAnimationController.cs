@@ -30,7 +30,7 @@ public interface IAnimationController
     event OnAnimationEvent p_Event_OnAnimationEvent;
 
 
-    void DoPlayAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
+    bool DoPlayAnimation<ENUM_ANIMATION_NAME>(ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null)
         where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable;
 
     void DoPlayAnimation_Continuedly<ENUM_ANIMATION_NAME>(System.Action OnFinishAnimationAll, params ENUM_ANIMATION_NAME[] arrAnimName)

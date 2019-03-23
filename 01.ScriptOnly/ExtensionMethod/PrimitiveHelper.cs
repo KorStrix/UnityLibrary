@@ -146,7 +146,7 @@ public static class PrimitiveHelper
 		if (iValue < 1000)
 			return iValue.ToString();
 		else
-			return string.Format( "{0:#,###}", iValue );
+			return string.Format( "{0:#,###,###}", iValue );
 	}
 
 	public static string CommaString( this float fValue )
@@ -336,10 +336,8 @@ public static class PrimitiveHelper
 
 	public static float GetCalcReverseFloat(float fLast, float fCurrent)
 	{
-		float fCalcReverse = (fLast / (fLast + (fCurrent - fLast)));
-
-		return fCalcReverse;
-	}
+		return (fLast / (fLast + (fCurrent - fLast)));
+    }
 
 
 	public enum ETransformSibling

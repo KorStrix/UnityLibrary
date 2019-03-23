@@ -29,6 +29,7 @@ public interface IDropDownInitializer
 	void IDropDownInitializer_Regist_DropDownItem( CUGUIDropdownItem pItem );
 }
 
+[Obsolete("인터페이스로 변경 - " + nameof(IUIObject_HasButton<string>) + " 을 사용하시기 바랍니다.(여전히 작동은 됩니다)")]
 [RequireComponent(typeof(GraphicRaycaster))]
 abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, IDropDownInitializer
 {
@@ -274,7 +275,7 @@ abstract public class CUGUIPanelHasInputBase<Enum_InputName> : CUGUIPanelBase, I
 #region Test
 #if UNITY_EDITOR
 
-[Category("StrixLibrary")]
+[Category("StrixLibrary")] // Todo Interface로 이거 옮겨야함
 public class UGUI_Panel_Test : CUGUIPanelBase, IUIObject_HasButton<UGUI_Panel_Test.EInput>
 {
     public enum EInput

@@ -3,55 +3,64 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector.Editor;
+#endif
+
 /* ============================================ 
    Editor      : Strix
    Description :
    
-	//[MenuItem("Tools/Strix_Tools/Name")]
-	//public static void ShowWindow()
-	//{
-	//	GetWindow(typeof(TClass));
-	//}
+    [MenuItem("Tools/Strix_Tools/Somthing")]
+    public static void ShowWindow()
+    {
+        GetWindow<CInputManager>();
+    }
 
    Version	   :
    ============================================ */
 
-public class CEditorWindowBase<TClass> : EditorWindow
-	where TClass : CEditorWindowBase<TClass>
+#if ODIN_INSPECTOR
+public class CEditorWindow : OdinEditorWindow
+#else
+public class CEditorWindow : EditorWindow
+#endif
 {
-	/* const & readonly declaration             */
+    /* const & readonly declaration             */
 
-	/* enum & struct declaration                */
+    /* enum & struct declaration                */
 
-	/* public - Variable declaration            */
+    /* public - Variable declaration            */
 
-	static public TClass instance { get { return _instance; } }
+    /* protected - Variable declaration         */
 
-	/* protected - Variable declaration         */
+    /* private - Variable declaration           */
 
-	/* private - Variable declaration           */
+    // ========================================================================== //
 
-	static private TClass _instance;
-
-	// ========================================================================== //
-
-	/* public - [Do] Function
+    /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-	/* public - [Event] Function             
+    /* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	/* protected - [abstract & virtual]         */
+    /* protected - [abstract & virtual]         */
 
-	void Start() { OnStart(); }
-	void OnEnable() { _instance = this as TClass; OnEnableObject(); }
+    void Start() { OnStart(); }
 	void Update() { OnUpdate(); }
-	void OnDisable() { _instance = null; OnDisableObject(); }
-	void OnGUI() { OnGUIWindowEditor(); }
+	void OnDisable() { OnDisableObject(); }
 
-	virtual protected void OnStart() { }
+#if ODIN_INSPECTOR
+    protected override void OnEnable() { OnEnableObject(); }
+    protected override void OnGUI() { OnGUIWindowEditor(); }
+#else
+    void OnEnable() { OnEnableObject(); }
+    void OnGUI() { OnGUIWindowEditor(); }
+#endif
+
+    virtual protected void OnStart() { }
 	virtual protected void OnEnableObject() { }
 	virtual protected void OnUpdate() { }
 	virtual protected void OnDisableObject() { }
@@ -59,6 +68,13 @@ public class CEditorWindowBase<TClass> : EditorWindow
 
 	/* protected - [Event] Function           
        자식 객체가 호출(For Child class call)		*/
+
+    protected void BeginHorizontal() { GUILayout.BeginHorizontal(); }
+    protected void EndHorizontal() { GUILayout.EndHorizontal(); }
+
+    protected void LabelField(string strLabel) { EditorGUILayout.LabelField(strLabel); }
+    protected void Space(float fSpace) { GUILayout.Space(fSpace); }
+    protected bool Button(string strButtonName) { return GUILayout.Button(strButtonName); }
 
 	/* protected - Override & Unity API         */
 

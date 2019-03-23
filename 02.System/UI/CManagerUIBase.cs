@@ -342,11 +342,6 @@ abstract public partial class CManagerUIBase<CLASS_Instance, ENUM_Panel_Name, CL
         p_pUICamera = GetComponentInParent<Camera>();
         if (p_pUICamera == null)
             p_pUICamera = GetComponentInChildren<Camera>();
-    }
-
-    protected override void OnEnableObject()
-    {
-        base.OnEnableObject();
 
         DoShowDefaultPanel();
     }

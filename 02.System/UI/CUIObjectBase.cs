@@ -39,6 +39,8 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
 
     /* public - Field declaration            */
 
+    public CObserverSubject<System.Action<string>> p_Event_OnClickButton { get; private set; } = new CObserverSubject<System.Action<string>>();
+
     /* protected - Field declaration         */
 
     /* private - Field declaration           */
@@ -108,7 +110,6 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
         Init_HasToggle();
     }
 
-
     public void OnPointerClick(PointerEventData eventData)
     {
         OnClick();
@@ -176,13 +177,13 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
         {
             System.Type pType_EnumButtonName = pType_InterfaceHasButton.GetGenericArguments()[0];
             var pMethod = pType_InterfaceHasButton.GetMethod("IUIObject_HasButton_OnClickButton");
-            //var pMethodInstance = pMethod.MakeGenericMethod(pType_EnumButtonName);
 
             Button[] arrButton = GetComponentsInChildren<Button>(true);
             for (int i = 0; i < arrButton.Length; i++)
             {
                 Button pButton = arrButton[i];
-                pButton.onClick.RemoveAllListeners();
+                // pButton.onClick.RemoveAllListeners();
+
 
                 bool bParseSuccess = true;
                 object pEnum = null;
@@ -196,7 +197,17 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
                 }
 
                 if (bParseSuccess)
-                    pButton.onClick.AddListener(delegate { pMethod.Invoke(this, new object[1] { pEnum }); });
+                {
+                    UnityEngine.Events.UnityAction pButtonAction = delegate { pMethod.Invoke(this, new object[1] { pEnum }); };
+
+                    if (CManagerCommand.instance != null)
+                        CManagerCommand.instance.Event_RegistUIInpput_Button(this, pButton, pButtonAction);
+                    else
+                    {
+                        pButton.onClick.RemoveListener(pButtonAction);
+                        pButton.onClick.AddListener(pButtonAction);
+                    }
+                }
             }
         }
     }

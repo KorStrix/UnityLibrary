@@ -14,9 +14,6 @@ using UnityEngine.TestTools;
 using UnityEngine.SceneManagement;
 
 public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : CSingletonNotMonoBase<CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource>>
-#if UNITY_EDITOR
-    , IUpdateAble // 하이어라키 실시간 풀링 상황 모니터링을 위한 UpdateAble
-#endif
     where ENUM_Resource_Name : System.IComparable, System.IConvertible
     where Class_Resource : Component
 {
@@ -58,6 +55,9 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
     public void DoInitPoolingObject(string strResourcesPath)
     {
+        if (string.IsNullOrEmpty(p_strResourcesPath) == false)
+            return;
+
         p_strResourcesPath = strResourcesPath;
         GameObject[] arrResources = Resources.LoadAll<GameObject>(string.Format("{0}/", strResourcesPath));
         ProcInitManagerPooling(arrResources.ToList());
@@ -119,9 +119,6 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
         if (p_EVENT_OnPopResource != null)
             p_EVENT_OnPopResource(eResourceName, pFindResource);
-
-        //if (typeof( ENUM_Resource_Name ) == typeof( string ))
-        //	Debug.Log( "Pop " + eResourceName + " Count : " + _queuePoolingDisable[eResourceName].Count, pFindResource );
 
         return pFindResource;
     }
@@ -224,13 +221,10 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
 
 
-    protected override void OnMakeSingleton(out bool bIsGenearteGameObject)
+    protected override void OnMakeSingleton(out bool bIsGenearteGameObject, out bool bIsUpdateAble)
     {
         bIsGenearteGameObject = true;
-
-#if UNITY_EDITOR // 하이어라키뷰에 실시간 풀링 상황 모니터링을 위한 Update
-        CManagerUpdateObject.instance.DoAddObject(this, true);
-#endif
+        bIsUpdateAble = true;
     }
 
     protected override void OnMakeGameObject(GameObject pObject)
@@ -256,14 +250,11 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
         CManagerUpdateObject.instance.DoRemoveObject(this);
     }
 
-    public void OnUpdate()
+    public override void OnUpdate()
     {
-        gameObject.name = p_strManagerName;
-    }
+        base.OnUpdate();
 
-    public bool IUpdateAble_IsRequireUpdate()
-    {
-        return gameObject.activeSelf;
+        gameObject.name = p_strManagerName;
     }
 
 #endif
@@ -281,7 +272,7 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
         if (string.IsNullOrEmpty(p_strResourcesPath))
         {
-            Debug.LogError("Error- Require Set ResourcesPath");
+            Debug.LogError(p_strManagerName + " Error - Require Set ResourcesPath");
             return;
         }
 
@@ -376,7 +367,7 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
         if (_mapResourceOriginCopy.ContainsKey(eResourceName) == false)
         {
-            Debug.LogError("ManagerPool " + eResourceName + "Not Found Resources : " + eResourceName);
+            Debug.LogError("ManagerPool " + eResourceName + " Not Found Resources : " + eResourceName);
             return null;
         }
 

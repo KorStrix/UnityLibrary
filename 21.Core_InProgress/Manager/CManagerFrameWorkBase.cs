@@ -401,7 +401,7 @@ public class CManagerFrameWorkBase<CLASS_Framework, ENUM_Scene_Name, ENUM_DataFi
 		if (p_EVENT_OnFinishPreLoadScene != null)
 			p_EVENT_OnFinishPreLoadScene();
 
-		yield return YieldManager.GetWaitForSecondRealTime(0.5f);
+		yield return new WaitForSecondsRealtime(0.5f);
 
 		if (bManualCall_EventOnFinishLoadScene == false)
 			EventCall_OnFinishLoadScene();

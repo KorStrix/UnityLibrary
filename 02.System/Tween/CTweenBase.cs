@@ -444,7 +444,7 @@ abstract public class CTweenBase : CObjectBase
         if (p_fFirstDelaySec != 0f)
         {
             if (p_bIgnoreTimeScale)
-                yield return YieldManager.GetWaitForSecondRealTime(p_fFirstDelaySec);
+                yield return new WaitForSecondsRealtime(p_fFirstDelaySec);
             else
                 yield return YieldManager.GetWaitForSecond(p_fFirstDelaySec);
         }

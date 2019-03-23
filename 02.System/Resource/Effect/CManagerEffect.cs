@@ -80,6 +80,11 @@ public class CManagerEffect : CSingletonDynamicMonoBase<CManagerEffect>
         return pEffect;
     }
 
+    public void DoPushAll()
+    {
+        _pManagerPooling.DoPushAll();
+    }
+
     /* public - [Event] Function             
        프랜드 객체가 호출                       */
 

@@ -29,7 +29,7 @@ public static class CameraExtensions
 
     // 참고한 링크
     // https://docs.unity3d.com/Manual/FrustumSizeAtDistance.html
-    public static Bounds GetBounds_3D(this Camera pCamera, float fFarDistance)
+    public static Bounds GetBounds_Perspective(this Camera pCamera, float fFarDistance)
     {
         var fFrustumHeight = 2f * fFarDistance * Mathf.Tan(pCamera.fieldOfView * .5f * Mathf.Deg2Rad);
         var fDistance = fFrustumHeight * .5f / Mathf.Tan(pCamera.fieldOfView * .5f * Mathf.Deg2Rad);

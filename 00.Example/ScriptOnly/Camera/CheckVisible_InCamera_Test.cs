@@ -42,7 +42,7 @@ public class CheckVisible_InCamera_Test : CObjectBase
     List<Renderer> _listRenderer = new List<Renderer>();
     Dictionary<Renderer, bool> _mapCheckResult = new Dictionary<Renderer, bool>();
     List<Collider2D> _listCollider_2D;
-    List<Collider> _listCollider;
+    List<Collider> _listCollider = new List<Collider>();
 
     // ========================================================================== //
 
@@ -159,7 +159,7 @@ public class CheckVisible_InCamera_Test : CObjectBase
 
     private void Update_CheckInVisibleGizmo_UsePhysics()
     {
-        Bounds pBound = CManager_CheckVisible_InCamera.instance.p_pCamera.GetBounds_3D(fFarDistance_On3D);
+        Bounds pBound = CManager_CheckVisible_InCamera.instance.p_pCamera.GetBounds_Perspective(fFarDistance_On3D);
         _listCollider_2D = CManager_CheckVisible_InCamera.instance.DoCheck_IsVisible_UsePhysics_2D(pBound, CheckLayerMask);
 
         Invoke(nameof(UpdateGizmo_Collider_2D), 1f);

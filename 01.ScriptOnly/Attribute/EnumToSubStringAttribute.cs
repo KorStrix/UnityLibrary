@@ -16,11 +16,11 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-public class RegistSubStringAttribute : UnityEngine.PropertyAttribute
+public class RegistEnumSubStringAttribute : UnityEngine.PropertyAttribute
 {
     public string strSubString;
 
-    public RegistSubStringAttribute(string strSubString)
+    public RegistEnumSubStringAttribute(string strSubString)
     {
         this.strSubString = strSubString;
     }
@@ -35,7 +35,7 @@ public static class SCEnumToSubStringHelper
         FieldInfo pFieldInfo = pType.GetField(strString);
         if(pFieldInfo != null)
         {
-            RegistSubStringAttribute pAttribute = pFieldInfo.GetCustomAttribute(typeof(RegistSubStringAttribute), false) as RegistSubStringAttribute;
+            RegistEnumSubStringAttribute pAttribute = pFieldInfo.GetCustomAttribute(typeof(RegistEnumSubStringAttribute), false) as RegistEnumSubStringAttribute;
             if(pAttribute != null)
                 strString = pAttribute.strSubString;
         }
@@ -49,7 +49,7 @@ public class EnumToSubStringAttribute_Test
 {
     public enum ETest
     {
-        [RegistSubString("Test11")]
+        [RegistEnumSubStringAttribute("Test11")]
         Test1,
         Test2,
     }

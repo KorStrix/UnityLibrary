@@ -24,8 +24,6 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("디버깅")]
-    public bool p_bIsPrintDebug = false;
     [Rename_Inspector("이벤트 카메라")]
     public Camera p_pEventCamera;
     [Rename_Inspector("히트할 레이어")]
@@ -63,15 +61,12 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         return p_pEventCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, p_pEventCamera.nearClipPlane));
     }
 
-    public Vector3 DoRayCasting_MousePos_3D(Camera pCamera, LayerMask pLayerMask_Hit)
+    public Vector3 DoRayCasting_MousePos_3D(Camera pCamera, LayerMask sLayerMask_Hit)
     {
-        int iLayerMask = pLayerMask_Hit.value;
-        iLayerMask = ~iLayerMask;
-
         RaycastHit pHitInfo;
-        bool bIsHit = Physics.Raycast(pCamera.ScreenPointToRay(Input.mousePosition), out pHitInfo, Mathf.Infinity, iLayerMask);
+        bool bIsHit = Physics.Raycast(pCamera.ScreenPointToRay(Input.mousePosition), out pHitInfo, Mathf.Infinity, sLayerMask_Hit);
 
-        if (p_bIsPrintDebug)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
         {
             Ray pRay = pCamera.ScreenPointToRay(Input.mousePosition);
             if (bIsHit)
@@ -86,16 +81,13 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             return Vector3.zero;
     }
 
-    public Vector3 DoRayCasting_MousePos_2D(Camera pCamera, LayerMask pLayerMask_Hit)
+    public Vector3 DoRayCasting_MousePos_2D(Camera pCamera, LayerMask sLayerMask_Hit)
     {
-        int iLayerMask = pLayerMask_Hit.value;
-        iLayerMask = ~iLayerMask;
+        Ray pRay = pCamera.ScreenPointToRay(Input.mousePosition);
+        var pHitInfo = Physics2D.GetRayIntersection(pRay, Mathf.Infinity, sLayerMask_Hit);
 
-        var pHitInfo = Physics2D.GetRayIntersection(pCamera.ScreenPointToRay(Input.mousePosition), Mathf.Infinity, iLayerMask);
-
-        if (p_bIsPrintDebug)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
         {
-            Ray pRay = pCamera.ScreenPointToRay(Input.mousePosition);
             if (pHitInfo)
                 Debug.DrawRay(pRay.origin, (Vector3)pHitInfo.point - pRay.origin, Color.red, 1f);
             else
@@ -108,12 +100,9 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             return Vector3.zero;
     }
 
-    public List<RaycastHit2D> DoRayCasting_2D(LayerMask pLayerMask_Hit)
+    public List<RaycastHit2D> DoRayCasting_2D(LayerMask sLayerMask_Hit)
     {
-        int iLayerMask = pLayerMask_Hit.value;
-        iLayerMask = ~iLayerMask;
-
-        int iHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit_2D, Mathf.Infinity, iLayerMask);
+        int iHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit_2D, Mathf.Infinity, sLayerMask_Hit);
 
         _listHit_2D.Clear();
         for (int i = 0; i < iHitCount; i++)
@@ -123,14 +112,14 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
     }
 
 
-    public Vector3 DoRayCasting_MousePos_2D(LayerMask pLayerMask_Hit)
+    public Vector3 DoRayCasting_MousePos_2D(LayerMask sLayerMask_Hit)
     {
-        return DoRayCasting_MousePos_2D(p_pEventCamera, pLayerMask_Hit);
+        return DoRayCasting_MousePos_2D(p_pEventCamera, sLayerMask_Hit);
     }
 
-    public Vector3 DoRayCasting_MousePos_3D(LayerMask pLayerMask_Hit)
+    public Vector3 DoRayCasting_MousePos_3D(LayerMask sLayerMask_Hit)
     {
-        return DoRayCasting_MousePos_3D(p_pEventCamera, pLayerMask_Hit);
+        return DoRayCasting_MousePos_3D(p_pEventCamera, sLayerMask_Hit);
     }
 
 
@@ -177,7 +166,7 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        if (p_bIsPrintDebug == false)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core) == false)
             return;
 
         Gizmos.color = Color.red;
@@ -230,7 +219,7 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
                 p_listLastHit.Add(pHit);
                 Transform pTransformHit = pHit.transform;
 
-                if (p_bIsPrintDebug)
+                if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                     Debug.Log(pTransformHit.name + " RayCast Hit bMouseClick: " + bIsClick, pTransformHit);
 
                 if (bIsClick)
@@ -290,7 +279,7 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         else
             _iLastHitCount = Physics.RaycastNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit, Mathf.Infinity, p_pLayerMask_Hit.value);
 
-        if (p_bIsPrintDebug && bIsClick)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core) && bIsClick)
             pRay_OnClick_ForDebug = p_pEventCamera.ScreenPointToRay(Input.mousePosition);
 
         p_listLastHit.Clear();
@@ -305,7 +294,7 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             p_listLastHit.Add(pHit);
             Transform pTransformHit = pHit.transform;
 
-            if (p_bIsPrintDebug)
+            if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
                 Debug.Log(pTransformHit.name + " RayCast Hit bMouseClick: " + bIsClick, pTransformHit);
 
             if (bIsClick)

@@ -107,7 +107,7 @@ public class CUGUITextAnimation : MonoBehaviour
                 p_pTextComponent.text = p_arrTextAnimation[iIndex];
 
                 iIndex++;
-                yield return YieldManager.GetWaitForSecondRealTime(p_fDuration / p_arrTextAnimation.Length);
+                yield return new WaitForSecondsRealtime(p_fDuration / p_arrTextAnimation.Length);
             }
         }
     }

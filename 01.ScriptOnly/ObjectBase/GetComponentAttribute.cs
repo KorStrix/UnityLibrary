@@ -392,7 +392,7 @@ static public class SCManagerGetComponent
                 }
                 catch
                 {
-                    Debug.LogError(pComponentChild.name + " Get Compeont Overlap Key Error ");
+                    Debug.LogError(pComponentChild.name + " Get Compeont - Dictionary Add - Overlap Key MonoType : " + pTargetMono.GetType()+ "/Member : " + pMember.Name, pTargetMono);
                 }
             }
 

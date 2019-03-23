@@ -15,6 +15,7 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 #endif
 
+[RequireComponent(typeof(CCharacterController2D))]
 public class CFallingDamageCalculator : CObjectBase
 {
     /* const & readonly declaration             */
@@ -23,13 +24,14 @@ public class CFallingDamageCalculator : CObjectBase
 
     /* public - Field declaration            */
 
+    public CObserverSubject<float> p_Event_OnFallingDamage { get; private set; } = new CObserverSubject<float>();
+
     [Header("에디터용")]
     [Rename_Inspector("낙사 최대 체력")]
-    public int p_iMaximumHP_OnEditor = 10;
+    public int p_iMaximumHP_OnEditor = 15;
 
+    [Space(5)]
     [Header("세팅용")]
-    [Rename_Inspector("터레인 레이어")]
-    public LayerMask p_pLayer_Terrain;
     [Rename_Inspector("데미지가 안들어가는 길이")]
     public float p_fDistance_IgnoreDamage = 3f;
     [Rename_Inspector("거리 1의 길이")]
@@ -37,18 +39,31 @@ public class CFallingDamageCalculator : CObjectBase
     [Rename_Inspector("거리 1당 데미지")]
     public float p_fDamage_PerDistance = 1f;
 
+    [Space(5)]
+    [Header("프로그래머 세팅용")]
+    [Rename_Inspector("낙사 시작 위치")]
+    public Vector3 p_vecFallingDamageStartPos = Vector3.zero;
+
     /* protected & private - Field declaration         */
 
     Vector3 _vecDirection_Gravity = Vector3.down;
-    bool _bIsGround_Current;
-    float _fFallingDistance_Last;
+    Vector3 _vecPos_Prev;
 
+    bool _bIsGround_Current;
+    [Rename_Inspector("떨어진 거리", false)]
+    [SerializeField]
+    float _fFallingDistance_Last;
 
     // ========================================================================== //
 
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
+    public void DoReset_FallingDistance()
+    {
+        _fFallingDistance_Last = 0f;
+        _vecPos_Prev = transform.position + p_vecFallingDamageStartPos;
+    }
 
     // ========================================================================== //
 
@@ -58,21 +73,48 @@ public class CFallingDamageCalculator : CObjectBase
     {
         base.OnAwake();
 
-        GetComponent<CCharacterController2D>().p_Event_OnGround.Subscribe += P_Event_OnGround_Subscribe;
+        GetComponent<CCharacterController2D>().p_Event_OnGround.Subscribe += OnGround_Subscribe;
+        GetComponent<CCharacterController2D>().p_Event_OnChangePlatformerState.Subscribe += OnChangePlatformerState_Subscribe;
+    }
+
+    protected override void OnEnableObject()
+    {
+        base.OnEnableObject();
+
+        DoReset_FallingDistance();
     }
 
     public override void OnUpdate()
     {
         base.OnUpdate();
 
-        if(_bIsGround_Current == false)
+        Vector3 vecStartPos = transform.position + p_vecFallingDamageStartPos;
+        if (_bIsGround_Current == false)
         {
-            RaycastHit2D sHit = Physics2D.Raycast(transform.position, _vecDirection_Gravity, float.MaxValue);
-            if(sHit)
-                _fFallingDistance_Last = Vector3.Distance(transform.position, sHit.point);
-
+            if (vecStartPos.y > _vecPos_Prev.y)
+            {
+                DoReset_FallingDistance();
+            }
+            else
+            {
+                float fOffsetY = vecStartPos.y - _vecPos_Prev.y;
+                _fFallingDistance_Last += fOffsetY * -1f;
+                _vecPos_Prev = vecStartPos;
+            }
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core) == false)
+            return;
+
+        UnityEditor.Handles.Label(transform.position, "_fFallingDistance_Last : " + _fFallingDistance_Last);
+
+        DrawGizmo_DamageLine();
+    }
+#endif
 
     /* protected - [abstract & virtual]         */
 
@@ -81,7 +123,7 @@ public class CFallingDamageCalculator : CObjectBase
 
     #region Private
 
-    private void P_Event_OnGround_Subscribe(bool bIsGround)
+    private void OnGround_Subscribe(bool bIsGround)
     {
         if (_bIsGround_Current == bIsGround)
             return;
@@ -89,36 +131,53 @@ public class CFallingDamageCalculator : CObjectBase
         _bIsGround_Current = bIsGround;
         if (bIsGround)
             Calculate_FallingDamage();
-
-        Debug.Log(name + " bIsGround : " + bIsGround);
     }
 
     private void Calculate_FallingDamage()
     {
-
-
-        _fFallingDistance_Last = 0f;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core) == false)
+        float fRemainDistance = _fFallingDistance_Last - p_fDistance_IgnoreDamage;
+        if (fRemainDistance < 0f)
             return;
 
-        Vector3 vecDrawLineStartPos = transform.position + (_vecDirection_Gravity * p_fDistance_IgnoreDamage);
-        Color sColorStart =  Color.white;
-        Gizmos.DrawLine(transform.position, vecDrawLineStartPos);
+        float fFallingDamage = (int)(fRemainDistance / p_fDistance_Per1) * p_fDamage_PerDistance;
+        if (fFallingDamage <= 0f)
+            return;
 
-        float fMaximumDistance = ((p_iMaximumHP_OnEditor / (p_fDamage_PerDistance)) * p_fDistance_Per1) +  p_fDistance_IgnoreDamage;
+        p_Event_OnFallingDamage.DoNotify(fFallingDamage);
+
+        DoReset_FallingDistance();
+    }
+
+    private void OnChangePlatformerState_Subscribe(ECharacterControllerState ePrevState, ECharacterControllerState eCurrentState)
+    {
+        if (ePrevState != eCurrentState && eCurrentState == ECharacterControllerState.Falling)
+            DoReset_FallingDistance();
+    }
+
+#if UNITY_EDITOR
+    private void DrawGizmo_DamageLine()
+    {
+        Vector3 vecStartPos = transform.position + p_vecFallingDamageStartPos;
+        Vector3 vecDrawLineStartPos = vecStartPos + (_vecDirection_Gravity * p_fDistance_IgnoreDamage);
+        Vector3 vecDrawLineDestPos = Vector3.zero;
+
+        Color sColorStart = Color.white;
+        Gizmos.color = sColorStart;
+        Gizmos.DrawLine(vecStartPos, vecDrawLineStartPos);
+
+        float fMaximumDistance = ((p_iMaximumHP_OnEditor / p_fDamage_PerDistance) * p_fDistance_Per1) + p_fDistance_IgnoreDamage;
         float fDistanceRemain = fMaximumDistance - p_fDistance_IgnoreDamage;
 
         GUIStyle pGUIStyle = new GUIStyle();
+        pGUIStyle.normal.textColor = sColorStart;
         int iDamage = 1;
+        UnityEditor.Handles.Label(vecDrawLineStartPos, "Damage 1 Start", pGUIStyle);
+
         while (fDistanceRemain > 0f)
         {
             sColorStart.g = fDistanceRemain / fMaximumDistance;
             sColorStart.b = fDistanceRemain / fMaximumDistance;
-            Vector3 vecDrawLineDestPos = transform.position + (_vecDirection_Gravity * p_fDistance_Per1 * (fMaximumDistance - fDistanceRemain));
+            vecDrawLineDestPos = vecDrawLineStartPos + (_vecDirection_Gravity * p_fDistance_Per1);
 
             Gizmos.color = sColorStart;
             Gizmos.DrawLine(vecDrawLineStartPos, vecDrawLineDestPos);
@@ -127,12 +186,16 @@ public class CFallingDamageCalculator : CObjectBase
             fDistanceRemain -= p_fDistance_Per1;
 
             pGUIStyle.normal.textColor = sColorStart;
-            UnityEditor.Handles.Label(vecDrawLineDestPos, iDamage.ToString(), pGUIStyle);
+            UnityEditor.Handles.Label(vecDrawLineDestPos, "Damage : " + (iDamage - 1).ToString() + " Dest & " + iDamage.ToString() + " Start ", pGUIStyle);
             iDamage++;
         }
-    }
 
-    #endregion Private
+        pGUIStyle.normal.textColor = Color.green;
+        UnityEditor.Handles.Label(vecDrawLineDestPos, "Distance : " + fMaximumDistance, pGUIStyle);
+    }
+#endif
+
+#endregion Private
 }
 // ========================================================================== //
 

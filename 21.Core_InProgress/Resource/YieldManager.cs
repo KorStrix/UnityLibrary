@@ -14,28 +14,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class WaitForSecondsRealTime_ForPooling : CustomYieldInstruction
-{
-    private float waitTime;
-
-    public override bool keepWaiting
-    {
-        get { return Time.realtimeSinceStartup < waitTime; }
-    }
-
-    public WaitForSecondsRealTime_ForPooling(float time)
-    {
-        waitTime = Time.realtimeSinceStartup + time;
-    }
-}
-
 public static class YieldManager
 {
     /* const & readonly declaration             */
 
     /* enum & struct declaration                */
 
-    public class floatComparer : EqualityComparer<float>
+    class floatComparer : EqualityComparer<float>
     {
         public override bool Equals(float x, float y)
         {
@@ -56,7 +41,6 @@ public static class YieldManager
     /* private - Field declaration           */
 
     static private Dictionary<float, WaitForSeconds> _mapYieldSeconds = new Dictionary<float, WaitForSeconds>(new floatComparer());
-    static private Dictionary<float, WaitForSecondsRealTime_ForPooling> _mapYieldSecondsRealTime = new Dictionary<float, WaitForSecondsRealTime_ForPooling>(new floatComparer());
 
     #endregion Field
     #region Public
@@ -65,21 +49,13 @@ public static class YieldManager
     /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-    static public WaitForSeconds GetWaitForSecond(float fSec)
+    static public WaitForSeconds GetWaitForSecond(float fSeconcds)
 	{
-		if (_mapYieldSeconds.ContainsKey(fSec) == false)
-			_mapYieldSeconds.Add(fSec, new WaitForSeconds(fSec));
+		if (_mapYieldSeconds.ContainsKey(fSeconcds) == false)
+			_mapYieldSeconds.Add(fSeconcds, new WaitForSeconds(fSeconcds));
 
-		return _mapYieldSeconds[fSec];
+		return _mapYieldSeconds[fSeconcds];
 	}
-
-    static public WaitForSecondsRealTime_ForPooling GetWaitForSecondRealTime(float fSec)
-    {
-        if (_mapYieldSecondsRealTime.ContainsKey(fSec) == false)
-            _mapYieldSecondsRealTime.Add(fSec, new WaitForSecondsRealTime_ForPooling(fSec));
-
-        return _mapYieldSecondsRealTime[fSec];
-    }
 
     /* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/

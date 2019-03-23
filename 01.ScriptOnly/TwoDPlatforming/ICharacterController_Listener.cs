@@ -19,7 +19,6 @@ public enum ECharacterControllerState
     Crouching,
     CrouchWalking,
 
-
     Slope_Sliding,
     Wall_Sliding,
 
@@ -29,6 +28,9 @@ public enum ECharacterControllerState
     Falling,
 
     LedgeGrab,
+
+    Ladder_Hold,
+    Ladder_Climbing,
 }
 
 public interface ICharacterController_Listener

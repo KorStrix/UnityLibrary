@@ -110,11 +110,13 @@ public class CAnimatorController : CObjectBase, IAnimationController
 	/// </summary>
 	/// <param name="eAnimName">플레이 할 애니메이션 이름의 Enum</param>
 	/// <param name="OnFinishAnimation">애니메이션이 종료될 때 호출할 함수</param>
-	public void DoPlayAnimation<ENUM_ANIMATION_NAME>( ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null )
+	public bool DoPlayAnimation<ENUM_ANIMATION_NAME>( ENUM_ANIMATION_NAME eAnimName, OnFinishAnimation OnFinishAnimation = null )
 		where ENUM_ANIMATION_NAME : System.IConvertible, System.IComparable
 	{
         _OnFinishAnimation = OnFinishAnimation;
 		ProcPlayAnim( eAnimName, false );
+
+        return true;
 	}
 
     /// <summary>

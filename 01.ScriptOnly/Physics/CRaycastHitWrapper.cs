@@ -46,7 +46,7 @@ public struct CRaycastHitWrapper
         p_bIs3D = pHitOrigin.transform != null;
         collider3D = pHitOrigin.collider;
 
-        p_pHitOrigin2D = default(RaycastHit2D);
+        p_pHitOrigin2D = new RaycastHit2D();
         p_bIs2D = false;
         collider2D = null;
 
@@ -58,12 +58,12 @@ public struct CRaycastHitWrapper
 
     public CRaycastHitWrapper(RaycastHit2D pHitOrigin)
     {
-        p_pHitOrigin = default(RaycastHit);
+        p_pHitOrigin = new RaycastHit();
         p_bIs3D = false;
         collider3D = null;
 
         p_pHitOrigin2D = pHitOrigin;
-        p_bIs2D = pHitOrigin.Equals(default(RaycastHit2D)) == false;
+        p_bIs2D = true;
         collider2D = pHitOrigin.collider;
 
         point = pHitOrigin.point;

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1a7814b499c81d4cb1955a12d9dcb01, type: 3}
+  m_Name: MoveLogicDefault
+  m_EditorClassIdentifier: 
+  p_fSpeed_OnWalking: 40
+  p_fSpeed_OnRunning: 80
+  p_fTimeToMaxSpeedApex: 0.5
+  p_fMaxMoveDelta_OnWalking: 0.5
+  p_bLookAtVelocity: 0
+  p_bIsPlayAnimation_OnForwardIsBlock: 0
+  _fFloorCheck_RayOrigin: -3.025
+  p_fFloorCheck_RayDistance: 2.5
+  p_bIsSmoothMoveStop: 0
+  p_fTimeToStop: 0.1

@@ -328,7 +328,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
 
         while(true)
         {
-            yield return YieldManager.GetWaitForSecondRealTime(0.1f);
+            yield return new WaitForSecondsRealtime(0.1f);
 
             Check_SessionConnection();
         }
@@ -352,7 +352,7 @@ abstract public class CManagerNetworkUDPBase<Class_Derived, Class_SessionDerived
                 }
             }
 
-            yield return YieldManager.GetWaitForSecondRealTime(0.1f);
+            yield return new WaitForSecondsRealtime(0.1f);
         }
     }
 

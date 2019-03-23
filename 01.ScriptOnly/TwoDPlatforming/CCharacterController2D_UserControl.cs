@@ -24,12 +24,12 @@ public class CCharacterController2D_UserControl : CObjectBase
     /* public - Field declaration            */
 
     public bool p_bMoveIsLock { get; protected set; }
+    public bool p_bIsJump { get; private set; }
 
     /* protected & private - Field declaration         */
 
     [GetComponent]
     private CCharacterController2D _pCharacterController = null;
-    private bool _bIsJump;
 
     // ========================================================================== //
 
@@ -60,10 +60,10 @@ public class CCharacterController2D_UserControl : CObjectBase
     {
         base.OnUpdate();
 
-        if (!_bIsJump)
+        if (!p_bIsJump)
         {
             // Read the jump input in Update so button presses aren't missed.
-            _bIsJump = Input.GetButtonDown("Jump");
+            p_bIsJump = Input.GetButtonDown("Jump");
         }
 
     }
@@ -77,9 +77,9 @@ public class CCharacterController2D_UserControl : CObjectBase
         if (p_bMoveIsLock)
             _pCharacterController.DoMove(0f, false, false, false);
         else
-            _pCharacterController.DoMove(fHorizontal, bIsCrouch, bIsRunning, _bIsJump);
+            _pCharacterController.DoMove(fHorizontal, bIsCrouch, bIsRunning, p_bIsJump);
 
-        _bIsJump = false;
+        p_bIsJump = false;
     }
     /* protected - [abstract & virtual]         */
 

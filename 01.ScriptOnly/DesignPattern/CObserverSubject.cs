@@ -81,75 +81,6 @@ public class CObserverSubject
     }
 }
 
-//#if NET_4_6
-/// <summary>
-/// 
-/// </summary>
-//[System.Serializable]
-//public class CObserverSubject2<TDelegate> where TDelegate : Delegate
-//{
-//    protected List<System.Action> _listListener = new List<System.Action>();
-
-//    public event System.Action Subscribe
-//    {
-//        add
-//        {
-//            DoRegist_Listener(value);
-//        }
-
-//        remove
-//        {
-//            DoRemove_Listener(value);
-//        }
-//    }
-
-//    public event System.Action Subscribe_And_Listen_CurrentData
-//    {
-//        add
-//        {
-//            DoRegist_Listener(value, true);
-//        }
-
-//        remove
-//        {
-//            DoRemove_Listener(value);
-//        }
-//    }
-
-//    public void DoNotify()
-//    {
-//        for (int i = 0; i < _listListener.Count; i++)
-//            _listListener[i]();
-//    }
-
-//    public void DoClear_Listener()
-//    {
-//        _listListener.Clear();
-//    }
-
-//    public void DoRegist_Listener(System.Action OnNotify, bool bInstantNotify_To_ThisListener = false)
-//    {
-//        if (OnNotify == null)
-//            return;
-
-//        if (_listListener.Contains(OnNotify) == false)
-//        {
-//            if (bInstantNotify_To_ThisListener)
-//                OnNotify();
-
-//            _listListener.Add(OnNotify);
-//        }
-//    }
-
-//    public void DoRemove_Listener(System.Action OnNotify)
-//    {
-//        if (_listListener.Contains(OnNotify))
-//            _listListener.Remove(OnNotify);
-//    }
-//}
-//#else
-
-
 /// <summary>
 /// 
 /// </summary>
@@ -606,6 +537,3 @@ public class CObserverSubjectTest
 }
 #endif
 #endregion
-
-
-//#endif

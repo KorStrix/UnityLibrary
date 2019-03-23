@@ -25,9 +25,6 @@ public class CManagerPooling<Class_GetType> : CManagerPoolingBase<CManagerPoolin
 }
 
 public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingletonNotMonoBase<Class_Driven>
-#if UNITY_EDITOR
-    , IUpdateAble // 하이어라키 실시간 풀링 상황 모니터링을 위한 UpdateAble
-#endif
     where Class_Driven : CManagerPoolingBase<Class_Driven, Class_GetType>, new()
     where Class_GetType : class
 {
@@ -157,13 +154,14 @@ public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingle
 
     /* protected - Override & Unity API         */
 
-    protected override void OnMakeSingleton(out bool bIsGenearteGameObject)
+    protected override void OnMakeSingleton(out bool bIsGenearteGameObject, out bool bIsUpdateAble)
     {
         bIsGenearteGameObject = true;
 #if UNITY_EDITOR
+        bIsUpdateAble = true;
         strTypeName = typeof(Class_GetType).Name;
-
-        CManagerUpdateObject.instance.DoAddObject(this, true);
+#else
+        bIsUpdateAble = false;
 #endif
     }
 
@@ -192,18 +190,15 @@ public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingle
         CManagerUpdateObject.instance.DoRemoveObject(this);
     }
 
-    public void OnUpdate()
+    public override void OnUpdate()
     {
+        base.OnUpdate();
+
         int iUseCount = 0;
         foreach (var pList in _mapUsed.Values)
             iUseCount += pList.Count;
 
         gameObject.name = string.Format("풀링<{0}>/ 총생산:{1} /사용중:{2}", strTypeName, _mapAllInstance.Count, iUseCount);
-    }
-
-    public bool IUpdateAble_IsRequireUpdate()
-    {
-        return gameObject.activeSelf;
     }
 
 #endif

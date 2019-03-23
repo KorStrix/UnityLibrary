@@ -9,7 +9,7 @@ using System.Collections.Generic;
    Version	   :
    ============================================ */
 
-public class CEditorWindow_MaterialChanger : CEditorWindowBase<CEditorWindow_MaterialChanger>
+public class CEditorWindow_MaterialChanger : CEditorWindow
 {
 	/* const & readonly declaration             */
 

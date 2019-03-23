@@ -43,6 +43,8 @@ public class CRaycastHitCalculator : CObjectBase
     private int _iHitCapacity = 10;
     [Rename_Inspector("2D ?")]
     public bool p_bIs2D = false;
+    [Rename_Inspector("Check Trigger")]
+    public bool p_bIncludeTrigger = false;
 
     public CObserverSubject<List<RaycastHit>> p_Event_OnHit { get { return _OnHit; } }
     public CObserverSubject<List<RaycastHit2D>> p_Event_OnHit_2D { get { return _OnHit_2D; } }
@@ -82,6 +84,9 @@ public class CRaycastHitCalculator : CObjectBase
             _listCollider2D_Enter.Clear();
             for (int i = 0; i < _iHitCount; i++)
             {
+                if (p_bIncludeTrigger == false && _arrHit2D[i].collider.isTrigger == false)
+                    continue;
+
                 _listHit2D.Add(_arrHit2D[i]);
                 _listCollider2D_Enter.Add(_arrHit2D[i].collider);
             }
@@ -97,6 +102,9 @@ public class CRaycastHitCalculator : CObjectBase
             _listCollider_Enter.Clear();
             for (int i = 0; i < _iHitCount; i++)
             {
+                if (p_bIncludeTrigger == false && _arrHit[i].collider.isTrigger == false)
+                    continue;
+
                 _listHit.Add(_arrHit[i]);
                 _listCollider_Enter.Add(_arrHit[i].collider);
             }

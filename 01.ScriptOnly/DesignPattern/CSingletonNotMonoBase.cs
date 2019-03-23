@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
    Edit Log    : 
    ============================================ */
 
-public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object
+public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object, IUpdateAble
     where CLASS_SingletoneTarget : CSingletonNotMonoBase<CLASS_SingletoneTarget>, new()
 {
 	static private CLASS_SingletoneTarget _instance;
@@ -31,6 +31,8 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object
     public GameObject gameObject { get; private set; }
     public Transform transform { get; private set; }
 
+    static bool _bIsUpdateAble;
+
 	// ========================== [ Division ] ========================== //
 
 	static public CLASS_SingletoneTarget instance
@@ -38,47 +40,61 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object
 		get
 		{
 			if (UnityEngine.Object.Equals(_instance, null))
-			{
-				_instance = new CLASS_SingletoneTarget();
-
-                bool bIsGenearteGameObject;
-                _instance.OnMakeSingleton(out bIsGenearteGameObject);
-                if(bIsGenearteGameObject)
-                {
-                    System.Type pTypeDriven = typeof(CLASS_SingletoneTarget);
-                    _instance.gameObject = new GameObject(pTypeDriven.GetFriendlyName());
-                    _instance.transform = _instance.gameObject.transform;
-
-                    CCompoEventTrigger_OnDisable pOnDisable = _instance.gameObject.AddComponent<CCompoEventTrigger_OnDisable>();
-                    pOnDisable.p_Event_OnDisable += _instance.OnDisable_p_Event_OnDisable;
-                    SceneManager.sceneUnloaded += _instance.OnSceneUnloaded;
-
-                    _instance.OnMakeGameObject(_instance.gameObject);
-                }
-			}
+                DoCreateInstance_Force(new CLASS_SingletoneTarget());
 
 			return _instance;
 		}
 	}
 
+    static public void DoCreateInstance_Force(CLASS_SingletoneTarget pSingletonInstance)
+    {
+        _instance = pSingletonInstance;
+
+        bool bIsGenearteGameObject;
+        _instance.OnMakeSingleton(out bIsGenearteGameObject, out _bIsUpdateAble);
+        if (bIsGenearteGameObject)
+        {
+            System.Type pTypeDriven = typeof(CLASS_SingletoneTarget);
+            _instance.gameObject = new GameObject(pTypeDriven.GetFriendlyName());
+            _instance.transform = _instance.gameObject.transform;
+
+            CCompoEventTrigger_OnDisable pOnDisable = _instance.gameObject.AddComponent<CCompoEventTrigger_OnDisable>();
+            pOnDisable.p_Event_OnDisable += _instance.OnDisable_p_Event_OnDisable;
+            SceneManager.sceneUnloaded += _instance.OnSceneUnloaded;
+
+            _instance.OnMakeGameObject(_instance.gameObject);
+        }
+
+        if(_bIsUpdateAble)
+            CManagerUpdateObject.instance.DoAddObject(_instance, true);
+    }
+
     static public void DoReleaseSingleton()
 	{
-		if(_instance != null)
-		{
+		if(UnityEngine.Object.Equals(_instance, null) == false)
 			_instance.OnReleaseSingleton();
-			_instance = null;
-		}
+
+		_instance = null;
 	}
 
-	// ========================== [ Division ] ========================== //
+    // ========================== [ Division ] ========================== //
 
-	virtual protected void OnMakeSingleton(out bool bIsGenearteGameObject) { bIsGenearteGameObject = false; }
+    virtual public void OnUpdate() { }
+
+    public bool IUpdateAble_IsRequireUpdate()
+    {
+        return _bIsUpdateAble;
+    }
+
+
+    virtual protected void OnMakeSingleton(out bool bIsGenearteGameObject, out bool bIsUpdateAble) { bIsGenearteGameObject = false; bIsUpdateAble = false; }
     virtual protected void OnReleaseSingleton() { }
 
     virtual protected void OnMakeGameObject(GameObject pObject) { }
     virtual protected void OnDestroyGameObject(GameObject pObject) { }
 
     virtual protected void OnSceneUnloaded(Scene pScene) { }
+
 
     // ========================== [ Division ] ========================== //
 
@@ -99,6 +115,9 @@ public static class TypeNameExtensions
 {
     public static string GetFriendlyName(this Type type)
     {
+        if (type == null)
+            return "";
+
         string friendlyName = type.Name;
         if (type.IsGenericType)
         {

@@ -118,13 +118,11 @@ public class CheckVisible_InCamera_Test : CObjectBase
 
             yield return null;
         }
-
-        yield break;
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         for(int i = 0; i < _listRenderer.Count; i++)
             DestroyImmediate(_listRenderer[i]);

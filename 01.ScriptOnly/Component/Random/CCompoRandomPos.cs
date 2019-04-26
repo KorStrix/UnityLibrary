@@ -32,45 +32,52 @@ public class CCompoRandomPos : CCompoEventTrigger
 
 	/* private - Field declaration           */
 
-	[Header("모니터링용")]
+	[Header("디버깅용")]
+    [Rename_Inspector("랜덤 결과", false)]
 	[SerializeField]
 	private Vector3 _vecPos = Vector3.zero;
 
+    [GetComponent(bIsPrint_OnNotFound = false)]
+    RectTransform _pRectTransform = null;
 
-	#endregion Field
-	#region Public
-	// ========================================================================== //
+    #endregion Field
+    #region Public
+    // ========================================================================== //
 
-	/* public - [Do] Function
+    /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-	/* public - [Event] Function             
+    /* public - [Event] Function             
        프랜드 객체가 호출(For Friend class call)*/
-	#endregion Public
-	// ========================================================================== //
-	#region Protected
-	/* protected - [abstract & virtual]         */
+    #endregion Public
+    // ========================================================================== //
+    #region Protected
+    /* protected - [abstract & virtual]         */
 
-	/* protected - [Event] Function           
+    /* protected - [Event] Function           
        자식 객체가 호출(For Child class call)		*/
 
-	/* protected - Override & Unity API         */
+    /* protected - Override & Unity API         */
 
-	protected override void OnPlayEvent()
+    protected override void OnPlayEvent()
 	{
 		base.OnPlayEvent();
 
 		_vecPos = PrimitiveHelper.RandomRange(_vecRandom_Min, _vecRandom_Max);
-        transform.localPosition = _vecPos;
-	}
 
-	#endregion Protected
-	// ========================================================================== //
-	#region Private
-	/* private - [Proc] Function             
+        if (_pRectTransform)
+            _pRectTransform.localPosition = _vecPos;
+        else
+            transform.localPosition = _vecPos;
+    }
+
+    #endregion Protected
+    // ========================================================================== //
+    #region Private
+    /* private - [Proc] Function             
        로직을 처리(Process Local logic)           */
 
-	/* private - Other[Find, Calculate] Func 
+    /* private - Other[Find, Calculate] Func 
        찾기, 계산등 단순 로직(Simpe logic)         */
-	#endregion Private
+    #endregion Private
 }

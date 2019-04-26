@@ -87,6 +87,9 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
     /// <returns></returns>
     public Class_Resource DoPop(ENUM_Resource_Name eResourceName, bool bGameObjectActive = true)
     {
+        if (Application.isPlaying == false || eResourceName == null)
+            return null;
+
         Class_Resource pFindResource = null;
 
         if (_queuePoolingDisable.ContainsKey(eResourceName) == false)
@@ -242,13 +245,6 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
     }
 
 #if UNITY_EDITOR // 하이어라키뷰에 실시간 풀링 상황 모니터링을 위한 Update
-
-    protected override void OnReleaseSingleton()
-    {
-        base.OnReleaseSingleton();
-
-        CManagerUpdateObject.instance.DoRemoveObject(this);
-    }
 
     public override void OnUpdate()
     {

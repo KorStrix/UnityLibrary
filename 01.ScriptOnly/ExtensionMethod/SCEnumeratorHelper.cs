@@ -9,6 +9,12 @@ using NUnit.Framework;
    Version	   :
    ============================================ */
 
+public interface IHasData<Class_Data>
+{
+    Class_Data p_pData { get; }
+    void IHas_SetData(Class_Data pData);
+}
+
 public interface IDictionaryItem<TKeyType>
 {
 	TKeyType IDictionaryItem_GetKey();
@@ -169,7 +175,15 @@ public static class SCEnumeratorHelper
 		return bIsContain;
 	}
 
-	static public bool TryGetValue<T>( this List<T> list, int iIndex, out T outData )
+    static public void ConvertTo_BaseItemList<TChild, TBase>(this List<TChild> listChild, ref List<TBase> listBase)
+        where TChild : TBase
+    {
+        listBase.Clear();
+        for (int i = 0; i < listChild.Count; i++)
+            listBase.Add(listChild[i]);
+    }
+
+    static public bool TryGetValue<T>( this List<T> list, int iIndex, out T outData )
 		where T : new()
 	{
 		bool bIsContain = iIndex < list.Count;
@@ -299,28 +313,28 @@ public static class SCEnumeratorHelper
     }
 
 
-    static public void DoAddItem<TSource, TKey>(this Dictionary<TKey, TSource> mapDataTable, TSource[] arrDataTable, UnityEngine.Object pObjectForDebug = null)
+    static public void DoClear_And_AddItem<TSource, TKey>(this Dictionary<TKey, TSource> mapDataTable, IEnumerable<TSource> arrDataTable, UnityEngine.Object pObjectForDebug = null)
         where TSource : IDictionaryItem<TKey>
     {
         mapDataTable.Clear();
         if (arrDataTable == null) return;
 
-        for (int i = 0; i < arrDataTable.Length; i++)
+        IEnumerator<TSource> pIter = arrDataTable.GetEnumerator();
+        while (pIter.MoveNext())
         {
-            TKey hDataID = arrDataTable[i].IDictionaryItem_GetKey();
+            TSource pCurrent = pIter.Current;
+            TKey hDataID = pCurrent.IDictionaryItem_GetKey();
             if (mapDataTable.ContainsKey(hDataID))
                 Debug.LogWarning("에러, 데이터 테이블에 공통된 키값을 가진 데이터가 존재!!" + typeof(TSource) + " : " + hDataID, pObjectForDebug);
             else
-                mapDataTable.Add(hDataID, arrDataTable[i]);
+                mapDataTable.Add(hDataID, pCurrent);
         }
     }
 
-    static public void DoAddItem<TSource, TKey>(this Dictionary<TKey, List<TSource>> mapDataTable, IEnumerable<TSource> source, bool bIsClear = true)
+    static public void DoClear_And_AddItem<TSource, TKey>(this Dictionary<TKey, List<TSource>> mapDataTable, IEnumerable<TSource> source)
         where TSource : IDictionaryItem<TKey>
     {
-        if (bIsClear)
-            mapDataTable.Clear();
-
+        mapDataTable.Clear();
         IEnumerator<TSource> pIter = source.GetEnumerator();
         while (pIter.MoveNext())
         {
@@ -330,38 +344,6 @@ public static class SCEnumeratorHelper
                 mapDataTable.Add(hDataID, new List<TSource>());
 
             mapDataTable[hDataID].Add(pCurrent);
-        }
-    }
-
-    static public void DoAddItem<TSource, TKey>(this Dictionary<TKey, List<TSource>> mapDataTable, TSource[] arrDataTable)
-        where TSource : IDictionaryItem<TKey>
-    {
-        mapDataTable.Clear();
-        if (arrDataTable == null) return;
-
-        for (int i = 0; i < arrDataTable.Length; i++)
-        {
-            TKey hDataID = arrDataTable[i].IDictionaryItem_GetKey();
-
-            if (mapDataTable.ContainsKey(hDataID) == false)
-                mapDataTable.Add(hDataID, new List<TSource>());
-
-            mapDataTable[hDataID].Add(arrDataTable[i]);
-        }
-    }
-
-    static public void DoLinkOwnerToData<TOwner, TKeyData, TData>(this Dictionary<TKeyData, TData> mapData, List<TOwner> listDataOwner)
-        where TOwner : class, IDictionaryItem_ContainData<TKeyData, TData>
-        where TData : IDictionaryItem<TKeyData>
-    {
-        for (int i = 0; i < listDataOwner.Count; i++)
-        {
-            TOwner pOwner = listDataOwner[i];
-            TKeyData pKey = pOwner.IDictionaryItem_GetKey();
-            if (mapData.ContainsKey(pKey))
-                pOwner.IDictionaryItem_ContainData_SetData(mapData[pKey]);
-            else
-                Debug.LogWarning(string.Format("{0}이 {1}에 없습니다)", pKey.ToString(), mapData.ToString()));
         }
     }
 

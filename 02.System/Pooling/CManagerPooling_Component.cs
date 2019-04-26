@@ -88,12 +88,13 @@ public class CManagerPooling_Component<Class_GetType> : CManagerPoolingBase<CMan
 
     protected override void OnPopObject(Class_GetType pClassType)
     {
-        pClassType.gameObject.SetActive(true);
+        if(pClassType != null)
+            pClassType.gameObject.SetActive(true);
     }
 
     protected override void OnPushObject(Class_GetType pClassType)
     {
-        if (pClassType.gameObject.activeSelf)
+        if (pClassType.gameObject != null && pClassType.gameObject.activeSelf)
             pClassType.gameObject.SetActive(false);
     }
 

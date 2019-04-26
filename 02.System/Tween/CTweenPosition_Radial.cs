@@ -187,6 +187,7 @@ public class CTweenPosition_Radial : CTweenBase
                 Gizmos.DrawSphere(_listChildEmpty_Managing[i].position, 1f);
         }
     }
+
 #endif
 
     /* protected - [abstract & virtual]         */
@@ -205,7 +206,7 @@ public class CTweenPosition_Radial : CTweenBase
             ManagingChildInstance_EmptyObject(iChildCount);
             ManagingChild_EmptyObject(_listChildEmpty_Instance, _listChildEmpty_Managing, iChildCount);
 
-            if (p_iChildPrefab != null)
+            if (p_iChildPrefab != null && p_iChildPrefab.gameObject != null)
             {
                 ManagingChildInstance_PrefabObject(iChildCount);
                 ManagingChild_EmptyObject(_listChildPrefab_Instance, _listChildPrefab_Managing, iChildCount);
@@ -242,14 +243,26 @@ public class CTweenPosition_Radial : CTweenBase
 
     private void ManagingChildInstance_PrefabObject(int iChildCount)
     {
+        if(p_iChildPrefab == null || string.IsNullOrEmpty(p_iChildPrefab.name))
+        {
+            Debug.LogError("ManagingChildInstance_PrefabObject", this);
+            return;
+        }
+
         if (_listChildPrefab_Instance.Count < iChildCount)
         {
-            while (_listChildPrefab_Instance.Count < iChildCount)
+            int iLoopCount = 0;
+            while (_listChildPrefab_Instance.Count < iChildCount && iLoopCount++ < 100)
             {
                 GameObject pObjectChild = Instantiate(p_iChildPrefab);
                 _listChildPrefab_Instance.Add(pObjectChild);
                 pObjectChild.transform.SetParent(_listChildEmpty_Instance[_listChildPrefab_Instance.Count - 1]);
                 pObjectChild.transform.localPosition = Vector3.zero;
+            }
+
+            if(iLoopCount >= 100)
+            {
+                Debug.LogError(name + "ManagingChildInstance_PrefabObject - iLoopCount >= 100", this);
             }
         }
         for (int i = 0; i < _listChildPrefab_Instance.Count; i++)

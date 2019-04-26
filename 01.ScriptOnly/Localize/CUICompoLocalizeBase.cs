@@ -57,9 +57,9 @@ abstract public class CUICompoLocalizeBase : CObjectBase, CManagerUILocalize.ILo
             ILocalizeListner_ChangeLocalize(CManagerUILocalize.instance.p_eCurrentLocalize, CManagerUILocalize.instance.DoGetCurrentLocalizeValue_Random(_strLocalizeKey));
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         CManagerUILocalize.instance.DoRemove_LocalizeListener(this);
     }

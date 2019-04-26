@@ -85,7 +85,7 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 
     /* protected - Field declaration         */
 
-    protected Dictionary<string, Text> _mapText = new Dictionary<string, Text>();
+    Dictionary<string, Text> _mapText = new Dictionary<string, Text>();
 
     /* private - Field declaration           */
 
@@ -173,6 +173,13 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
         }
 
         return _mapText[strText];
+    }
+
+    public void DoEditText<TextName>(TextName strTextName, string strText)
+    {
+        Text pText = GetText_OrNull(strTextName);
+        if (pText)
+            pText.text = strText;
     }
 
     /* public - [Event] Function             

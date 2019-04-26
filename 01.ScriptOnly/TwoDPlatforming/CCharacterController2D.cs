@@ -20,6 +20,8 @@ public class CCharacterController2D : CObjectBase
 {
     /* const & readonly declaration             */
 
+    private const float const_fWallJumpDuration = 0.2f;
+
     /* enum & struct declaration                */
 
     public enum EUpdateMode
@@ -35,8 +37,11 @@ public class CCharacterController2D : CObjectBase
     /// Prev, Current
     /// </summary>
     public CObserverSubject<ECharacterControllerState, ECharacterControllerState> p_Event_OnChangePlatformerState { get; private set; } = new CObserverSubject<ECharacterControllerState, ECharacterControllerState>();
+    public CObserverSubject<bool> p_Event_OnFalling { get; private set; } = new CObserverSubject<bool>();
+    public CObserverSubject<bool> p_Event_OnWallSliding { get; private set; } = new CObserverSubject<bool>();
     public CObserverSubject<bool> p_Event_OnGround { get; private set; } = new CObserverSubject<bool>();
-    public CObserverSubject<bool> p_Event_OnLadder { get => p_pLogicLadder.p_Event_OnLadder; }
+    public CObserverSubject<bool> p_Event_OnLadder { get => p_pLogicLadder?.p_Event_OnLadder; }
+    public CObserverSubject<float> p_Event_OnMove { get; private set; } = new CObserverSubject<float>();
 
     public HashSet<Collider2D> p_setCharacterBody { get; private set; } = new HashSet<Collider2D>();
 
@@ -49,7 +54,8 @@ public class CCharacterController2D : CObjectBase
     public bool p_bIsMoving { get; private set; }
     public bool p_bIsJumping { get; private set; }
     public bool p_bIsSlopeSliding { get; private set; }
-    public bool p_bMoveIsLock { get; private set; }
+    public bool p_bIsLock_Move { get; private set; }
+    public bool p_bIsLock_Jump { get; private set; }
     public bool p_bIsClimbingLadder { get => p_pLogicLadder.p_bIsClimbLadder; }
 
     public bool p_bLeftDirection_IsBlocked_All { get; private set; }
@@ -64,7 +70,7 @@ public class CCharacterController2D : CObjectBase
 
     [Header("움직임 옵션")]
     [Rename_Inspector("움직임 로직 SO")]
-    public CCharacterController2D_MoveLogicDefault p_pLogicMove;
+    public CCharacterController2D_MoveLogicBase p_pLogicMove;
 
     [Space(10)]
     [Rename_Inspector("점프 로직 SO")]
@@ -72,7 +78,7 @@ public class CCharacterController2D : CObjectBase
 
     [Space(10)]
     [Rename_Inspector("사다리 로직 SO")]
-    public CCharacterController2D_LadderLogicDefault p_pLogicLadder;
+    public CCharacterController2D_LadderLogicBase p_pLogicLadder;
 
     [Space(10)]
     [Header("앉기 옵션")]
@@ -162,7 +168,7 @@ public class CCharacterController2D : CObjectBase
     [GetComponent]
     public CapsuleCollider2D p_pCollider_Body { get; protected set; }
     [SerializeField]
-    [GetComponentInChildren("CheckGround", true, true)]
+    [GetComponentInChildren("CheckGround", true, false)]
     [Rename_Inspector("\"CheckGround\" - 바닥 체크용 자식 컬라이더")]
     public CapsuleCollider2D p_pCollider_GroundChecker { get; protected set; }
 
@@ -266,9 +272,14 @@ public class CCharacterController2D : CObjectBase
         Logic_CharacterControll();
     }
 
-    public void DoSet_MoveIsLock(bool bLockMove)
+    public void DoSetLock_Move(bool bLockMove)
     {
-        p_bMoveIsLock = bLockMove;
+        p_bIsLock_Move = bLockMove;
+    }
+
+    public void DoSetLock_Jump(bool bLockJump)
+    {
+        p_bIsLock_Jump = bLockJump;
     }
 
     public void DoSet_ChangeFaceDir(bool bDirection_IsRight)
@@ -319,7 +330,12 @@ public class CCharacterController2D : CObjectBase
 
     public void DoSetFalling(bool bFalling)
     {
-        _bIsFalling = bFalling;
+        bool bFallingPrev = _bIsFalling;
+        if(bFallingPrev != bFalling)
+        {
+            _bIsFalling = bFalling;
+            p_Event_OnFalling.DoNotify(bFalling);
+        }
     }
 
     public void DoAdd_ControllerListener(ICharacterController_Listener pListener)
@@ -340,15 +356,42 @@ public class CCharacterController2D : CObjectBase
         bool bIsMoveLadder;
         int iCount = Calculate_GroundCollider(ref _arrHitColliders);
         p_pLogicLadder.DoCalculateLadder(GetCeilingOverlapCollider(), _pColliderGround, p_bIsGround, iCount, _arrHitColliders, ref fMoveAmount_0_1, out bIsMoveLadder);
-
         _fVerticalMoveDelta_0_1 = fMoveAmount_0_1;
         if (bIsMoveLadder)
             _bInputJump = false;
     }
 
+    public void DoSet_Crouch(bool bInput_Crouch)
+    {
+        if (p_bUseCrouching)
+        {
+            if (!bInput_Crouch && p_bIsCrouch)
+                bInput_Crouch = DoCheck_IsBlock_Ceiling();
+
+            p_bIsCrouch = bInput_Crouch;
+        }
+    }
+
+    public void DoSetInput_Jump()
+    {
+        Logic_IsInputJump(true);
+    }
+
     public void DoMove(float fMoveAmount, bool bInput_Run)
     {
-        DoMove(fMoveAmount, false, bInput_Run, false);
+        if (p_bIsLock_Move)
+            p_fMoveVelocity = 0f;
+        else
+            p_pLogicMove.DoCalculate_MoveVelocity(fMoveAmount, p_bIsCrouch, bInput_Run, p_fCrouchSpeed, ref p_fMoveVelocity);
+
+        if (p_bIsMoving && bInput_Run && p_bIsCrouch == false)
+            Set_MoveDelta(1f);
+        if (p_bIsMoving && bInput_Run == false && _fMoveDelta_0_1 > p_pLogicMove.p_fMaxMoveDelta_OnWalking)
+            Set_MoveDelta(p_pLogicMove.p_fMaxMoveDelta_OnWalking);
+
+        p_bIsMoving = p_fMoveVelocity != 0f;
+        if (p_pCapsuleCollider_OnCrouch)
+            Logic_OnCrouch_And_Move();
     }
 
     public void DoMove(float fMoveAmount, bool bInput_Crouch, bool bInput_Run, bool bInput_Jump)
@@ -359,17 +402,17 @@ public class CCharacterController2D : CObjectBase
                 bInput_Crouch = DoCheck_IsBlock_Ceiling();
         }
 
-        if (p_bMoveIsLock)
+        if (p_bIsLock_Move)
             p_fMoveVelocity = 0f;
         else
-            p_pLogicMove.DoMove(fMoveAmount, bInput_Crouch, bInput_Run, p_fCrouchSpeed, ref p_fMoveVelocity);
+            p_pLogicMove.DoCalculate_MoveVelocity(fMoveAmount, bInput_Crouch, bInput_Run, p_fCrouchSpeed, ref p_fMoveVelocity);
 
         Logic_IsInputJump(bInput_Jump);
 
         if (p_bIsMoving && bInput_Run && p_bIsCrouch == false)
-            _fMoveDelta_0_1 = 1f;
+            Set_MoveDelta(1f);
         if (p_bIsMoving && bInput_Run == false && _fMoveDelta_0_1 > p_pLogicMove.p_fMaxMoveDelta_OnWalking)
-            _fMoveDelta_0_1 = p_pLogicMove.p_fMaxMoveDelta_OnWalking;
+            Set_MoveDelta(p_pLogicMove.p_fMaxMoveDelta_OnWalking);
 
         p_bIsCrouch = bInput_Crouch;
         p_bIsMoving = p_fMoveVelocity != 0f;
@@ -436,14 +479,13 @@ public class CCharacterController2D : CObjectBase
         if(Application.isPlaying)
         {
             _listLogic.Clear();
-            Init_CharacterLogic(ref p_pLogicMove, typeof(CCharacterController2D_MoveLogicDefault));
+            Init_CharacterLogic(ref p_pLogicMove, typeof(CCharacterController2D_MoveLogic_Default));
             Init_CharacterLogic(ref p_pLogicJump, typeof(CCharacterController2D_JumpLogicDefault));
-            Init_CharacterLogic(ref p_pLogicLadder, typeof(CCharacterController2D_LadderLogicDefault));
+            Init_CharacterLogic(ref p_pLogicLadder, typeof(CCharacterController2D_LadderLogic_Default));
 
             for (int i = 0; i < _listLogic.Count; i++)
-                _listLogic[i].DoInit(this);
+                _listLogic[i].DoInit(this, p_pLogicMove, p_pLogicLadder);
         }
-
 
         DoSet_ChangeFaceDir(p_bDefault_FaceDirection_IsRight);
     }
@@ -452,7 +494,9 @@ public class CCharacterController2D : CObjectBase
     {
         base.OnUpdate();
 
-        p_pLogicMove.Calculate_MoveDelta(ref _fMoveDelta_0_1);
+        float fMoveDelta_0_1 = _fMoveDelta_0_1;
+        p_pLogicMove.Calculate_MoveDelta(ref fMoveDelta_0_1);
+        Set_MoveDelta(fMoveDelta_0_1);
 
         if (p_eUpdateMode == EUpdateMode.Update)
             Logic_CharacterControll();
@@ -522,11 +566,10 @@ public class CCharacterController2D : CObjectBase
         bIsJumping = true;
 
         float fAddJumpX = p_vecSlidingJump.x;
-        if (_vecCurrentSlopeNormal.x < 0f)
-            fAddJumpX *= -1f;
+        Vector2 vecJump = p_vecSlidingJump;
+        vecJump.y += p_pLogicJump.p_fJumpForce;
+        vecJump *= _vecCurrentSlopeNormal;
 
-        Vector2 vecJump = _vecCurrentSlopeNormal * (new Vector2(fAddJumpX, p_vecSlidingJump.y + p_pLogicJump.p_fJumpForce));
-        // _pRigidbody.velocity = new Vector2(_pRigidbody.velocity.x, 0f);
         DoAddForce_Custom(vecJump, p_fSlopeSlidingJump_Delay);
     }
 
@@ -551,12 +594,9 @@ public class CCharacterController2D : CObjectBase
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if (p_pRigidbody == null || p_pCollider_GroundChecker == null || (p_bUseCrouching && _pTransform_CeilingCheck == null))
-            EventOnAwake_Force();
-
         if (Application.isPlaying == false)
             for (int i = 0; i < _listLogic.Count; i++)
-                _listLogic[i].DoInit(this);
+                _listLogic[i].DoInit(this, p_pLogicMove, p_pLogicLadder);
 
         bool bIsDebug = CheckDebugFilter(EDebugFilter.Debug_Level_Core);
         for (int i = 0; i < _listLogic.Count; i++)
@@ -564,6 +604,76 @@ public class CCharacterController2D : CObjectBase
 
         if (bIsDebug == false)
             return;
+
+        if (p_pRigidbody == null)
+            p_pRigidbody = GetComponent<Rigidbody2D>();
+
+        float fPosYOffset = 1f;
+        Vector3 vecPos = transform.position + new Vector3(1f, 1f);
+
+        UnityEditor.Handles.Label(vecPos, "Movement State ---------------------------------------------");
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, " _vecAddForce_Custom : " + _vecAddForce_Custom);
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_fMoveDelta_0_1 : " + _fMoveDelta_0_1 + " p_fMoveVelocity : " + p_fMoveVelocity);
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_pRigidbody.velocity : " + p_pRigidbody.velocity);
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_bInputAddForce_Custom : " + _bInputAddForce_Custom + " _vecAddForce_Custom : " + _vecAddForce_Custom);
+        vecPos.y -= fPosYOffset * 2f;
+
+
+
+        UnityEditor.Handles.Label(vecPos, "Platformer State ---------------------------------------------");
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_ePlatformerState_Flags_Prev : " + p_ePlatformerState_Prev);
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_ePlatformerState_Flags_Current : " + p_ePlatformerState_Current);
+        vecPos.y -= fPosYOffset * 2f;
+
+
+
+        UnityEditor.Handles.Label(vecPos, "Platform Check State -----------------------------------------");
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_bIsGround : " + p_bIsGround + " _bIsCrouch : " + p_bIsCrouch + " _bIsMoving : " + p_bIsMoving + " _bIsJumping : " + p_bIsJumping);
+        vecPos.y -= fPosYOffset;
+
+        UnityEditor.Handles.Label(vecPos, "_bCheckIsFalling : " + _bCheckIsFalling + " _bIsFalling : " + _bIsFalling);
+        vecPos.y -= fPosYOffset;
+
+        if (_bCheckIsFalling)
+        {
+            UnityEditor.Handles.Label(vecPos, "Check Falling Time : " + _fFallingTime.ToString("F2") + " Time : " + Time.time.ToString("F2"));
+            vecPos.y -= fPosYOffset;
+        }
+
+        UnityEditor.Handles.Label(vecPos, "_bIsWallSliding : " + _bIsWallSliding + " _bLeftDirection_IsBlocked : " + p_bLeftDirection_IsBlocked_All + " _bRightDirection_IsBlocked : " + p_bRightDirection_IsBlocked_All);
+        vecPos.y -= fPosYOffset * 2f;
+
+        if (p_bUseSlopeSliding)
+        {
+            UnityEditor.Handles.Label(vecPos, "Slope Check State -----------------------------------------");
+            vecPos.y -= fPosYOffset;
+
+            UnityEditor.Handles.Label(vecPos, "_fSkipSlopeSlidingElapsTime : " + _fSkipSlopeSlidingElapsTime + " p_bIsSlopeSliding : " + p_bIsSlopeSliding + " _fSlopeAngle : " + _fSlopeAngle + " _fSlopeAngle_Signed : " + _fSlopeAngle_Signed + " _vecCurrentSlopeNormal : " + _vecCurrentSlopeNormal);
+            vecPos.y -= fPosYOffset;
+        }
+
+
+
+        if (p_pCollider_GroundChecker == null || (p_bUseCrouching && _pTransform_CeilingCheck == null))
+        {
+            EventOnAwake();
+            if (p_pCollider_GroundChecker == null || (p_bUseCrouching && _pTransform_CeilingCheck == null))
+                return;
+        }
 
         Collider2D pColliderTerrain = null;
         bool bHitGround = false;
@@ -612,66 +722,6 @@ public class CCharacterController2D : CObjectBase
 
         DrawGizmo_BoxCollider(_listBoxCollider_LeftCheck, pColorLight_Red, pColorLight_Green);
         DrawGizmo_BoxCollider(_listBoxCollider_RightCheck, pColorLight_Red, pColorLight_Green);
-
-        float fPosYOffset = 1f;
-        Vector3 vecPos = transform.position + new Vector3(1f, 1f);
-
-
-        UnityEditor.Handles.Label(vecPos, "Movement State ---------------------------------------------");
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, " _vecAddForce_Custom : " + _vecAddForce_Custom);
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_fMoveDelta_0_1 : " + _fMoveDelta_0_1 + " p_fMoveVelocity : " + p_fMoveVelocity);
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_pRigidbody.velocity : " + p_pRigidbody.velocity);
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_bInputAddForce_Custom : " + _bInputAddForce_Custom + " _vecAddForce_Custom : " + _vecAddForce_Custom);
-        vecPos.y -= fPosYOffset * 2f;
-
-
-
-        UnityEditor.Handles.Label(vecPos, "Platformer State ---------------------------------------------");
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_ePlatformerState_Flags_Prev : " + p_ePlatformerState_Prev);
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_ePlatformerState_Flags_Current : " + p_ePlatformerState_Current);
-        vecPos.y -= fPosYOffset * 2f;
-
-
-
-        UnityEditor.Handles.Label(vecPos, "Platform Check State -----------------------------------------");
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_bIsGround : " + p_bIsGround + " _bIsCrouch : " + p_bIsCrouch + " _bIsMoving : " + p_bIsMoving + " _bIsJumping : " + p_bIsJumping);
-        vecPos.y -= fPosYOffset;
-
-        UnityEditor.Handles.Label(vecPos, "_bCheckIsFalling : " + _bCheckIsFalling + " _bIsFalling : " + _bIsFalling);
-        vecPos.y -= fPosYOffset;
-
-        if (_bCheckIsFalling)
-        {
-            UnityEditor.Handles.Label(vecPos, "Check Falling Time : " + _fFallingTime.ToString("F2") + " Time : " + Time.time.ToString("F2"));
-            vecPos.y -= fPosYOffset;
-        }
-
-        UnityEditor.Handles.Label(vecPos, "_bIsWallSliding : " + _bIsWallSliding + " _bLeftDirection_IsBlocked : " + p_bLeftDirection_IsBlocked_All + " _bRightDirection_IsBlocked : " + p_bRightDirection_IsBlocked_All);
-        vecPos.y -= fPosYOffset * 2f;
-
-
-        if (p_bUseSlopeSliding)
-        {
-            UnityEditor.Handles.Label(vecPos, "Slope Check State -----------------------------------------");
-            vecPos.y -= fPosYOffset;
-
-            UnityEditor.Handles.Label(vecPos, "_fSkipSlopeSlidingElapsTime : " + _fSkipSlopeSlidingElapsTime + " p_bIsSlopeSliding : " + p_bIsSlopeSliding + " _fSlopeAngle : " + _fSlopeAngle + " _fSlopeAngle_Signed : " + _fSlopeAngle_Signed + " _vecCurrentSlopeNormal : " + _vecCurrentSlopeNormal);
-            vecPos.y -= fPosYOffset;
-        }
     }
 
     private void DrawGizmo_BoxCollider(List<BoxCollider2D> listBoxCollider, Color pColorLight_Red, Color pColorLight_Green)
@@ -709,9 +759,9 @@ public class CCharacterController2D : CObjectBase
             Logic_SetForce_Custom();
 
         bool bSkipMove = _bInputJump || _bInputAddForce_Custom;
-        bool IsPossible_Move = bSkipMove == false && p_bIsSlopeSliding == false && p_bMoveIsLock == false && CheckForward_IsBlock() == false && p_bIsClimbingLadder == false;
+        bool IsPossible_Move = bSkipMove == false && p_bIsSlopeSliding == false && p_bIsLock_Move == false && CheckForward_IsBlock() == false && p_bIsClimbingLadder == false;
         if (IsPossible_Move)
-            SetVelocity(new Vector2(p_fMoveVelocity * p_pLogicMove.GetMoveSpeed(_fMoveDelta_0_1), p_pRigidbody.velocity.y));
+            p_pLogicMove.DoMove(p_fMoveVelocity, GetMoveSpeed(), SetVelocity);
 
         if (_bIsWallSliding && p_pRigidbody.velocity.y < p_fWallSlideSpeedMax)
             SetVelocity(new Vector2(p_pRigidbody.velocity.x, p_fWallSlideSpeedMax));
@@ -732,6 +782,12 @@ public class CCharacterController2D : CObjectBase
 
     private void Logic_IsGround()
     {
+        if (p_pCollider_GroundChecker == null)
+        {
+            p_bIsGround = false;
+            return;
+        }
+
         _pColliderGround = null;
 
         bool bIsGround_Prev = p_bIsGround;
@@ -792,6 +848,7 @@ public class CCharacterController2D : CObjectBase
         p_bRightDirection_IsBlocked = listCollider.Count != 0;
         _listSideBlock_Wall.AddRange(listCollider);
 
+        bool bWallSliding_Prev = _bIsWallSliding;
         if (p_bLeftDirection_IsBlocked_All || p_bRightDirection_IsBlocked_All)
             _bIsWallSliding = Check_IsWallSliding();
         else
@@ -802,6 +859,9 @@ public class CCharacterController2D : CObjectBase
             p_bIsJumping = false;
             _fTime_WallSlidingStart = Time.time;
         }
+
+        if(bWallSliding_Prev != _bIsWallSliding)
+            p_Event_OnWallSliding.DoNotify(_bIsWallSliding);
     }
 
     private void OnAirborne()
@@ -969,7 +1029,7 @@ public class CCharacterController2D : CObjectBase
 
     private IEnumerator CoDelaySetLockMove_IsFalse(float fWaitSecond)
     {
-        p_bMoveIsLock = true;
+        p_bIsLock_Move = true;
         _fWaitSecond = fWaitSecond;
         while (_fWaitSecond > 0f)
         {
@@ -977,7 +1037,7 @@ public class CCharacterController2D : CObjectBase
             yield return null;
         }
 
-        p_bMoveIsLock = false;
+        p_bIsLock_Move = false;
     }
 
     private void Init_CharacterLogic<CharacterLogic>(ref CharacterLogic pLogicBase, System.Type pType) where CharacterLogic : CCharacterController2D_LogicBase
@@ -1091,6 +1151,9 @@ public class CCharacterController2D : CObjectBase
 
     private void Logic_IsInputJump(bool bInput_Jump)
     {
+        if (p_bIsLock_Jump)
+            return;
+
         if(p_pLogicJump.Check_IsPossible_JumpThroughtDown(_pColliderGround, p_bIsGround, p_bIsCrouch, bInput_Jump))
         {
             p_pLogicJump.OnJump_ThroughtDown(p_setCharacterBody, _pColliderGround, ref _bIsFalling);
@@ -1099,13 +1162,17 @@ public class CCharacterController2D : CObjectBase
 
         // 월 슬라이딩은 인풋을 벽 반대방향으로 누를 경우 바로 false가 되기 때문에,
         // 시간을 체크하여 월 슬라이딩을 체크한지 한 프레임이 지나지 않았을 때도 허용
-        bool bCheckIsWallSliding = _bIsWallSliding || _fTime_WallSlidingStart + 0.15f > Time.time;
+        bool bCheckIsWallSliding = _bIsWallSliding || _fTime_WallSlidingStart + const_fWallJumpDuration > Time.time;
         if (p_pLogicJump.Check_IsPossible_JumpNormal(bCheckIsWallSliding, p_bIsGround, p_bIsJumping, bInput_Jump) /*&& DoCheck_IsBlock_Ceiling() == false*/)
         {
             if (bCheckIsWallSliding)
                 CalculateJump_OnWallSliding(out bInput_Jump);
             else if (p_bIsSlopeSliding)
+            {
+                // 경사면 점프일 때에는 2단점프 이상 허용 시 경사면을 그냥 점프로 넘어갈수있다.
                 CalculateJump_OnSlopeSliding(out bInput_Jump);
+                p_pLogicJump.DoIncreaseJumpCount();
+            }
             else if (p_bIsClimbingLadder)
                 CalculateJump_OnLadder(out bInput_Jump);
             else
@@ -1125,6 +1192,9 @@ public class CCharacterController2D : CObjectBase
 
     private int Calculate_GroundCollider(ref Collider2D[] arrHitColliders)
     {
+        if (p_pCollider_GroundChecker == null)
+            return 0;
+
         Transform pTransformGround = p_pCollider_GroundChecker.transform;
         Vector3 vecLossyScale = pTransformGround.lossyScale; 
         Vector3 vecPosition = pTransformGround.position + CalculateVector3(vecLossyScale, p_pCollider_GroundChecker.offset);
@@ -1143,12 +1213,24 @@ public class CCharacterController2D : CObjectBase
 
     private Collider2D GetCeilingOverlapCollider()
     {
+        if (_pTransform_CeilingCheck == null)
+            return null;
+
         return Physics2D.OverlapCircle(_pTransform_CeilingCheck.position, p_fCeilingRadius, p_sWhatIsTerrain);
     }
 
     private bool Check_Collider_IsTerrain(Collider2D pCollider)
     {
         return pCollider != null && pCollider.isTrigger == false && p_setCharacterBody.Contains(pCollider) == false;
+    }
+
+    private void Set_MoveDelta(float fMoveDelta_0_1)
+    {
+        if(_fMoveDelta_0_1 != fMoveDelta_0_1)
+        {
+            _fMoveDelta_0_1 = fMoveDelta_0_1;
+            p_Event_OnMove.DoNotify(fMoveDelta_0_1);
+        }
     }
 
 #endregion Private

@@ -234,14 +234,14 @@ public class SCManagerParserJson : SCManagerResourceBase<SCManagerParserJson, st
 		where T_Value : IDictionaryItem<T_Key>
 	{
 		T_Value[] arrData = DoReadJsonArray_FromResource<T_Value>( strFileName );
-		mapOutData.DoAddItem( arrData );
+		mapOutData.DoClear_And_AddItem( arrData );
 	}
 
 	public void DoReadJson_And_InitEnumerator<T_Key, T_Value>( string strFileName, ref Dictionary<T_Key, List<T_Value>> mapOutData )
 	where T_Value : IDictionaryItem<T_Key>
 	{
 		T_Value[] arrData = DoReadJsonArray_FromResource<T_Value>( strFileName );
-		mapOutData.DoAddItem( arrData );
+		mapOutData.DoClear_And_AddItem( arrData );
 	}
 
 	public T[] DoReadJsonArray_FromResource<T>( string strFileName )

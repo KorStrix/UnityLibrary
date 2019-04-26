@@ -28,7 +28,9 @@ public class InputAxis
         JoystickAxis = 2
     };
 
+#if UNITY_EDITOR
     [InfoBox("Error", InfoMessageType.Error, VisibleIf = nameof(CheckIs_InValidAxis))]
+#endif
     [Rename_Inspector("인풋 ID")]
     public string strInputID;
 
@@ -54,8 +56,16 @@ public class InputAxis
     [FoldoutGroup(strNativeDetail)] public bool snap = false;
     [FoldoutGroup(strNativeDetail)] public bool invert = false;
 
-    [ShowIf(nameof(CheckIs_JoyStickAxis))] [Header("Joystick axis")] public int axis;
-    [ShowIf(nameof(CheckIs_JoyStickAxis))] public int joyNum;
+#if UNITY_EDITOR
+    [ShowIf(nameof(CheckIs_JoyStickAxis))]
+#endif
+    [Header("Joystick axis")]
+    public int axis;
+
+#if UNITY_EDITOR
+    [ShowIf(nameof(CheckIs_JoyStickAxis))]
+#endif
+    public int joyNum;
 
     #endregion NativeDetail
 
@@ -159,6 +169,7 @@ public class InputSetting : ScriptableObject
     [HorizontalGroup("1")]
     public void Save_To_Current_ProjectSetting_Clear()
     {
+#if UNITY_EDITOR
         Debug.Log(nameof(Save_To_Current_ProjectSetting_Clear));
 
         if (p_listInput == null)
@@ -173,6 +184,7 @@ public class InputSetting : ScriptableObject
         pSerializedObject.ApplyModifiedProperties();
 
         AddAxis();
+#endif
     }
 
     [ShowIf(nameof(CheckIsOpend_Editor))]
@@ -212,9 +224,11 @@ public class InputSetting : ScriptableObject
     {
         Debug.Log(nameof(Save_To_File));
 
+#if UNITY_EDITOR
         string strPath = EditorUtility.SaveFilePanelInProject("Save", nameof(InputSetting), "asset", "Please enter a file name to save");
         if (strPath.Length != 0)
             ScriptableObjectUtility.CreateAsset(new InputSetting(p_listInput), strPath);
+#endif
     }
 
     public void Load_From_File()

@@ -8,7 +8,7 @@
  *	설계자 : 
  *	작성자 : Strix
  *	
- *	기능 : 
+ *	기능 : http://www.tantzygames.com/blog/unity-ugui-button-long-press/
    ============================================ */
 #endregion Header
 
@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-// http://www.tantzygames.com/blog/unity-ugui-button-long-press/
 public class CUGUIButton_Press : CObjectBase, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
 	[SerializeField]

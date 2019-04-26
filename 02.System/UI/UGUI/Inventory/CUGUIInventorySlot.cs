@@ -1,125 +1,116 @@
 ﻿#region Header
-/* ============================================ 
- *			    Strix Unity Library
- *		https://github.com/KorStrix/UnityLibrary
- *	============================================ 	
- *	관련 링크 :
- *	
- *	설계자 : 
+/*	============================================
  *	작성자 : Strix
- *	
- *	기능 : 
+ *	작성일 : 2019-04-02 오후 6:45:59
+ *	개요 : 
    ============================================ */
 #endregion Header
 
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
-public class CUGUIInventorySlot<Class_Slot, Class_Data> : CUIObjectBase, IInventorySlot<Class_Slot, Class_Data>, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
-    where Class_Slot : CUGUIInventorySlot<Class_Slot, Class_Data>
-	where Class_Data : IInventoryData<Class_Data>
+public interface IInventorySlotData
 {
-	/* const & readonly declaration             */
+    Sprite IInventorySlotData_GetItemIcon();
+    string IInventorySlotData_GetItemName();
+    bool IInventorySlotData_IsPossibleOverlap();
+}
 
-	/* enum & struct declaration                */
+/// <summary>
+/// 
+/// </summary>
+[ExecuteInEditMode]
+public class CUGUIInventorySlot : CUIObjectBase
+{
+    /* const & readonly declaration             */
 
-	#region Field
+    /* enum & struct declaration                */
 
-	/* public - Field declaration            */
+    public enum EUIElementName_ForInit
+    {
+        Image_SlotItemIcon,
+        Text_SlotItemName,
+    }
 
-	/* protected - Field declaration         */
+    /* public - Field declaration            */
 
-	/* private - Field declaration           */
+    [Rename_Inspector("슬롯 인덱스", false)]
+    public int p_iSlotIndex;
 
-	private IInventory<Class_Data, Class_Slot> _pInventory;	public IInventory<Class_Data, Class_Slot> p_pIventoryOwner {  get { return _pInventory; } }
-	private Class_Slot _pSlot;
-	private Class_Data _pData;
+#if ODIN_INSPECTOR
+    [ShowInInspector]
+#endif
+    [Rename_Inspector("현재 데이터")]
+    public IInventorySlotData p_pInventoryData { get; private set; }
 
-	public Class_Data p_pInventoryData
-	{
-		get
-		{
-			return _pData;
-		}
-	}
+    [Header("필요한 UI Element")] [Space(10)]
+    [ChildRequireComponent(nameof(EUIElementName_ForInit.Text_SlotItemName), bIsPrint_OnNotFound = false)]
+    public Text p_pText_ItemName;
+    [ChildRequireComponent(nameof(EUIElementName_ForInit.Image_SlotItemIcon), bIsPrint_OnNotFound = false)]
+    public Image p_pImage_ItemIcon;
 
-	#endregion Field
+    /* protected & private - Field declaration         */
 
-	#region Public
 
-	// ========================================================================== //
-
-	/* public - [Do] Function
-     * 외부 객체가 호출(For External class call)*/
-
-	/* public - [Event] Function             
-       프랜드 객체가 호출(For Friend class call)*/
-
-	public void IInventorySlot_DoInit( IInventory<Class_Data, Class_Slot> pInventoryOwner )
-	{
-		EventOnAwake();
-
-		_pInventory = pInventoryOwner;
-	}
-
-	public void IInventorySlot_OnSetData( Class_Data pData, string strImageName )
-	{
-		if(OnSetDataOrNull_And_CheckIsValidData( pData ))
-			_pData = pData;
-	}
-
-    #endregion Public
+    [Header("디버깅용")]
+    [SerializeField]
+    [Rename_Inspector("선택 되었는지", false)]
+    bool _bSelected;
 
     // ========================================================================== //
 
-    #region Protected
+    /* public - [Do] Function
+     * 외부 객체가 호출(For External class call)*/
+
+    public void DoSet_CurrentSelected(bool bSelected)
+    {
+        _bSelected = bSelected;
+    }
+
+    public void DoSet_InventorySlot(IInventorySlotData pInventoryData)
+    {
+        p_pInventoryData = pInventoryData;
+
+        OnUpdate_InventorySlot(p_pInventoryData);
+    }
+
+    // ========================================================================== //
+
+    /* protected - Override & Unity API         */
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        p_iSlotIndex = transform.GetSiblingIndex();
+    }
+#endif
 
     /* protected - [abstract & virtual]         */
 
-    public virtual void IInventorySlot_OnFillSlot( bool bIsFillData ) { }
-	public virtual void IInventorySlot_OnClickSlot( bool bIsCurrentSelectedSlot ) { }
-    public virtual void IInventorySlot_OnPressSlot(bool bIsCurrentSelectedSlot, bool bPressDown) { }
-    protected virtual bool OnSetDataOrNull_And_CheckIsValidData( Class_Data pData ) { return true; }
-
-	protected override void OnAwake()
-	{
-		base.OnAwake();
-
-		_pSlot = this as Class_Slot;
-	}
-
-    protected override void OnUIClick()
+    virtual protected void OnUpdate_InventorySlot(IInventorySlotData pInventoryData)
     {
-        base.OnUIClick();
-
-        _pInventory.IInventory_OnClickSlot(_pSlot);
+        if(pInventoryData != null)
+        {
+            if(p_pText_ItemName) p_pText_ItemName.text = pInventoryData.IInventorySlotData_GetItemName();
+            if (p_pImage_ItemIcon)
+            {
+                p_pImage_ItemIcon.enabled = true;
+                p_pImage_ItemIcon.sprite = pInventoryData.IInventorySlotData_GetItemIcon();
+            }
+        }
+        else
+        {
+            if (p_pText_ItemName) p_pText_ItemName.text = "Empty Slot";
+            if (p_pImage_ItemIcon) p_pImage_ItemIcon.enabled = false;
+        }
     }
-
-    protected override void OnUIPress(bool bPress)
-    {
-        base.OnUIPress(bPress);
-
-        _pInventory.IInventory_OnPressSlot(_pSlot, bPress);
-    }
-
-    /* protected - [Event] Function           
-       자식 객체가 호출(For Child class call)		*/
-
-    #endregion Protected
 
     // ========================================================================== //
 
     #region Private
-
-    /* private - [Proc] Function             
-       로직을 처리(Process Local logic)           */
-
-    /* private - Other[Find, Calculate] Func 
-       찾기, 계산등 단순 로직(Simpe logic)         */
 
     #endregion Private
 }

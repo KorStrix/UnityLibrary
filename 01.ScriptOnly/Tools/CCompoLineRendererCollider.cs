@@ -25,6 +25,16 @@ public class CCompoLineRendererCollider : MonoBehaviour
 
     /* enum & struct declaration                */
 
+    public enum EPhysicsState
+    {
+        Enter,
+        Stay,
+        Exit,
+    }
+
+    public CObserverSubject<Collider2D, EPhysicsState> p_Event_OnTrigger2D { get; private set; } = new CObserverSubject<Collider2D, EPhysicsState>();
+    public CObserverSubject<Collision2D, EPhysicsState> p_Event_OnCollision2D { get; private set; } = new CObserverSubject<Collision2D, EPhysicsState>();
+
     /* public - Field declaration            */
 
     public LineRenderer pLineRenderer;
@@ -75,6 +85,14 @@ public class CCompoLineRendererCollider : MonoBehaviour
         CalculateColliderShape();
         UpdateColliderShape();
     }
+
+    private void OnTriggerEnter2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Enter); }
+    private void OnTriggerStay2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Stay); }
+    private void OnTriggerExit2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Exit); }
+
+    private void OnCollisionEnter2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Enter); }
+    private void OnCollisionStay2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Stay); }
+    private void OnCollisionExit2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Exit); }
 
     /* protected - [abstract & virtual]         */
 

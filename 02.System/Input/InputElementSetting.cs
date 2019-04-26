@@ -21,9 +21,8 @@ using Sirenix.OdinInspector;
 [System.Serializable]
 public class InputElementSetting : ScriptableObject
 {
-
     [System.Serializable]
-    public class InputElement_Editor
+    public class InputElement_Editor : IDictionaryItem<string>
     {
         public enum EInputElementOption
         {
@@ -38,15 +37,20 @@ public class InputElementSetting : ScriptableObject
             ButtonUp,
             GetAxis,
 
-
             GetAxis_Detail_Greater,
             GetAxis_Detail_Greater_ABS,
             GetAxis_Detail_Lesser,
             GetAxis_Detail_Lesser_ABS,
         }
 
+        [HorizontalGroup("1")]
         [Rename_Inspector("인풋 타입")]
         public EInputElementOption p_eInputElementOption = EInputElementOption.KeyboardInput;
+
+        [HorizontalGroup("1")]
+        [LabelWidth(70)]
+        [Rename_Inspector("Enable")]
+        public bool bEnable = true;
 
         [InfoBox("Error - InputID Is Invalid", InfoMessageType.Error, VisibleIf = nameof(IsInvalidID))]
         [Rename_Inspector("Input Element Name")]
@@ -66,33 +70,49 @@ public class InputElementSetting : ScriptableObject
         [Rename_Inspector("비교할 값")]
         public float fComparisonValue;
 
-        public void DoRegist_InputElement()
+        [ShowIf(nameof(IsGetAxis))]
+        [Rename_Inspector("축 값을 반전시킬지")]
+        public bool bAxisReverse;
+
+        public InputElement DoCreate_InputElement()
         {
+            InputElement pInputElement = null;
             if(p_eInputElementOption == EInputElementOption.KeyboardInput)
             {
                 switch (eType)
                 {
-                    case EInputElementType.Button: CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.Button); break;
-                    case EInputElementType.ButtonDown: CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.ButtonDown); break;
-                    case EInputElementType.ButtonUp: CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.ButtonUp); break;
-                    case EInputElementType.GetAxis: CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.GetAxis); break;
+                    case EInputElementType.Button:                      pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.Button); break;
+                    case EInputElementType.ButtonDown:                  pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.ButtonDown); break;
+                    case EInputElementType.ButtonUp:                    pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.ButtonUp); break;
+                    case EInputElementType.GetAxis:                     pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key(strInputElementName, strInputID, EInputType.GetAxis); break;
 
 
-                    case EInputElementType.GetAxis_Detail_Greater: CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Greater, fComparisonValue); break;
-                    case EInputElementType.GetAxis_Detail_Greater_ABS: CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Greater_ABS, fComparisonValue); break;
-                    case EInputElementType.GetAxis_Detail_Lesser: CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Lesser, fComparisonValue); break;
-                    case EInputElementType.GetAxis_Detail_Lesser_ABS: CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Lesser_ABS, fComparisonValue); break;
+                    case EInputElementType.GetAxis_Detail_Greater:      pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Greater, fComparisonValue); break;
+                    case EInputElementType.GetAxis_Detail_Greater_ABS:  pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Greater_ABS, fComparisonValue); break;
+                    case EInputElementType.GetAxis_Detail_Lesser:       pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Lesser, fComparisonValue); break;
+                    case EInputElementType.GetAxis_Detail_Lesser_ABS:   pInputElement = CManagerCommand.instance.DoCreate_InputElement_Key_AxisDetail(strInputElementName, strInputID, EGetAxisDetail.Lesser_ABS, fComparisonValue); break;
                 }
             }
             else if(p_eInputElementOption == EInputElementOption.MouseDragInput)
             {
-                CManagerCommand.instance.DoCreate_InputElement_MouseDrag(strInputElementName, strInputID);
+                pInputElement = CManagerCommand.instance.DoCreate_InputElement_MouseDrag(strInputElementName, strInputID);
             }
+
+            if(bAxisReverse)
+                pInputElement = pInputElement.DoSet_ReverseAxis();
+            pInputElement.bEnable = bEnable;
+
+            return pInputElement;
         }
 
         private string[] GetInputID()
         {
             return ProjectInputSetting.GetInputID();
+        }
+
+        public bool IsGetAxis()
+        {
+            return CheckIs_KeyboardInput() && eType >= EInputElementType.GetAxis;
         }
 
         public bool IsGetAxisDetail()
@@ -119,6 +139,14 @@ public class InputElementSetting : ScriptableObject
         {
             return p_eInputElementOption == EInputElementOption.KeyboardInput;
         }
+
+        public string IDictionaryItem_GetKey()
+        {
+            if(bAxisReverse)
+                return strInputElementName + InputElement.const_strRevereAxis;
+            else
+                return strInputElementName;
+        }
     }
 
     // ========================================================================== //
@@ -131,6 +159,8 @@ public class InputElementSetting : ScriptableObject
     [Rename_Inspector("로드할 파일")]
     public InputElementSetting p_pConfig_ForLoad;
 
+    Dictionary<string, InputElement_Editor> _mapCashed_InputElement = new Dictionary<string, InputElement_Editor>();
+
     // ========================================================================== //
 
     public InputElementSetting(List<InputElement_Editor> listInputElement)
@@ -140,19 +170,47 @@ public class InputElementSetting : ScriptableObject
 
     public void DoInit()
     {
-        for (int i = 0; i < p_listInputElement.Count; i++)
-            p_listInputElement[i].DoRegist_InputElement();
+        _mapCashed_InputElement = new Dictionary<string, InputElement_Editor>();
+        _mapCashed_InputElement.DoAddItem(p_listInputElement);
+    }
+
+    public InputElement DoCreate_InputElement(string strInputElementName)
+    {
+        if (_mapCashed_InputElement.ContainsKey(strInputElementName))
+            return _mapCashed_InputElement[strInputElementName].DoCreate_InputElement();
+        else
+            return null;
     }
 
     [ShowIf(nameof(CheckIsOpend_Editor))]
     [Button("Save to File", ButtonSizes.Large)]
     public void Save_To_File_From_Setting()
     {
+#if UNITY_EDITOR
         Debug.Log(nameof(Save_To_File_From_Setting));
 
         string strPath = EditorUtility.SaveFilePanelInProject("Save", nameof(InputElementSetting), "asset", "Please enter a file name to save");
         if (strPath.Length != 0)
             ScriptableObjectUtility.CreateAsset(new InputElementSetting(p_listInputElement), strPath);
+#endif
+    }
+
+    [HorizontalGroup("Enable Button")]
+    [ShowIf(nameof(CheckIsOpend_Editor))]
+    [Button("Enable All InputElement", ButtonSizes.Large)]
+    public void AllButton_Enable()
+    {
+        for (int i = 0; i < p_listInputElement.Count; i++)
+            p_listInputElement[i].bEnable = true;
+    }
+
+    [HorizontalGroup("Enable Button")]
+    [ShowIf(nameof(CheckIsOpend_Editor))]
+    [Button("Disable All InputElement", ButtonSizes.Large)]
+    public void AllButton_Disable()
+    {
+        for (int i = 0; i < p_listInputElement.Count; i++)
+            p_listInputElement[i].bEnable = false;
     }
 
     public void Load_From_File_Into_Setting()
@@ -174,4 +232,10 @@ public class InputElementSetting : ScriptableObject
     }
 }
 
+#else
+
+[System.Serializable]
+public class InputElementSetting : ScriptableObject
+{
+}
 #endif

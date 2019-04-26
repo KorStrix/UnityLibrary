@@ -424,9 +424,16 @@ public static class PrimitiveHelper
         return (fCurrent - fMin) / (fMax - fMin);
     }
 
-    static public float ProgressDelta_0_1_To_Min_Max(this float fCurrent, float fMax, float fMin = 0f)
+    /// <summary>
+    /// 0 ~ 1 값을 Min ~ Max값으로 변환합니다.
+    /// </summary>
+    /// <param name="fCurrent_0_1"></param>
+    /// <param name="fMax"></param>
+    /// <param name="fMin"></param>
+    /// <returns></returns>
+    static public float ProgressDelta_0_1_To_Min_Max(this float fCurrent_0_1, float fMax, float fMin = 0f)
     {
-        return (fCurrent * (fMax - fMin)) + fMin;
+        return (fCurrent_0_1 * (fMax - fMin)) + fMin;
     }
 
     static public bool Check_ABSValue_IsGreater(this float fCurrent, float fTarget)

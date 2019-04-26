@@ -62,7 +62,6 @@ public class CCharacterController2D_UserControl : CObjectBase
 
         if (!p_bIsJump)
         {
-            // Read the jump input in Update so button presses aren't missed.
             p_bIsJump = Input.GetButtonDown("Jump");
         }
 
@@ -70,7 +69,6 @@ public class CCharacterController2D_UserControl : CObjectBase
 
     private void FixedUpdate()
     {
-        // Read the inputs.
         bool bIsCrouch = Input.GetKey(KeyCode.S);
         bool bIsRunning = Input.GetKey(KeyCode.LeftShift);
         float fHorizontal = Input.GetAxis("Horizontal");

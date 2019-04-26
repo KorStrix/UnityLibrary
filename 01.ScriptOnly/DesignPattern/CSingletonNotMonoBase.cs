@@ -65,7 +65,7 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
             _instance.OnMakeGameObject(_instance.gameObject);
         }
 
-        if(_bIsUpdateAble)
+        if(_bIsUpdateAble && CManagerUpdateObject.instance)
             CManagerUpdateObject.instance.DoAddObject(_instance, true);
     }
 
@@ -87,7 +87,7 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
     }
 
 
-    virtual protected void OnMakeSingleton(out bool bIsGenearteGameObject, out bool bIsUpdateAble) { bIsGenearteGameObject = false; bIsUpdateAble = false; }
+    virtual protected void OnMakeSingleton(out bool bIsGenearteGameObject_Default_Is_False, out bool bIsUpdateAble_Defualt_Is_False) { bIsGenearteGameObject_Default_Is_False = false; bIsUpdateAble_Defualt_Is_False = false; }
     virtual protected void OnReleaseSingleton() { }
 
     virtual protected void OnMakeGameObject(GameObject pObject) { }
@@ -106,6 +106,10 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
     private void OnDisable_p_Event_OnDisable(GameObject pObject)
     {
         OnDestroyGameObject(pObject);
+
+        if(CManagerUpdateObject.instance && _bIsUpdateAble)
+            CManagerUpdateObject.instance.DoRemoveObject(this);
+
         DoReleaseSingleton();
     }
 }

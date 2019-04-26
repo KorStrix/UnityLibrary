@@ -21,6 +21,7 @@ using NUnit.Framework;
 [System.Serializable]
 public class CObserverSubject
 {
+    protected HashSet<System.Action> _setListener = new HashSet<System.Action>();
     protected List<System.Action> _listListener = new List<System.Action>();
 
     public event System.Action Subscribe
@@ -51,13 +52,14 @@ public class CObserverSubject
 
     public void DoNotify()
     {
-        for (int i = 0; i < _listListener.Count; i++)
-            _listListener[i]();
+        _setListener.ToList(_listListener);
+        foreach (var pAction in _listListener)
+            pAction();
     }
 
     public void DoClear_Listener()
     {
-        _listListener.Clear();
+        _setListener.Clear();
     }
 
     public void DoRegist_Listener(System.Action OnNotify, bool bInstantNotify_To_ThisListener = false)
@@ -65,19 +67,19 @@ public class CObserverSubject
         if (OnNotify == null)
             return;
 
-        if (_listListener.Contains(OnNotify) == false)
+        if (_setListener.Contains(OnNotify) == false)
         {
             if (bInstantNotify_To_ThisListener)
                 OnNotify();
 
-            _listListener.Add(OnNotify);
+            _setListener.Add(OnNotify);
         }
     }
 
     public void DoRemove_Listener(System.Action OnNotify)
     {
-        if (_listListener.Contains(OnNotify))
-            _listListener.Remove(OnNotify);
+        if (_setListener.Contains(OnNotify))
+            _setListener.Remove(OnNotify);
     }
 }
 
@@ -89,6 +91,7 @@ public class CObserverSubject<T1>
     [NonSerialized]
     private T1 _LastArg_1; public T1 GetLastArg_1() { return _LastArg_1; }
 
+    protected HashSet<System.Action<T1>> _setListener = new HashSet<System.Action<T1>>();
     protected List<System.Action<T1>> _listListener = new List<System.Action<T1>>();
 
     public event System.Action<T1> Subscribe
@@ -106,15 +109,16 @@ public class CObserverSubject<T1>
 
     public void DoNotify(T1 arg)
     {
-        for (int i = 0; i < _listListener.Count; i++)
-            _listListener[i](arg);
+        _setListener.ToList(_listListener);
+        foreach (var pAction in _listListener)
+            pAction(arg);
 
         _LastArg_1 = arg;
     }
 
     public void DoClear_Listener()
     {
-        _listListener.Clear();
+        _setListener.Clear();
     }
 
     public void DoRegist_Listener(System.Action<T1> OnSubscribe, bool bInstantNotify_To_ThisListener = false)
@@ -122,19 +126,17 @@ public class CObserverSubject<T1>
         if (OnSubscribe == null)
             return;
 
-        if (_listListener.Contains(OnSubscribe) == false)
-        {
-            if (bInstantNotify_To_ThisListener)
-                OnSubscribe(_LastArg_1);
+        if (_setListener.Contains(OnSubscribe) == false)
+            _setListener.Add(OnSubscribe);
 
-            _listListener.Add(OnSubscribe);
-        }
+        if (bInstantNotify_To_ThisListener)
+            OnSubscribe(_LastArg_1);
     }
 
     public void DoRemove_Listener(System.Action<T1> OnNotify)
     {
-        if (_listListener.Contains(OnNotify))
-            _listListener.Remove(OnNotify);
+        if (_setListener.Contains(OnNotify))
+            _setListener.Remove(OnNotify);
     }
 }
 
@@ -148,6 +150,7 @@ public class CObserverSubject<T1, T2>
     [NonSerialized]
     private T2 _LastArg_2; public T2 GetLastArg_2() { return _LastArg_2; }
 
+    protected HashSet<System.Action<T1, T2>> _setListener = new HashSet<System.Action<T1, T2>>();
     protected List<System.Action<T1, T2>> _listListener = new List<System.Action<T1, T2>>();
 
     public event System.Action<T1, T2> Subscribe
@@ -164,8 +167,9 @@ public class CObserverSubject<T1, T2>
 
     public void DoNotify(T1 arg1, T2 arg2)
     {
-        for (int i = 0; i < _listListener.Count; i++)
-            _listListener[i](arg1, arg2);
+        _setListener.ToList(_listListener);
+        foreach (var pAction in _listListener)
+            pAction(arg1, arg2);
 
         _LastArg_1 = arg1;
         _LastArg_2 = arg2;
@@ -173,7 +177,7 @@ public class CObserverSubject<T1, T2>
 
     public void DoClear_Listener()
     {
-        _listListener.Clear();
+        _setListener.Clear();
     }
 
     public void DoRegist_Listener(System.Action<T1, T2> OnNotify, bool bListen_CurrentData = false)
@@ -181,19 +185,19 @@ public class CObserverSubject<T1, T2>
         if (OnNotify == null)
             return;
 
-        if (_listListener.Contains(OnNotify) == false)
+        if (_setListener.Contains(OnNotify) == false)
         {
             if (bListen_CurrentData)
                 OnNotify(_LastArg_1, _LastArg_2);
 
-            _listListener.Add(OnNotify);
+            _setListener.Add(OnNotify);
         }
     }
 
     public void DoRemove_Listener(System.Action<T1, T2> OnNotify)
     {
-        if (_listListener.Contains(OnNotify))
-            _listListener.Remove(OnNotify);
+        if (_setListener.Contains(OnNotify))
+            _setListener.Remove(OnNotify);
     }
 }
 
@@ -209,6 +213,7 @@ public class CObserverSubject<T1, T2, T3>
     [NonSerialized]
     private T3 _LastArg_3; public T3 GetLastArg_3() { return _LastArg_3; }
 
+    protected HashSet<System.Action<T1, T2, T3>> _setListener = new HashSet<System.Action<T1, T2, T3>>();
     protected List<System.Action<T1, T2, T3>> _listListener = new List<System.Action<T1, T2, T3>>();
 
     public event System.Action<T1, T2, T3> Subscribe
@@ -225,8 +230,9 @@ public class CObserverSubject<T1, T2, T3>
 
     public void DoNotify(T1 arg1, T2 arg2, T3 arg3)
     {
-        for (int i = 0; i < _listListener.Count; i++)
-            _listListener[i](arg1, arg2, arg3);
+        _setListener.ToList(_listListener);
+        foreach (var pAction in _listListener)
+            pAction(arg1, arg2, arg3);
 
         _LastArg_1 = arg1;
         _LastArg_2 = arg2;
@@ -235,7 +241,7 @@ public class CObserverSubject<T1, T2, T3>
 
     public void DoClear_Listener()
     {
-        _listListener.Clear();
+        _setListener.Clear();
     }
 
     public void DoRegist_Listener(System.Action<T1, T2, T3> OnNotify, bool bInstantNotify_To_ThisListener = false)
@@ -243,19 +249,19 @@ public class CObserverSubject<T1, T2, T3>
         if (OnNotify == null)
             return;
 
-        if (_listListener.Contains(OnNotify) == false)
+        if (_setListener.Contains(OnNotify) == false)
         {
             if (bInstantNotify_To_ThisListener)
                 OnNotify(_LastArg_1, _LastArg_2, _LastArg_3);
 
-            _listListener.Add(OnNotify);
+            _setListener.Add(OnNotify);
         }
     }
 
     public void DoRemove_Listener(System.Action<T1, T2, T3> OnNotify)
     {
-        if (_listListener.Contains(OnNotify))
-            _listListener.Remove(OnNotify);
+        if (_setListener.Contains(OnNotify))
+            _setListener.Remove(OnNotify);
     }
 }
 
@@ -274,6 +280,7 @@ public class CObserverSubject<T1, T2, T3, T4>
     [NonSerialized]
     private T4 _LastArg_4; public T4 GetLastArg_4() { return _LastArg_4; }
 
+    protected HashSet<System.Action<T1, T2, T3, T4>> _setListener = new HashSet<System.Action<T1, T2, T3, T4>>();
     protected List<System.Action<T1, T2, T3, T4>> _listListener = new List<System.Action<T1, T2, T3, T4>>();
 
     public event System.Action<T1, T2, T3, T4> Subscribe
@@ -290,8 +297,9 @@ public class CObserverSubject<T1, T2, T3, T4>
 
     public void DoNotify(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
     {
-        for (int i = 0; i < _listListener.Count; i++)
-            _listListener[i](arg1, arg2, arg3, arg4);
+        _setListener.ToList(_listListener);
+        foreach (var pAction in _listListener)
+            pAction(arg1, arg2, arg3, arg4);
 
         _LastArg_1 = arg1;
         _LastArg_2 = arg2;
@@ -301,7 +309,7 @@ public class CObserverSubject<T1, T2, T3, T4>
 
     public void DoClear_Listener()
     {
-        _listListener.Clear();
+        _setListener.Clear();
     }
 
     public void DoRegist_Listener(System.Action<T1, T2, T3, T4> OnNotify, bool bInstantNotify_To_ThisListener = false)
@@ -309,19 +317,19 @@ public class CObserverSubject<T1, T2, T3, T4>
         if (OnNotify == null)
             return;
 
-        if (_listListener.Contains(OnNotify) == false)
+        if (_setListener.Contains(OnNotify) == false)
         {
             if (bInstantNotify_To_ThisListener)
                 OnNotify(_LastArg_1, _LastArg_2, _LastArg_3, _LastArg_4);
 
-            _listListener.Add(OnNotify);
+            _setListener.Add(OnNotify);
         }
     }
 
     public void DoRemove_Listener(System.Action<T1, T2, T3, T4> OnNotify)
     {
-        if (_listListener.Contains(OnNotify))
-            _listListener.Remove(OnNotify);
+        if (_setListener.Contains(OnNotify))
+            _setListener.Remove(OnNotify);
     }
 }
 

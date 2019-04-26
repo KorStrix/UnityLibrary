@@ -179,9 +179,11 @@ public class CEffect : CObjectBase
         _bIsStop = false;
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
 	{
-		base.OnDisableObject();
+		base.OnDisableObject(bIsQuitApplciation);
+        if (bIsQuitApplciation)
+            return;
 
         if (_bIsStop == false)
         {

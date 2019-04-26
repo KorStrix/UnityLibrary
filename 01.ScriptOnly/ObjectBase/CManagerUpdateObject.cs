@@ -24,7 +24,7 @@ public interface IUpdateAble
     void OnUpdate();
 }
 
-public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
+public class CManagerUpdateObject : CSingletonDynamicMonoBase<CManagerUpdateObject>
 {
     /* const & readonly declaration             */
 
@@ -45,7 +45,6 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
     static private HashSet<IUpdateAble> g_setUpdateObject = new HashSet<IUpdateAble>();
 
     List<int> _listDestroyIndex = new List<int>();
-    GameObject _pObjectManager;
 
     // ========================================================================== //
 
@@ -87,14 +86,14 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
 
     /* protected - Override & Unity API         */
 
-    protected override void OnGenerate_SingletonGameObject()
+    protected override void OnAwake()
     {
-        _pObjectManager = _pObjectAttacher.gameObject;
-        _pObjectAttacher.StartCoroutine(OnEnableObjectCoroutine());
-        DontDestroyOnLoad(_pObjectManager);
+        base.OnAwake();
+
+        DontDestroyOnLoad(gameObject);
     }
 
-    protected IEnumerator OnEnableObjectCoroutine()
+    protected override IEnumerator OnEnableObjectCoroutine()
     {
         while (true)
         {
@@ -119,7 +118,7 @@ public class CManagerUpdateObject : CSingletonSOBase<CManagerUpdateObject>
             if (iUpdateObjectCount != _iPrevObjectCount)
             {
                 _iPrevObjectCount = iUpdateObjectCount;
-                _pObjectManager.name = string.Format("업데이트 매니져/{0}개 업데이트중", iUpdateObjectCount);
+                name = string.Format("업데이트 매니져/{0}개 업데이트중", iUpdateObjectCount);
             }
 #endif
 

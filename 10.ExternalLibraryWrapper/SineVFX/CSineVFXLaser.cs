@@ -29,6 +29,8 @@ public class CSineVFXLaser : CObjectBase
     public bool _bUsePhysics2D = true;
     [Rename_Inspector("히트  레이어 마스크")]
     public LayerMask pLayerMask_Hit;
+    [Rename_Inspector("트리거도 히트할지")]
+    public bool p_bIsInclude_Trigger = false;
 
     [Space(10)]
     [Header("레이져 모양 옵션")]
@@ -104,6 +106,9 @@ public class CSineVFXLaser : CObjectBase
 
     Transform _pTransformStart;
     Transform _pTransformExplosion;
+
+    RaycastHit[] _arrHit3D = new RaycastHit[10];
+    RaycastHit2D[] _arrHit2D = new RaycastHit2D[10];
 
     // ========================================================================== //
 
@@ -229,23 +234,34 @@ public class CSineVFXLaser : CObjectBase
     // Initialize Laser Line
     void CastLaserRay()
     {
-        CRaycastHitWrapper hit;
+        int iRayHitCount = 0;
+        float fDistanceMinest = float.MaxValue;
+        CRaycastHitWrapper pHit_Closest = default(CRaycastHitWrapper);
+
         if (_bUsePhysics2D)
         {
-            hit = Physics2D.Raycast(transform.position, transform.up, fLaserLength, pLayerMask_Hit);
+            iRayHitCount = Physics2D.RaycastNonAlloc(transform.position, transform.up, _arrHit2D, fLaserLength, pLayerMask_Hit);
+            for(int i = 0; i < iRayHitCount; i++)
+            {
+                CRaycastHitWrapper pHit = _arrHit2D[i];
+                Update_Closest(ref fDistanceMinest, ref pHit_Closest, ref pHit);
+            }
         }
         else
         {
-            RaycastHit hit3D;
-            Physics.Raycast(transform.position, transform.up, out hit3D, fLaserLength, pLayerMask_Hit);
-            hit = hit3D;
+            iRayHitCount = Physics.RaycastNonAlloc(transform.position, transform.up, _arrHit3D, fLaserLength, pLayerMask_Hit);
+            for (int i = 0; i < iRayHitCount; i++)
+            {
+                CRaycastHitWrapper pHit = _arrHit3D[i];
+                Update_Closest(ref fDistanceMinest, ref pHit_Closest, ref pHit);
+            }
         }
 
-        if(hit)
+        if (pHit_Closest)
         {
-            _vecPosition_ForExplosion = Vector3.MoveTowards(hit.point, transform.position, moveHitToSource);
-            _fHitLength = hit.distance;
-            _iHitCount = Mathf.RoundToInt(hit.distance * 2);
+            _vecPosition_ForExplosion = Vector3.MoveTowards(pHit_Closest.point, transform.position, moveHitToSource);
+            _fHitLength = pHit_Closest.distance;
+            _iHitCount = Mathf.RoundToInt(pHit_Closest.distance * 2);
             _bPlayExplosionEffect = true;
         }
         else
@@ -257,10 +273,24 @@ public class CSineVFXLaser : CObjectBase
 
 
         _pLineRenderer.SetPosition(0, transform.position);
-        if (hit)
+        if (pHit_Closest)
             _pLineRenderer.SetPosition(1, transform.position + (transform.up * _fHitLength));
         else
             _pLineRenderer.SetPosition(1, transform.position + (transform.up * fLaserLength));
+    }
+
+    private void Update_Closest(ref float fDistanceMinest, ref CRaycastHitWrapper pHit_Closest, ref CRaycastHitWrapper pHit)
+    {
+        if (pHit && (fDistanceMinest > pHit.distance) && Check_IsHit(ref pHit))
+        {
+            fDistanceMinest = pHit.distance;
+            pHit_Closest = pHit;
+        }
+    }
+
+    private bool Check_IsHit(ref CRaycastHitWrapper hit)
+    {
+        return p_bIsInclude_Trigger || (p_bIsInclude_Trigger == false && hit.p_bCollider_IsTrigger == false);
     }
 
 

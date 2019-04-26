@@ -104,7 +104,7 @@ public class CSpineRandomPlayer : CObjectBase
 
 		// _iInstanceID = GetInstanceID();
 
-		_mapRandomAnimation.DoAddItem( _listRandomAnimation.ToArray() );
+		_mapRandomAnimation.DoClear_And_AddItem( _listRandomAnimation.ToArray() );
 		CManagerRandomTable<SAnimation>.instance.DoAddRandomItem_Range( _listRandomAnimation );
 	}
 

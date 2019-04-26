@@ -64,8 +64,6 @@ public class CManagerSound : CSingletonDynamicMonoBase<CManagerSound>
 
     private CResourceGetter<AudioClip> _pAudioGetter;
 
-    private EVolumeOff _eVolumeOff;
-
     private bool _bIsMute = false;
     private bool _bPause = false;
 
@@ -307,7 +305,7 @@ public class CManagerSound : CSingletonDynamicMonoBase<CManagerSound>
         _mapGroupSound[iHashCode].Add(eSound);
     }
 
-    public void EventSetSoundOption(SINI_Sound[] arrSoundINI, float fMainVolume, EVolumeOff eVolumeOff)
+    public void EventSetSoundOption(SINI_Sound[] arrSoundINI, float fMainVolume)
     {
         if (arrSoundINI == null)
         {
@@ -316,7 +314,6 @@ public class CManagerSound : CSingletonDynamicMonoBase<CManagerSound>
         }
 
         _fVolumeEffect = fMainVolume;
-        _eVolumeOff = eVolumeOff;
         for (int i = 0; i < arrSoundINI.Length; i++)
         {
             SINI_Sound sSoundInfo = arrSoundINI[i];

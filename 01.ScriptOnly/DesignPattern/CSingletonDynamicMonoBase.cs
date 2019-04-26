@@ -26,20 +26,14 @@ public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> : CObjectBase
             {
                 if(_bIsQuitApplication)
                 {
-                    try
-                    {
-                        _instance = new CLASS_SingletoneTarget();
-                    }
-                    catch
-                    {
-
-                    }
+                    return null;
                 }
                 else
                 {
 #if UNITY_EDITOR
-                    if(Application.isPlaying == false)
-                        return new CLASS_SingletoneTarget(); // Exception 방지를 위한 코드, 어차피 Editor에서 PlayMode -> EditMode로 돌아가는 과정이라 App 성능에 영향가지 않는다.
+                    if (Application.isPlaying == false)
+                        return null;
+                        // return new CLASS_SingletoneTarget(); // Exception 방지를 위한 코드, 어차피 Editor에서 PlayMode -> EditMode로 돌아가는 과정이라 App 성능에 영향가지 않는다.
 #endif
 
                     _instance = FindObjectOfType<CLASS_SingletoneTarget>();

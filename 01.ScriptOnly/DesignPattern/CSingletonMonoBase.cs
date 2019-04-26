@@ -2,16 +2,16 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class CSingletonMonoBase<CLASS_SingletoneTarget> : CObjectBase
-    where CLASS_SingletoneTarget : CSingletonMonoBase<CLASS_SingletoneTarget>
+public class CSingletonMonoBase<CLASS_DRIVEN> : CObjectBase
+    where CLASS_DRIVEN : CSingletonMonoBase<CLASS_DRIVEN>
 {
-    static public CLASS_SingletoneTarget instance
+    static public CLASS_DRIVEN instance
     {
         get
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<CLASS_SingletoneTarget>();
+                _instance = FindObjectOfType<CLASS_DRIVEN>();
                 if (_instance == null)
                 {
                     if (_bIsQuitApplication) // 더미를 생성해야 한다.
@@ -32,7 +32,7 @@ public class CSingletonMonoBase<CLASS_SingletoneTarget> : CObjectBase
                             GameObject[] arrObject = pScene.GetRootGameObjects();
                             for(int j = 0; j < arrObject.Length; j++)
                             {
-                                _instance = arrObject[j].GetComponentInChildren<CLASS_SingletoneTarget>();
+                                _instance = arrObject[j].GetComponentInChildren<CLASS_DRIVEN>();
                                 if (_instance != null)
                                     break;
                             }
@@ -48,7 +48,7 @@ public class CSingletonMonoBase<CLASS_SingletoneTarget> : CObjectBase
         }
     }
 
-    static private CLASS_SingletoneTarget _instance;
+    static private CLASS_DRIVEN _instance;
     static private bool _bIsQuitApplication = false;
 
     // ========================== [ Division ] ========================== //
@@ -58,7 +58,7 @@ public class CSingletonMonoBase<CLASS_SingletoneTarget> : CObjectBase
         if (_bIsExcuteAwake == false)
         {
             if (_instance == null)
-                _instance = FindObjectOfType<CLASS_SingletoneTarget>();
+                _instance = FindObjectOfType<CLASS_DRIVEN>();
         }
 
         base.OnAwake();
@@ -77,12 +77,12 @@ public class CSingletonMonoBase<CLASS_SingletoneTarget> : CObjectBase
 
     // ========================== [ Division ] ========================== //
 
-    static public CLASS_SingletoneTarget EventMakeSingleton()
+    static public CLASS_DRIVEN EventMakeSingleton()
     {
         if (_bIsQuitApplication) return null;
         if (_instance != null) return instance;
 
-        GameObject pObjectNewManager = new GameObject(typeof(CLASS_SingletoneTarget).ToString());
-        return pObjectNewManager.AddComponent<CLASS_SingletoneTarget>();
+        GameObject pObjectNewManager = new GameObject(typeof(CLASS_DRIVEN).ToString());
+        return pObjectNewManager.AddComponent<CLASS_DRIVEN>();
     }
 }

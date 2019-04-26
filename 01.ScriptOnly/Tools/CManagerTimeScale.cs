@@ -74,6 +74,18 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
         _pCoroutine_Fade = StartCoroutine(CoFadeSetTimeScale(fTimeScale, fFadeDuration));
     }
 
+    public void DoSetTimeScale_Fade(float fTimeScaleFrom, float fTimeScaleTo, float fFadeDuration)
+    {
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+            Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScaleFrom : " + fTimeScaleFrom + " fTimeScaleTo : " + fTimeScaleTo, this);
+
+        if (_pCoroutine_Fade != null)
+            StopCoroutine(_pCoroutine_Fade);
+
+        SetTimeScale(fTimeScaleFrom);
+        _pCoroutine_Fade = StartCoroutine(CoFadeSetTimeScale(fTimeScaleTo, fFadeDuration));
+    }
+
     public void DoSetTimeScale()
     {
         if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))

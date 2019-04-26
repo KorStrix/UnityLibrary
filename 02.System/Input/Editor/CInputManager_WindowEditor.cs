@@ -10,12 +10,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
-using Sirenix.OdinInspector;
 using static CManagerCommand;
 
 #if ODIN_INSPECTOR
+using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
+using Sirenix.OdinInspector;
+
 /// <summary>
 /// 
 /// </summary>
@@ -69,15 +70,11 @@ public class CInputManager_WindowEditor : OdinMenuEditorWindow
             ProjectInputSetting.DoUpdate_InputSetting_From_ProjectSetting();
         }
 
-        //if (ProjectInputSetting.Instance.p_pInputElementSetting == null)
-        //{
-        //    ProjectInputSetting.DoSet_InputElementSetting(ScriptableObjectUtility_Editor.CreateAsset<InputElementSetting>());
-        //}
+        if (ProjectInputSetting.Instance.p_pInputElementSetting == null)
+            ProjectInputSetting.DoSet_InputElementSetting(ScriptableObjectUtility_Editor.CreateAsset<InputElementSetting>());
 
-        //if (ProjectInputSetting.Instance.p_pInputEventSetting == null)
-        //{
-        //    ProjectInputSetting.DoSet_InputEventSetting(ScriptableObjectUtility_Editor.CreateAsset<InputEventSetting>());
-        //}
+        if (ProjectInputSetting.Instance.p_pInputEventSetting == null)
+            ProjectInputSetting.DoSet_InputEventSetting(ScriptableObjectUtility_Editor.CreateAsset<InputEventSetting>());
 
         OdinMenuTree pTree = new OdinMenuTree(supportsMultiSelect: true)
         {
@@ -95,9 +92,9 @@ public class CInputManager_WindowEditor : OdinMenuEditorWindow
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }
 
 #endif

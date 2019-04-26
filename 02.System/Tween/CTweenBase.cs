@@ -54,7 +54,7 @@ public class WaitForTween : CustomYieldInstruction
 }
 
 
-abstract public class CTweenBase : CObjectBase
+abstract public class CTweenBase : CObjectBase, IEnumerator
 {
     /* const & readonly declaration             */
 
@@ -95,6 +95,8 @@ abstract public class CTweenBase : CObjectBase
     public float p_fDuration = 1f;
     [Rename_Inspector("애니메이션 커브")]
     public AnimationCurve p_pAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
+    [Rename_Inspector("기본 트윈 재생 시 방향")]
+    public ETweenDirection p_eTweenDirection_OnDefaultPlay = ETweenDirection.Forward;
 
     [Space(10)]
     [Header("플레이 옵션")]
@@ -102,10 +104,10 @@ abstract public class CTweenBase : CObjectBase
     public bool p_bIsPlay_OnEnable = false;
     [Rename_Inspector("Enable시 초기값으로")]
     public bool p_bIsReset_OnEnable = false;
-    [Rename_Inspector("기본 트윈 재생 시 방향")]
-    public ETweenDirection p_eTweenDirection_OnDefaultPlay = ETweenDirection.Forward;
     [Rename_Inspector("트윈 전의 딜레이")]
     public float p_fFirstDelaySec = 0f;
+    [Rename_Inspector("트윈 후의 딜레이")]
+    public float p_fAfterDelaySec = 0f;
 
     [Space(10)]
     [Header("기타 옵션")]
@@ -163,19 +165,25 @@ abstract public class CTweenBase : CObjectBase
             StopCoroutine(_pCoroutineTween);
     }
 
-    public void DoPlayTween(bool bResetProgress = true)
+    public CTweenBase DoPlayTween(bool bResetProgress = true)
     {
         StartTween(bResetProgress, p_eTweenDirection_OnDefaultPlay);
+
+        return this;
     }
 
-    public void DoPlayTween_Forward(bool bResetProgress = true)
+    public CTweenBase DoPlayTween_Forward(bool bResetProgress = true)
     {
         StartTween(bResetProgress, ETweenDirection.Forward);
+
+        return this;
     }
 
-    public void DoPlayTween_Reverse(bool bResetProgress = true)
+    public CTweenBase DoPlayTween_Reverse(bool bResetProgress = true)
     {
         StartTween(bResetProgress, ETweenDirection.Reverse);
+
+        return this;
     }
 
     public void DoInitTween(ETweenDirection eTweenDirection, bool bReset_Progress)
@@ -331,9 +339,9 @@ abstract public class CTweenBase : CObjectBase
             DoPlayTween();
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         DoStopTween();
     }
@@ -464,6 +472,14 @@ abstract public class CTweenBase : CObjectBase
             yield return pYield;
         }
 
+        if (p_fAfterDelaySec != 0f)
+        {
+            if (p_bIgnoreTimeScale)
+                yield return new WaitForSecondsRealtime(p_fAfterDelaySec);
+            else
+                yield return YieldManager.GetWaitForSecond(p_fAfterDelaySec);
+        }
+
         if (p_Event_OnFinishTween != null)
             p_Event_OnFinishTween.Invoke();
 
@@ -503,6 +519,17 @@ abstract public class CTweenBase : CObjectBase
     {
         return Time.unscaledDeltaTime;
     }
+
+    #region IEnumerator Driven
+    // IEnumerator 관련
+    public bool MoveNext()
+    {
+        return p_bIsPlayingTween;
+    }
+
+    public object Current => null;
+    void IEnumerator.Reset() { }
+    #endregion IEnumerator Driven
 
     #endregion Private
 }

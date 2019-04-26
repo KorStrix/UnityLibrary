@@ -20,6 +20,10 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
 [System.Flags]
 public enum EDebugFilter
 {
@@ -30,15 +34,12 @@ public enum EDebugFilter
     Debug_Level_Core = 1 << 3,
 }
 
-
-
 public class CObjectBase :
 #if ODIN_INSPECTOR
     Sirenix.OdinInspector.SerializedMonoBehaviour, IUpdateAble
 #else
     MonoBehaviour, IUpdateAble
 #endif
-
 {
     [Rename_Inspector("디버깅 필터")]
     public EDebugFilter p_eDebugFilter = EDebugFilter.None;
@@ -75,15 +76,27 @@ public class CObjectBase :
         if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
             Debug.Log(name + " SetEnable_Script : " + bEnable, this);
 
-        base.enabled = bEnable;
+        if(this != null)
+            base.enabled = bEnable;
     }
 
+#if ODIN_INSPECTOR
+    [ShowIf(nameof(CheckIs_DrawDebugButton))]
+    [HorizontalGroup("Debug_1", Order = 100)]
+    [InfoBox("Debug Button")]
+    [Button(ButtonSizes.Large)]
+#endif
     public void EventOnAwake()
     {
         if (_bIsExcuteAwake == false)
             OnAwake();
     }
 
+#if ODIN_INSPECTOR
+    [HorizontalGroup("Debug_1", Order = 100)]
+    [ShowIf(nameof(CheckIs_DrawDebugButton))]
+    [Button(ButtonSizes.Large)]
+#endif
     public void EventOnAwake_Force()
     {
         _bIsExcuteAwake = false;
@@ -132,7 +145,8 @@ public class CObjectBase :
 
     void OnEnable()
     {
-        CManagerUpdateObject.instance.DoAddObject(this);
+        CManagerUpdateObject.instance?.DoAddObject(this);
+
         OnEnableObject();
         if (_pCoroutineOnEnable != null)
             StopCoroutine(_pCoroutineOnEnable);
@@ -143,14 +157,9 @@ public class CObjectBase :
         p_Event_OnActivate.DoNotify(this, gameObject, true);
     }
 
-    private void RegistUpdateObject()
-    {
-        CManagerUpdateObject.instance.DoAddObject(this);
-    }
-
     void OnDisable()
     {
-        OnDisableObject();
+        OnDisableObject(_bIsQuitApplciation);
 
         p_Event_OnActivate.DoNotify(this, gameObject, false);
     }
@@ -161,12 +170,12 @@ public class CObjectBase :
     }
 
 
-
     private void OnDestroy()
     {
         _bIsDestroy = true;
 
-        CManagerUpdateObject.instance.DoRemoveObject(this);
+        CManagerUpdateObject.instance?.DoRemoveObject(this);
+        OnDestroyObject(_bIsQuitApplciation);
     }
 
     private void OnApplicationQuit()
@@ -190,8 +199,8 @@ public class CObjectBase :
 
             if(gameObject.activeInHierarchy && Application.isPlaying)
             {
-                StopCoroutine("OnAwakeCoroutine");
-                StartCoroutine("OnAwakeCoroutine");
+                StopCoroutine(nameof(OnAwakeCoroutine));
+                StartCoroutine(nameof(OnAwakeCoroutine));
             }
         }
     }
@@ -202,7 +211,9 @@ public class CObjectBase :
 
     virtual protected IEnumerator OnAwakeCoroutine() { yield break; }
     virtual protected IEnumerator OnEnableObjectCoroutine() { yield break; }
-    virtual protected void OnDisableObject() { }
+    virtual protected void OnDisableObject(bool bIsQuitApplciation) { }
+    virtual protected void OnDestroyObject(bool bIsQuitApplciation) { }
+
 
     /// <summary>
     /// Unity Update와 동일한 로직입니다.
@@ -231,6 +242,11 @@ public class CObjectBase :
     {
         if(CheckDebugFilter(eDebugFilter))
             Debug.Log(strLog);
+    }
+
+    bool CheckIs_DrawDebugButton()
+    {
+        return p_eDebugFilter != EDebugFilter.None;
     }
 }
 

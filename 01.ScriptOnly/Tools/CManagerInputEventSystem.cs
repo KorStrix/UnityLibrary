@@ -58,17 +58,25 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 
     public Vector3 DoGetMousePos()
     {
-        return p_pEventCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, p_pEventCamera.nearClipPlane));
+        Vector2 vecMousePosition;
+        if (CalculateMousePosition_And_IsInScreen(out vecMousePosition) == false)
+            return Vector3.zero;
+
+        return p_pEventCamera.ScreenToWorldPoint(new Vector3(vecMousePosition.x, vecMousePosition.y, p_pEventCamera.nearClipPlane));
     }
 
     public Vector3 DoRayCasting_MousePos_3D(Camera pCamera, LayerMask sLayerMask_Hit)
     {
+        Vector2 vecMousePosition;
+        if (CalculateMousePosition_And_IsInScreen(out vecMousePosition) == false)
+            return Vector3.zero;
+
         RaycastHit pHitInfo;
-        bool bIsHit = Physics.Raycast(pCamera.ScreenPointToRay(Input.mousePosition), out pHitInfo, Mathf.Infinity, sLayerMask_Hit);
+        bool bIsHit = Physics.Raycast(pCamera.ScreenPointToRay(vecMousePosition), out pHitInfo, Mathf.Infinity, sLayerMask_Hit);
 
         if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
         {
-            Ray pRay = pCamera.ScreenPointToRay(Input.mousePosition);
+            Ray pRay = pCamera.ScreenPointToRay(vecMousePosition);
             if (bIsHit)
                 Debug.DrawRay(pRay.origin, (Vector3)pHitInfo.point - pRay.origin, Color.red, 1f);
             else
@@ -81,36 +89,11 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             return Vector3.zero;
     }
 
-    public Vector3 DoRayCasting_MousePos_2D(Camera pCamera, LayerMask sLayerMask_Hit)
+
+    public Vector3 DoRayCasting_2D(Vector2 vecPos, LayerMask sLayerMask_Hit)
     {
-        Ray pRay = pCamera.ScreenPointToRay(Input.mousePosition);
-        var pHitInfo = Physics2D.GetRayIntersection(pRay, Mathf.Infinity, sLayerMask_Hit);
-
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-        {
-            if (pHitInfo)
-                Debug.DrawRay(pRay.origin, (Vector3)pHitInfo.point - pRay.origin, Color.red, 1f);
-            else
-                Debug.DrawRay(pRay.origin, pRay.direction * 1000f, Color.green, 1f);
-        }
-
-        if (pHitInfo)
-            return pHitInfo.point;
-        else
-            return Vector3.zero;
+        return DoRayCasting_MousePos_2D(p_pEventCamera, sLayerMask_Hit);
     }
-
-    public List<RaycastHit2D> DoRayCasting_2D(LayerMask sLayerMask_Hit)
-    {
-        int iHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit_2D, Mathf.Infinity, sLayerMask_Hit);
-
-        _listHit_2D.Clear();
-        for (int i = 0; i < iHitCount; i++)
-            _listHit_2D.Add(_arrHit_2D[i]);
-
-        return _listHit_2D;
-    }
-
 
     public Vector3 DoRayCasting_MousePos_2D(LayerMask sLayerMask_Hit)
     {
@@ -122,10 +105,41 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         return DoRayCasting_MousePos_3D(p_pEventCamera, sLayerMask_Hit);
     }
 
+    public Vector3 DoRayCasting_MousePos_2D(Camera pCamera, LayerMask sLayerMask_Hit)
+    {
+        if (pCamera == null)
+            return Vector3.zero;
+
+        Vector2 vecMousePosition;
+        if (CalculateMousePosition_And_IsInScreen(out vecMousePosition) == false)
+            return Vector3.zero;
+
+        return GetRayCasting_Pos_2D(pCamera, sLayerMask_Hit, vecMousePosition);
+    }
+
+    public List<RaycastHit2D> DoRayCasting_2D(LayerMask sLayerMask_Hit)
+    {
+        _listHit_2D.Clear();
+
+        Vector2 vecMousePosition;
+        if (CalculateMousePosition_And_IsInScreen(out vecMousePosition) == false)
+            return _listHit_2D;
+
+        int iHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(vecMousePosition), _arrHit_2D, Mathf.Infinity, sLayerMask_Hit);
+
+        for (int i = 0; i < iHitCount; i++)
+            _listHit_2D.Add(_arrHit_2D[i]);
+
+        return _listHit_2D;
+    }
 
     public Vector3 DoRayCasting_MousePos()
     {
-        var pHitInfo = Physics2D.GetRayIntersection(p_pEventCamera.ScreenPointToRay(Input.mousePosition), Mathf.Infinity);
+        Vector2 vecMousePosition;
+        if (CalculateMousePosition_And_IsInScreen(out vecMousePosition) == false)
+            return Vector3.zero;
+
+        var pHitInfo = Physics2D.GetRayIntersection(p_pEventCamera.ScreenPointToRay(vecMousePosition), Mathf.Infinity);
         if (pHitInfo)
             return pHitInfo.point;
         else
@@ -196,6 +210,25 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
     // ========================================================================== //
 
     #region Private
+
+    private Vector3 GetRayCasting_Pos_2D(Camera pCamera, LayerMask sLayerMask_Hit, Vector2 vecMousePosition)
+    {
+        Ray pRay = pCamera.ScreenPointToRay(vecMousePosition);
+        var pHitInfo = Physics2D.GetRayIntersection(pRay, Mathf.Infinity, sLayerMask_Hit);
+
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        {
+            if (pHitInfo)
+                Debug.DrawRay(pRay.origin, (Vector3)pHitInfo.point - pRay.origin, Color.red, 1f);
+            else
+                Debug.DrawRay(pRay.origin, pRay.direction * 1000f, Color.green, 1f);
+        }
+
+        if (pHitInfo)
+            return pHitInfo.point;
+        else
+            return Vector3.zero;
+    }
 
     private void CalculateInputEvent_OnMobile()
     {
@@ -273,14 +306,11 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
         }
 
         bool bIsClick = Input.GetMouseButtonUp(0);
-
+        pRay_OnClick_ForDebug = p_pEventCamera.ScreenPointToRay(Input.mousePosition);
         if (p_bIs2D)
-            _iLastHitCount = Physics2D.GetRayIntersectionNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit_2D, Mathf.Infinity, p_pLayerMask_Hit.value);
+            _iLastHitCount = Physics2D.GetRayIntersectionNonAlloc(pRay_OnClick_ForDebug, _arrHit_2D, Mathf.Infinity, p_pLayerMask_Hit.value);
         else
-            _iLastHitCount = Physics.RaycastNonAlloc(p_pEventCamera.ScreenPointToRay(Input.mousePosition), _arrHit, Mathf.Infinity, p_pLayerMask_Hit.value);
-
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core) && bIsClick)
-            pRay_OnClick_ForDebug = p_pEventCamera.ScreenPointToRay(Input.mousePosition);
+            _iLastHitCount = Physics.RaycastNonAlloc(pRay_OnClick_ForDebug, _arrHit, Mathf.Infinity, p_pLayerMask_Hit.value);
 
         p_listLastHit.Clear();
         _listTransform_EnterNew.Clear();
@@ -357,6 +387,12 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
             if (p_pEventCamera == null)
                 p_pEventCamera = arrCamera[0];
         }
+    }
+
+    private bool CalculateMousePosition_And_IsInScreen(out Vector2 vecMousePosition)
+    {
+        vecMousePosition = Input.mousePosition;
+        return (0f < vecMousePosition.x && vecMousePosition.x < Screen.width && 0f < vecMousePosition.y && vecMousePosition.y < Screen.width);
     }
 
     #endregion Private

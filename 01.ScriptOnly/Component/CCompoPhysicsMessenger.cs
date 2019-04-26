@@ -21,8 +21,19 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     /* enum & struct declaration                */
 
+    public enum EPhysicsHow
+    {
+        Enter, Exit
+    }
+
+
     /* public - Field declaration            */
 
+    public CObserverSubject<Collider2D, EPhysicsHow> p_Event_OnTrigger2D { get; private set; } = new CObserverSubject<Collider2D, EPhysicsHow>();
+    public CObserverSubject<Collision2D, EPhysicsHow> p_Event_OnCollision2D { get; private set; } = new CObserverSubject<Collision2D, EPhysicsHow>();
+
+    public CObserverSubject<Collider2D> p_Event_OnTrigger2D_Stay { get; private set; } = new CObserverSubject<Collider2D>();
+    public CObserverSubject<Collision2D> p_Event_OnCollision2D_Stay { get; private set; } = new CObserverSubject<Collision2D>();
 
     /* protected & private - Field declaration         */
 
@@ -48,34 +59,39 @@ public class CCompoPhysicsMessenger : CObjectBase
         }
     }
 
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        transform.parent.SendMessageUpwards("OnTriggerEnter2D", collision, SendMessageOptions.DontRequireReceiver);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        transform.parent.SendMessageUpwards("OnCollisionEnter2D", collision, SendMessageOptions.DontRequireReceiver);
+        p_Event_OnTrigger2D.DoNotify(collision, EPhysicsHow.Enter);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        transform.parent.SendMessageUpwards("OnTriggerStay2D", collision, SendMessageOptions.DontRequireReceiver);
-    }
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        transform.parent.SendMessageUpwards("OnCollisionStay2D", collision, SendMessageOptions.DontRequireReceiver);
+        p_Event_OnTrigger2D_Stay.DoNotify(collision);
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        transform.parent.SendMessageUpwards("OnTriggerExit2D", collision, SendMessageOptions.DontRequireReceiver);
+        p_Event_OnTrigger2D.DoNotify(collision, EPhysicsHow.Exit);
+    }
+
+
+
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        p_Event_OnCollision2D.DoNotify(collision, EPhysicsHow.Enter);
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        p_Event_OnCollision2D_Stay.DoNotify(collision);
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        transform.parent.SendMessageUpwards("OnCollisionExit2D", collision, SendMessageOptions.DontRequireReceiver);
+        p_Event_OnCollision2D.DoNotify(collision, EPhysicsHow.Exit);
     }
 
 

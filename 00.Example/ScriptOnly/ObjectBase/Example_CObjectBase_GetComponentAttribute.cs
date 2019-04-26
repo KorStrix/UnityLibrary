@@ -113,9 +113,9 @@ public class Example_CObjectBase_GetComponentAttribute : CObjectBase
         PrintLog();
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         PrintLog();
     }

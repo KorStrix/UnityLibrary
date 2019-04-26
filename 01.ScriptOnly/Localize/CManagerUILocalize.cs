@@ -58,16 +58,16 @@ public class CManagerUILocalize : CSingletonDynamicMonoBase<CManagerUILocalize>
     /* public - [Do] Function
      * 외부 객체가 호출                         */
 
-    static public StringPair DoSplitText_OrEmpty(string strText, char chSplit = '=')
-    {
-        string[] arrLang = strText.Split('=');
-        if (arrLang.Length < 2) return StringPair.Empty;
+    //static public StringPair DoSplitText_OrEmpty(string strText, char chSplit = '=')
+    //{
+    //    string[] arrLang = strText.Split('=');
+    //    if (arrLang.Length < 2) return StringPair.Empty;
 
-        string strLocKey = arrLang[0].TrimStart(const_arrChrTrim).TrimEnd(const_arrChrTrim);
-        string strLocValue = arrLang[1].TrimStart(const_arrChrTrim).TrimEnd(const_arrChrTrim).Replace("\\n", "\n");
+    //    string strLocKey = arrLang[0].TrimStart(const_arrChrTrim).TrimEnd(const_arrChrTrim);
+    //    string strLocValue = arrLang[1].TrimStart(const_arrChrTrim).TrimEnd(const_arrChrTrim).Replace("\\n", "\n");
 
-        return new StringPair(strLocKey, strLocValue);
-    }
+    //    return new StringPair(strLocKey, strLocValue);
+    //}
     
     public void DoStartParse_Locale(System.Action OnFinishParse)
 	{
@@ -195,25 +195,25 @@ public class CManagerUILocalize : CSingletonDynamicMonoBase<CManagerUILocalize>
 			p_EVENT_OnFinishParse_LocFile += OnFinishParse;
 	}
 
-    public void EventSet_LocalizeParsing(SystemLanguage eLocale, string strText, byte[] arrTextByte, bool bIsFinish)
-    {
-        if (CheckIsUTF8(arrTextByte))
-            strText = Encoding.UTF8.GetString(arrTextByte, 3, arrTextByte.Length - 3);
+    //public void EventSet_LocalizeParsing(SystemLanguage eLocale, string strText, byte[] arrTextByte, bool bIsFinish)
+    //{
+    //    if (CheckIsUTF8(arrTextByte))
+    //        strText = Encoding.UTF8.GetString(arrTextByte, 3, arrTextByte.Length - 3);
 
-        string[] arrStr = strText.Split('\n');
-        for (int i = 0; i < arrStr.Length; i++)
-        {
-            string strLine = arrStr[i];
-            if (string.IsNullOrEmpty(strLine) || strLine.StartsWith("//")) continue;
+    //    string[] arrStr = strText.Split('\n');
+    //    for (int i = 0; i < arrStr.Length; i++)
+    //    {
+    //        string strLine = arrStr[i];
+    //        if (string.IsNullOrEmpty(strLine) || strLine.StartsWith("//")) continue;
 
-            StringPair pStringPair = DoSplitText_OrEmpty(strLine);
-            if (StringPair.IsEmpty(pStringPair) == false)
-                Regist_LocalizeData(eLocale, pStringPair.strKey, pStringPair.strValue);
-        }
+    //        StringPair pStringPair = DoSplitText_OrEmpty(strLine);
+    //        if (StringPair.IsEmpty(pStringPair) == false)
+    //            Regist_LocalizeData(eLocale, pStringPair.strKey, pStringPair.strValue);
+    //    }
 
-        if (bIsFinish)
-            ExcuteFinishEvent();
-    }
+    //    if (bIsFinish)
+    //        ExcuteFinishEvent();
+    //}
 
     // ========================================================================== //
 
@@ -278,7 +278,7 @@ public class CManagerUILocalize : CSingletonDynamicMonoBase<CManagerUILocalize>
         }
 
 
-        EventSet_LocalizeParsing(eLocale, pReader.text, pReader.bytes, p_bIsFinishParse);
+        //EventSet_LocalizeParsing(eLocale, pReader.text, pReader.bytes, p_bIsFinishParse);
     }
     
 	private bool ProcCheckValidLocalizeValue(string strKey)

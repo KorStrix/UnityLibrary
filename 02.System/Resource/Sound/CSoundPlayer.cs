@@ -139,7 +139,7 @@ public class CSoundPlayer : CCompoEventTrigger, IResourceEventListener
     {
         base.OnAwake();
 
-        _mapSoundPlayEventWrapper.DoAddItem(_listSoundPlayInfo_ByEvent);
+        _mapSoundPlayEventWrapper.DoClear_And_AddItem(_listSoundPlayInfo_ByEvent);
 
 #if UNITY_EDITOR
         _strOriginName = name;
@@ -154,9 +154,9 @@ public class CSoundPlayer : CCompoEventTrigger, IResourceEventListener
 
 
 #if UNITY_EDITOR
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         name = _strOriginName;
 

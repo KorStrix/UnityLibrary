@@ -10,15 +10,20 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-using UnityEditor;
-using Sirenix.Utilities.Editor;
-using static CManagerCommand;
 using System;
-using System.Runtime.Remoting;
 using System.Text;
+using static CManagerCommand;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+
+#if UNITY_EDITOR
+using Sirenix.Utilities.Editor;
+#endif
 
 /// <summary>
 /// 
@@ -29,9 +34,9 @@ public class InputEventSetting : ScriptableObject
     public enum EOperatorType
     {
         ONLY,
-        [RegistEnumSubString("_AND_")]
+        [RegistSubString("_AND_")]
         AND,
-        [RegistEnumSubString("_OR_")]
+        [RegistSubString("_OR_")]
         OR,
     }
     
@@ -47,12 +52,13 @@ public class InputEventSetting : ScriptableObject
         [Rename_Inspector("Is Reverse")] [HorizontalGroup("A")] [LabelWidth(70)]
         public bool bIsReverse_A;
 
-        [Rename_Inspector("버튼을 누른채로 홀드해야 동작")] [HorizontalGroup("Press_A")]
+        [Rename_Inspector("인풋이 몇초간 홀드해야 동작")] [HorizontalGroup("Press_A")]
         public bool bSet_PressTime_A = false;
         [ShowIf(nameof(bSet_PressTime_A))] [HorizontalGroup("Press_A")] [Rename_Inspector("홀딩 타임(초)")]
         public float fPressTime_A = 0f;
 
         [Rename_Inspector("항상 Input을 들어오게 할지")]
+        [HorizontalGroup("AA")]
         public bool bAlwaysCall_And_InputValue_Is_BoolValue_A;
 
 
@@ -71,12 +77,14 @@ public class InputEventSetting : ScriptableObject
         public float fPressTime_B = 0f;
 
         [ShowIf(nameof(IsNot_Only_A))] [Rename_Inspector("항상 Input을 들어오게 할지")]
+        [HorizontalGroup("BB")]
         public bool bAlwaysCall_And_InputValue_Is_BoolValue_B;
 
         [ShowIf(nameof(IsNot_Only_A))]
         [Rename_Inspector("컴바인 후 추출값 옵션")]
         public InputElement.EAxisValueCalculate eAxisValueCalculate = InputElement.EAxisValueCalculate.A_Plus_B;
 
+        [NonSerialized]
         protected InputElementGroup _pInputElementGroup_Owner;
 
 
@@ -209,6 +217,7 @@ public class InputEventSetting : ScriptableObject
 
         public bool IsInvalid_IgnoreList()
         {
+#if UNITY_EDITOR
             var arr = ProjectInputSetting.GetInputElementNameList();
             for (int i = 0; i < listInputElement.Count; i++)
             {
@@ -250,6 +259,7 @@ public class InputEventSetting : ScriptableObject
                 if (bIsFound == false)
                     return true;
             }
+#endif
 
             return false;
         }
@@ -277,7 +287,13 @@ public class InputEventSetting : ScriptableObject
         [InfoBox("Error - CommandName Is Invalid", InfoMessageType.Error, VisibleIf = nameof(IsInvalid))]
         [ValueDropdown(nameof(GetCommandList))]
         [Rename_Inspector("Excute Command Name")]
+        [HorizontalGroup("1")]
         public string strCommandName;
+
+        [HorizontalGroup("1")]
+        [LabelWidth(70)]
+        [Rename_Inspector("Enable")]
+        public bool bEnable = true;
 
         [Rename_Inspector("InputElementGroup")]
         [ListDrawerSettings(CustomAddFunction = nameof(AddInputElementGroup))]
@@ -303,44 +319,51 @@ public class InputEventSetting : ScriptableObject
                 listIgnoreCommandName.Add(pInputEvent.listIgnoreCommandName[i]);
         }
 
-        public void DoInit()
+        public void DoInit(ProjectInputSetting pInputSetting)
         {
             CManagerCommand pManagerCommand = CManagerCommand.instance;
-
             for (int i = 0; i < InputElementGroupList.Count; i++)
             {
                 InputElementGroup pElementGroup = InputElementGroupList[i];
-                for(int j = 0; j < pElementGroup.listInputElement.Count; j++)
+                for(int j = pElementGroup.listInputElement.Count - 1; j >= 0; j--) // 뒷부분에 Combine Input Element가 있어서 역순으로 컴바인부터 결합 및 InputElement 리스트에 등록한 뒤에 Find를 한다.
                 {
                     InputEventBase pInputEvent = null;
                     InputElementWrapper pInputElementWrapper = pElementGroup.listInputElement[j];
 
-                    InputElement pElement_A = pManagerCommand.GetInputElement(pInputElementWrapper.strInputElementName_A);
-                    if (pInputElementWrapper.bIsReverse_A)                              pElement_A = !pElement_A;
-                    if (pInputElementWrapper.bSet_PressTime_A)                          pElement_A = pElement_A.DoSet_PressTime(pInputElementWrapper.fPressTime_A);
-                    if (pInputElementWrapper.bAlwaysCall_And_InputValue_Is_BoolValue_A) pElement_A = pElement_A.DoAlwaysCall_And_InputValue_Is_BoolValue();
+                    InputElement pElement_A = pInputSetting.p_pInputElementSetting.DoCreate_InputElement(pInputElementWrapper.strInputElementName_A);
+                    if (pInputElementWrapper.bIsReverse_A)
+                        pElement_A = !pElement_A;
+                    if (pInputElementWrapper.bSet_PressTime_A)
+                        pElement_A = pElement_A.DoSet_PressTime(pInputElementWrapper.fPressTime_A);
+                    if (pInputElementWrapper.bAlwaysCall_And_InputValue_Is_BoolValue_A)
+                        pElement_A = pElement_A.DoAlwaysCall_And_InputValue_Is_BoolValue();
 
-                    if(pInputElementWrapper.eOperatorType== EOperatorType.ONLY)
+                    if (pInputElementWrapper.eOperatorType == EOperatorType.ONLY)
                     {
                         pInputEvent = pManagerCommand.DoCreate_InputEvent_Normal(strCommandName, pElement_A);
                     }
                     else
                     {
-                        InputElement pElement_B = pManagerCommand.GetInputElement(pInputElementWrapper.strInputElementName_B);
-                        if(pElement_B == null)
+                        InputElement pElement_B = pInputSetting.p_pInputElementSetting.DoCreate_InputElement(pInputElementWrapper.strInputElementName_B);
+                        if(pElement_B == null) 
                         {
-                            //pInputElementWrapper.strInputElementName_B = pInputElementWrapper.strInputElementName_B.Replace(" ", "");
-                            //pInputElementWrapper.strInputElementName_B = pInputElementWrapper.strInputElementName_B.Replace("&&", "_AND_");
-                            //pInputElementWrapper.strInputElementName_B = pInputElementWrapper.strInputElementName_B.Replace("||", "_OR_");
-
+                            // 여기에 들어왔다는 것은 다른 3개 이상의 InputElement가 하나로 묶인다는 뜻이며,
+                            // 기존의 2개가 묶인 컴바인 InputElement는 매니져에서 지운다. ( 위에 하나로 합쳐져 등록되있기 때문 )
                             pElement_B = pManagerCommand.GetInputElement(pInputElementWrapper.strInputElementName_B);
-                            if(pElement_B == null)
-                                Debug.LogError("Not Found Input Element" + pInputElementWrapper.strInputElementName_B);
+                            if (pElement_B == null)
+                                Debug.LogError("Input Event Setting - Init - Not Found Input Element" + pInputElementWrapper.strInputElementName_B);
+
+                            pInputEvent = pManagerCommand.GetInputEvent(strCommandName);
+                            if (pInputEvent != null)
+                                pInputEvent.DoRemove_InputElement(pElement_B);
                         }
 
-                        if (pInputElementWrapper.bIsReverse_B) pElement_B = !pElement_B;
-                        if (pInputElementWrapper.bSet_PressTime_B) pElement_B = pElement_B.DoSet_PressTime(pInputElementWrapper.fPressTime_B);
-                        if (pInputElementWrapper.bAlwaysCall_And_InputValue_Is_BoolValue_B) pElement_B = pElement_B.DoAlwaysCall_And_InputValue_Is_BoolValue();
+                        if (pInputElementWrapper.bIsReverse_B)
+                            pElement_B = !pElement_B;
+                        if (pInputElementWrapper.bSet_PressTime_B)
+                            pElement_B = pElement_B.DoSet_PressTime(pInputElementWrapper.fPressTime_B);
+                        if (pInputElementWrapper.bAlwaysCall_And_InputValue_Is_BoolValue_B)
+                            pElement_B = pElement_B.DoAlwaysCall_And_InputValue_Is_BoolValue();
 
                         CombineInputBase pInputEvent_Combine = null;
                         if (pInputElementWrapper.eOperatorType == EOperatorType.OR)
@@ -349,13 +372,21 @@ public class InputEventSetting : ScriptableObject
                             pInputEvent_Combine = pElement_A & pElement_B;
 
                         if (pInputEvent_Combine != null)
+                        {
                             pInputEvent = pManagerCommand.DoCreate_InputEvent_Normal(strCommandName, pInputEvent_Combine.DoSet_AxisValueCalculate(pInputElementWrapper.eAxisValueCalculate));
+                        }
                     }
                     
                     if (pInputEvent != null && string.IsNullOrEmpty(strCommandName) == false)
                     {
                         object pCommand = Activator.CreateInstance(ProjectInputSetting.GetCommandType(strCommandName));
                         pManagerCommand.DoCreate_CommandWrapper(pCommand as CCommandBase, pInputEvent);
+
+                        if(bEnable == false)
+                        {
+                            CommandWrapper pCommandWrapper = pManagerCommand.GetCommandWrapper(strCommandName);
+                            pCommandWrapper.DoSet_Enable(bEnable);
+                        }
                     }
                 }
             }
@@ -426,7 +457,6 @@ public class InputEventSetting : ScriptableObject
     // ========================================================================== //
 
     [Rename_Inspector("현재 세팅된 Input Event List")]
-    [ListDrawerSettings(OnBeginListElementGUI = nameof(BeginDrawListElement), OnEndListElementGUI = nameof(EndDrawListElement))]
     public List<InputEvent_Editor> p_listEvent = new List<InputEvent_Editor>();
 
     [ShowIf(nameof(CheckIsOpend_Editor))]
@@ -441,10 +471,10 @@ public class InputEventSetting : ScriptableObject
         p_listEvent = listEvent;
     }
 
-    public void DoInit()
+    public void DoInit(ProjectInputSetting pInputSetting)
     {
         for (int i = 0; i < p_listEvent.Count; i++)
-            p_listEvent[i].DoInit();
+            p_listEvent[i].DoInit(pInputSetting);
 
         for (int i = 0; i < p_listEvent.Count; i++)
             p_listEvent[i].DoInit_Second();
@@ -471,9 +501,29 @@ public class InputEventSetting : ScriptableObject
     {
         Debug.Log(nameof(Save_To_File_From_Setting));
 
+#if UNITY_EDITOR
         string strPath = EditorUtility.SaveFilePanelInProject("Save", nameof(InputEventSetting), "asset", "Please enter a file name to save");
         if (strPath.Length != 0)
             ScriptableObjectUtility.CreateAsset(new InputEventSetting(p_listEvent), strPath);
+#endif
+    }
+
+    [HorizontalGroup("Enable Button")]
+    [ShowIf(nameof(CheckIsOpend_Editor))]
+    [Button("Enable All Command", ButtonSizes.Large)]
+    public void AllButton_Enable()
+    {
+        for (int i = 0; i < p_listEvent.Count; i++)
+            p_listEvent[i].bEnable = true;
+    }
+
+    [HorizontalGroup("Enable Button")]
+    [ShowIf(nameof(CheckIsOpend_Editor))]
+    [Button("Disable All Command", ButtonSizes.Large)]
+    public void AllButton_Disable()
+    {
+        for (int i = 0; i < p_listEvent.Count; i++)
+            p_listEvent[i].bEnable = false;
     }
 
     public void Load_From_File_Into_Setting()
@@ -495,15 +545,5 @@ public class InputEventSetting : ScriptableObject
     }
 
     // ========================================================================== //
-
-    private void BeginDrawListElement(int index)
-    {
-        SirenixEditorGUI.BeginBox(this.p_listEvent[index].strCommandName);
-    }
-
-    private void EndDrawListElement(int index)
-    {
-        SirenixEditorGUI.EndBox();
-    }
 }
 #endif

@@ -1,114 +1,100 @@
 ﻿#region Header
-/* ============================================ 
- *			    Strix Unity Library
- *		https://github.com/KorStrix/UnityLibrary
- *	============================================ 	
- *	관련 링크 :
- *	
- *	설계자 : 
- *	작성자 : KJH
- *	
- *	기능 : 
+/*	============================================
+ *	작성자 : Strix
+ *	작성일 : 2019-04-02 오후 7:43:29
+ *	개요 : 
    ============================================ */
 #endregion Header
 
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
-public class CUGUIInventoryCursor : CObjectBase
+/// <summary>
+/// 
+/// </summary>
+public class CUGUIInventoryCursor : CSingletonDynamicMonoBase<CUGUIInventoryCursor>
 {
-	/* const & readonly declaration             */
+    /* const & readonly declaration             */
 
-	/* enum & struct declaration                */
+    /* enum & struct declaration                */
 
-	#region Field
+    public enum EUIElementName_ForInit
+    {
+        Image_SlotItem,
+    }
 
-	/* public - Field declaration            */
+    /* public - Field declaration            */
 
-	/* protected - Field declaration         */
+    [Header("필요한 UI Element")] [Space(10)]
+    [GetComponentInChildren(nameof(EUIElementName_ForInit.Image_SlotItem), bIsPrint_OnNotFound = false)]
+    [Rename_Inspector("Image `" + nameof(EUIElementName_ForInit.Image_SlotItem) + "`", false)]
+    public Image p_pImage_CurrentItem;
 
-	/* private - Field declaration           */
+    /* protected & private - Field declaration         */
 
-	private Camera _pCamera;
-	private Canvas _pRootCanvas;
-	private RectTransform _pRecTransRootCanvas;
+    private Camera _pCamera;
+    private Canvas _pRootCanvas;
+    private RectTransform _pRecTransRootCanvas;
 
-	private Image _pImage;
+    [Header("디버깅용")]
+    [SerializeField]
+    [Rename_Inspector("현재 데이터", false)]
+    IInventorySlotData _pCurrentSlotData;
 
-	// private Vector3 _vecInitPos;
+    // ========================================================================== //
 
-	#endregion Field
-
-	#region Public
-
-	// ========================================================================== //
-
-	/* public - [Do] Function
+    /* public - [Do] Function
      * 외부 객체가 호출(For External class call)*/
 
-	public void DoUpdatePosition(Vector3 v3CursorPos)
-	{
-		Vector2 v2ConvertPos = Vector3.zero;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(_pRecTransRootCanvas, v3CursorPos, _pCamera, out v2ConvertPos);
+    public void DoUpdatePosition(Vector3 v3CursorPos)
+    {
+        Vector2 v2ConvertPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_pRecTransRootCanvas, v3CursorPos, _pCamera, out v2ConvertPos);
 
         transform.position = _pRecTransRootCanvas.TransformPoint(v2ConvertPos);
-		gameObject.SetActive(true);
-	}
+    }
 
-	public void DoSetImage(Sprite pSprite)
-	{
-		EventSetImage(pSprite);
-	}
+    public void DoSet_InventorySlotItem(IInventorySlotData pInventorySlotData)
+    {
+        _pCurrentSlotData = pInventorySlotData;
 
-	/* public - [Event] Function             
-       프랜드 객체가 호출(For Friend class call)*/
+        if(pInventorySlotData != null)
+        {
+            if(p_pImage_CurrentItem) p_pImage_CurrentItem.sprite = pInventorySlotData.IInventorySlotData_GetItemIcon();
+        }
+        else
+        {
+            p_pImage_CurrentItem.sprite = null;
+        }
 
-	#endregion Public
+    }
 
-	// ========================================================================== //
+    // ========================================================================== //
 
-	#region Protected
+    /* protected - Override & Unity API         */
 
-	/* protected - [abstract & virtual]         */
+    protected override void OnAwake()
+    {
+        base.OnAwake();
 
-	/* protected - [Event] Function           
-       자식 객체가 호출(For Child class call)		*/
+        this.GetComponentInChildren(out p_pImage_CurrentItem);
+        p_pImage_CurrentItem.raycastTarget = false;
 
-	private void EventSetImage(Sprite pSprite)
-	{
-		_pImage.sprite = pSprite;
-		_pImage.SetNativeSize();
-	}
+        _pRootCanvas = GetComponentInParent<Canvas>();
+        _pRecTransRootCanvas = (RectTransform)_pRootCanvas.transform;
+        _pCamera = _pRootCanvas.worldCamera;
 
-	/* protected - Override & Unity API         */
+        gameObject.SetActive(false);
+    }
 
-	protected override void OnAwake()
-	{
-		base.OnAwake();
+    /* protected - [abstract & virtual]         */
 
-        this.GetComponentInChildren(out _pImage);
-		_pImage.raycastTarget = false;
 
-		_pRootCanvas = GetComponentInParent<Canvas>();
-		_pRecTransRootCanvas = (RectTransform)_pRootCanvas.transform;
-		_pCamera = _pRootCanvas.worldCamera;
+    // ========================================================================== //
 
-		gameObject.SetActive(false);
-	}
+    #region Private
 
-	#endregion Protected
-
-	// ========================================================================== //
-
-	#region Private
-
-	/* private - [Proc] Function             
-       로직을 처리(Process Local logic)           */
-
-	/* private - Other[Find, Calculate] Func 
-       찾기, 계산등 단순 로직(Simpe logic)         */
-
-	#endregion Private
+    #endregion Private
 }

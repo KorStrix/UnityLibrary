@@ -5,6 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
 /* ============================================ 
    Editor      : Strix                               
    Date        : 2017-06-18 오후 5:21:49
@@ -75,14 +79,14 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
 
 	public event System.Action<bool> p_OnPress;
 
-    [Rename_Inspector("디버그 모드")]
-    public bool p_bIsDebuging = false;
-
 	[Rename_Inspector( "트리거 작동 조건" )]
 	public EConditionTypeFlags p_eConditionType = EConditionTypeFlags.None;
 	[Rename_Inspector("트리거 작동 시 처음 딜레이")]
 	public float p_fDelayTrigger = 0f;
 
+#if ODIN_INSPECTOR
+    [ShowIf(nameof(CheckIsUpdate))]
+#endif
     [Rename_Inspector("업데이트 시 타임 델타")]
     public float p_fUpdateTimeDelta = 0.02f;
 
@@ -179,9 +183,9 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
         }
     }
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
 	{
-		base.OnDisableObject();
+		base.OnDisableObject(bIsQuitApplciation);
 
         if (p_eConditionType.ContainEnumFlag(EConditionTypeFlags.OnDisable))
 			DoPlayEventTrigger();
@@ -232,7 +236,7 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
         if (p_Event_IncludeThisObject != null)
             p_Event_IncludeThisObject(gameObject);
 
-        if (p_bIsDebuging)
+        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
             Debug.Log(name + " " + this.GetType().Name + " Play Event", this);
 
         OnPlayEvent();
@@ -267,5 +271,10 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
         yield return YieldManager.GetWaitForSecond(fDelaySec);
         yield return new CYield_IsWaitingEventTrigger();
         OnAfterDelayAction();
+    }
+
+    private bool CheckIsUpdate()
+    {
+        return p_eConditionType == EConditionTypeFlags.OnUpdate;
     }
 }

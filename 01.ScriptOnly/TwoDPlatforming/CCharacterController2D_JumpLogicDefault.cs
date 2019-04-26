@@ -15,7 +15,7 @@ using NUnit.Framework;
 using UnityEngine.TestTools;
 #endif
 
-[CreateAssetMenu(menuName = "StrixSO/" + nameof(CCharacterController2D_JumpLogicDefault))]
+[CreateAssetMenu(menuName = "StrixSO/CharacterController2D/" + nameof(CCharacterController2D_JumpLogicDefault))]
 public class CCharacterController2D_JumpLogicDefault : CCharacterController2D_LogicBase
 {
     [Rename_Inspector("점프 힘")]
@@ -109,9 +109,9 @@ public class CCharacterController2D_JumpLogicDefault : CCharacterController2D_Lo
         //float fJumpLimit = UpdateJumpVelocity(vecJumpAddForce.y);
         //if (_pRigidbody.velocity.y < fJumpLimit)
         if(_bIgnore_OnMultiJump && _iMultipleJumpCount >= 1)
-            _pRigidbody.velocity = vecJumpAddForce * _pRigidbody.mass * Time.fixedDeltaTime;
+            rigidbody.velocity = vecJumpAddForce * rigidbody.mass * Time.fixedDeltaTime;
         else
-            _pRigidbody.AddForce(vecJumpAddForce);
+            rigidbody.AddForce(vecJumpAddForce);
 
         vecJumpAddForce = Vector2.zero;
         bInputJump = false;
@@ -125,13 +125,27 @@ public class CCharacterController2D_JumpLogicDefault : CCharacterController2D_Lo
 
         pCharacterController2D.p_Event_OnGround.Subscribe += OnResetJumpCount;
         pCharacterController2D.p_Event_OnLadder.Subscribe += OnResetJumpCount;
+        pCharacterController2D.p_Event_OnWallSliding.Subscribe += OnSet_JumpCount_IsOne;
+        pCharacterController2D.p_Event_OnFalling.Subscribe += OnFalling;
 
         _iCurrentMultipleJumpCount = 0;
+    }
+
+    private void OnFalling(bool bFalling)
+    {
+        if(bFalling && _pCharacterController2D.p_bIsJumping == false)
+            _iCurrentMultipleJumpCount = 1;
     }
 
     private void OnResetJumpCount(bool bReset)
     {
         if(bReset)
             _iCurrentMultipleJumpCount = 0;
+    }
+
+    private void OnSet_JumpCount_IsOne(bool bReset)
+    {
+        if (bReset)
+            _iCurrentMultipleJumpCount = 1;
     }
 }

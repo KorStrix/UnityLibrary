@@ -10,14 +10,18 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-using Sirenix.Utilities;
 using UnityEditor;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
+#endif
 
 /// <summary>
 /// 
 /// </summary>
-public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
+#if ODIN_INSPECTOR
+public class ProjectInputSetting : CSingletonSOBase<ProjectInputSetting>
 {
     static public CObserverSubject p_Event_OnChangeSetting { get; private set; } = new CObserverSubject();
 
@@ -64,9 +68,13 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
     public void DoInit()
     {
         p_pInputElementSetting.DoInit();
-        p_pInputEventSetting.DoInit();
-    }
+        if(p_pInputEventSetting == null)
+        {
 
+        }
+
+        p_pInputEventSetting.DoInit(this);
+    }
 
 
     // ========================================================================== //
@@ -81,6 +89,7 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
 
     public static void DoUpdate_InputSetting_From_ProjectSetting()
     {
+#if UNITY_EDITOR
         var pInputSetting = Instance.p_pInputSetting;
         if (pInputSetting.p_listInput == null)
             pInputSetting.p_listInput = new List<InputAxis>();
@@ -95,6 +104,7 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
             else
                 break;
         }
+#endif
     }
 
     public static string[] GetInputID()
@@ -118,7 +128,7 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
         if (pInputElementSetting.p_listInputElement != null)
         {
             for (int i = 0; i < pInputElementSetting.p_listInputElement.Count; i++)
-                _listTemp.Add(pInputElementSetting.p_listInputElement[i].strInputElementName);
+                _listTemp.Add(pInputElementSetting.p_listInputElement[i].IDictionaryItem_GetKey());
         }
 
         return _listTemp.ToArray();
@@ -127,6 +137,7 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
 
     public static void AddAxis(InputAxis pInputAxis)
     {
+#if UNITY_EDITOR
         if (AxisDefined(pInputAxis.strInputID))
             return;
 
@@ -137,9 +148,11 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
         pSerializedObject.ApplyModifiedProperties();
 
         SetAxis(pSerializedObject, pAxesProperty, pInputAxis, pAxesProperty.arraySize - 1);
+#endif
     }
 
 
+#if UNITY_EDITOR
     public static SerializedProperty GetAxesProperty()
     {
         SerializedObject serializedObject = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/InputManager.asset")[0]);
@@ -171,5 +184,14 @@ public class ProjectInputSetting : GlobalConfig<ProjectInputSetting>
         pInputAxis.DoSave_ToProperty(pAxesProperty.GetArrayElementAtIndex(iIndex));
         pSerializedObject.ApplyModifiedProperties();
     }
-
+#endif
 }
+
+#else
+public class ProjectInputSetting
+{
+    public static ProjectInputSetting Instance;
+
+    public void DoInit() { }
+}
+#endif

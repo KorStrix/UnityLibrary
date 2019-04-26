@@ -54,9 +54,9 @@ public class CCompoAutoDisable : CCompoEventTrigger
         _pCoroutine = StartCoroutine(CoDelayDisable());
 	}
 
-    protected override void OnDisableObject()
+    protected override void OnDisableObject(bool bIsQuitApplciation)
     {
-        base.OnDisableObject();
+        base.OnDisableObject(bIsQuitApplciation);
 
         if (_pCoroutine != null)
             StopCoroutine(_pCoroutine);

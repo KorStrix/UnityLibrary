@@ -25,9 +25,9 @@ public class Rename_InspectorAttribute : Attribute
     public bool bIsEditPossibleInspector;
 
     /// <summary>
-    /// 기본적으로 인스펙터에 노출시킵니다.
+    /// 인스펙터에 노출되는 변수명을 변경합니다.
     /// </summary>
-    /// <param name="strInpectorName">인스펙터에 노출시킬 이름</param>
+    /// <param name="strInpectorName">인스펙터에 노출되는 변수 이름</param>
     /// <param name="bIsEditPossibleInspector">에디터에서 수정가능 유무</param>
     public Rename_InspectorAttribute(string text, bool bIsEditPossibleInspector = true)
     {
@@ -67,20 +67,10 @@ public class CEditorInspector_Attribute_Rename : OdinAttributeDrawer<Rename_Insp
     /// </summary>
     protected override void DrawPropertyLayout(InspectorProperty property, Rename_InspectorAttribute attribute, GUIContent label)
     {
-        var context = property.Context.Get<StringMemberHelper>(this, "StringContext", (StringMemberHelper)null);
-
-        if (context.Value == null)
-            context.Value = new StringMemberHelper(property.ParentType, attribute.strInspectorName);
-
-        if (context.Value.ErrorMessage != null)
-            SirenixEditorGUI.ErrorMessageBox(context.Value.ErrorMessage);
-
-        if (label == null)
-            property.Label = null;
-        else
+        if(label != null)
         {
             property.Label = label;
-            property.Label.text = context.Value.GetString(property);
+            property.Label.text = attribute.strInspectorName;
         }
 
         this.CallNextDrawer(property, property.Label);

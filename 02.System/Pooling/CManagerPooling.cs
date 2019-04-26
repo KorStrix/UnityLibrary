@@ -141,11 +141,19 @@ public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingle
 
     public void Event_RemovePoolObject(GameObject pObjectDestroyed)
     {
-        Class_GetType pObjectReturn = pObjectDestroyed.GetComponent<Class_GetType>();
-        int iID = _mapAllInstance[pObjectReturn];
+        if (pObjectDestroyed == null)
+            return;
 
+        Class_GetType pObjectReturn = pObjectDestroyed.GetComponent<Class_GetType>();
+        if (pObjectReturn == null || _mapAllInstance.ContainsKey(pObjectReturn) == false)
+            return;
+
+        int iID = _mapAllInstance[pObjectReturn];
         if (_mapUsed.ContainsKey(iID) && _mapUsed[iID].Contains(pObjectReturn))
             _mapUsed[iID].Remove(pObjectReturn);
+
+        if (_mapUnUsed.ContainsKey(iID) && _mapUnUsed[iID].Contains(pObjectReturn))
+            _mapUnUsed[iID].Remove(pObjectReturn);
 
         _mapAllInstance.Remove(pObjectReturn);
     }
@@ -182,13 +190,6 @@ public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingle
     string strTypeName;
 
 #if UNITY_EDITOR // 하이어라키뷰에 실시간 풀링 상황 모니터링을 위한 Update
-
-    protected override void OnReleaseSingleton()
-    {
-        base.OnReleaseSingleton();
-
-        CManagerUpdateObject.instance.DoRemoveObject(this);
-    }
 
     public override void OnUpdate()
     {

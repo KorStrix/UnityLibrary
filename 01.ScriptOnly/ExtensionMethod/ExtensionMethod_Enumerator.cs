@@ -39,7 +39,7 @@ public class ExtensionMethod_Enumerator : MonoBehaviour
 		SDataWeapon[] arrWeapon = new SDataWeapon[2] {
 			new SDataWeapon(0, "Gun"), new SDataWeapon(1, "Granade") };
 
-		_mapWeapon.DoAddItem(arrWeapon);
+		_mapWeapon.DoClear_And_AddItem(arrWeapon);
 		Debug.Log("0 : " + _mapWeapon[0].strWeaponName);
 		Debug.Log("1 : " + _mapWeapon[1].strWeaponName);
 	}

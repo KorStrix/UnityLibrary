@@ -21,14 +21,20 @@ public class CCharacterController2D_LogicBase : ScriptableObject
     public bool p_bIsDebuging = false;
 
     protected CCharacterController2D _pCharacterController2D;
-    protected Rigidbody2D _pRigidbody;
+    protected Rigidbody2D rigidbody;
     protected Transform transform;
 
-    public void DoInit(CCharacterController2D pCharacterController2D)
+    protected CCharacterController2D_MoveLogicBase _pMoveLogic { get; private set; }
+    protected CCharacterController2D_LadderLogicBase _pLadderLogic { get; private set; }
+
+    public void DoInit(CCharacterController2D pCharacterController2D, CCharacterController2D_MoveLogicBase pMoveLogic, CCharacterController2D_LadderLogicBase pLadderLogic)
     {
         _pCharacterController2D = pCharacterController2D;
-        _pRigidbody = _pCharacterController2D.p_pRigidbody;
+        rigidbody = _pCharacterController2D.p_pRigidbody;
         transform = _pCharacterController2D.transform;
+
+        _pMoveLogic = pMoveLogic;
+        _pLadderLogic = pLadderLogic;
 
         OnInit(pCharacterController2D);
     }

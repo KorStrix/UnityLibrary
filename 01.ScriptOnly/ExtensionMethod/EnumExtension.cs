@@ -2,24 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class SCEnumHelper
+public static class EnumExtension
 {
-	static Dictionary<System.Type, CDictionary_ForEnumKey<int, string>> g_mapEnumToString_ForGeneric = new Dictionary<System.Type, CDictionary_ForEnumKey<int, string>>();
-	public static string ToString_GarbageSafe<ENUM>(ENUM eEnum)
-		where ENUM : struct
-	{
-		int iHashCode = eEnum.GetHashCode();
-		System.Type pType = eEnum.GetType();
-		if (g_mapEnumToString_ForGeneric.ContainsKey(pType) == false)
-			g_mapEnumToString_ForGeneric.Add(pType, new CDictionary_ForEnumKey<int, string>());
-
-		CDictionary_ForEnumKey<int, string> mapEnumToString = g_mapEnumToString_ForGeneric[pType];
-		if (mapEnumToString.ContainsKey(iHashCode) == false)
-			mapEnumToString.Add(iHashCode, System.Enum.GetName(pType, eEnum));
-
-		return mapEnumToString[iHashCode];
-	}
-
 	public static List<TEnum> ConvertEnumList<TEnum>(this List<int> listInt)
 	where TEnum : System.IConvertible, System.IComparable
 	{

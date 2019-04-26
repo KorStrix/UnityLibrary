@@ -8,9 +8,12 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
-using UnityEngine;
+#endif
 
 //public interface IColoredCollectionItem
 //{

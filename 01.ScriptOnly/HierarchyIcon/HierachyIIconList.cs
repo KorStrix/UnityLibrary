@@ -11,11 +11,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-
-using Sirenix.OdinInspector;
 using System;
-using Sirenix.OdinInspector.Editor;
 using System.Reflection;
+
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
+#endif
 
 [CreateAssetMenu(menuName = "StrixSO/" + nameof(HierachyIIconList))]
 public class HierachyIIconList : CScriptableObject
@@ -23,10 +25,14 @@ public class HierachyIIconList : CScriptableObject
     [System.Serializable]
     public class IconMappingDataBase
     {
+#if ODIN_INSPECTOR
         [PreviewField(Alignment = ObjectFieldAlignment.Center)]
         [LabelText("대상 텍스쳐")]
+#endif
         public Texture2D pTexture;
+#if ODIN_INSPECTOR
         [LabelText("아이콘 순서 높을수록 왼쪽")]
+#endif
         public int iOrder;
     }
 
@@ -34,9 +40,10 @@ public class HierachyIIconList : CScriptableObject
     [System.Serializable]
     public class IconMappingData_Type : IconMappingDataBase, IDictionaryItem<string>
     {
-        [ShowInInspector]
+#if ODIN_INSPECTOR
         [LabelText("대상 타입 이름")]
         [ValueDropdown(nameof(GetTypeName))]
+#endif
         public string strTypeName;
 
         public string IDictionaryItem_GetKey()
@@ -57,8 +64,10 @@ public class HierachyIIconList : CScriptableObject
     [System.Serializable]
     public class IconMappingData_Tag : IconMappingDataBase, IDictionaryItem<string>
     {
+#if ODIN_INSPECTOR
         [LabelText("대상 태그 이름")]
         [ValueDropdown(nameof(GetTagName))]
+#endif
         public string strTag;
 
         public string IDictionaryItem_GetKey()
@@ -82,7 +91,9 @@ public class HierachyIIconList : CScriptableObject
 
     // ========================================================================== //
 
+#if ODIN_INSPECTOR
     [Button]
+#endif
     public void UpdateIcon()
     {
         HierachyIconConfig.instance.UpdateIcon();

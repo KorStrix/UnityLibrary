@@ -13,15 +13,31 @@ using System.Linq;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 public interface IHasName
 {
     string IHasName_GetName();
 }
 
-// [Space(10), TypeFilter(nameof(GetFilter_BombCondition)), ValueDropdown(nameof(GetList_BombCondition)), ListDrawerSettings(ShowIndexLabels = false, ListElementLabelName = "name"), LabelText("투사체가 터지는 조건들")]
-// protected ValueDropdownList<ProjectileExcuteBase> GetList_Excute() { return OdinExtension.GetValueDropDownList_SubString<ProjectileExcuteBase>(); }
-// protected IEnumerable<System.Type> GetFilter_Excute() { return OdinExtension.GetFilteredTypeList(typeof(ProjectileExcuteBase)); }
+#if ODIN_INSPECTOR
+
+#else
+
+public class ValueDropdownItem<T>
+{
+    public T Value;
+}
+
+public class ValueDropdownList<T> : List<ValueDropdownItem<T>>
+{
+    public void Add(string strName, T pItem)
+    {
+
+    }
+}
+
+#endif
 
 /// <summary>
 /// 
@@ -84,5 +100,3 @@ public static class OdinExtension
             .Where(x => pType.IsAssignableFrom(x));
     }
 }
-
-#endif

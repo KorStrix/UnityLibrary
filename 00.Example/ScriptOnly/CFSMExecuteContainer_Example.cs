@@ -9,7 +9,10 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 /// <summary>
 /// 
@@ -158,7 +161,7 @@ public class CFSMExecuteContainer_Example : CObjectBase
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }

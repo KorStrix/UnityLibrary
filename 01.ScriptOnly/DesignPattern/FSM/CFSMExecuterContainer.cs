@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System;
 using UnityEditor;
 
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 
@@ -19,16 +20,22 @@ using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 #endif
+#endif
 
 public abstract class CTransitionStateExecuter_Base<ENUM_STATE> : IExecuter
 {
     virtual public int p_iExecuterOrder => 0;
 
+#if ODIN_INSPECTOR
     [LabelText("해당 상태로 전환")]
     [HorizontalGroup]
+#endif
+
     public ENUM_STATE eNextState;
+#if ODIN_INSPECTOR
     [HideLabel, LabelWidth(80f)]
     [HorizontalGroup(80f)]
+#endif
     public EStateInsertType eStateInsertType = EStateInsertType.Change;
 
     public abstract bool CheckIsTransition();
@@ -51,12 +58,16 @@ public abstract class State_ExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXE
     //[Rename_Inspector("상태 이름")]
     //public ENUM_STATE p_eState;
 
+#if ODIN_INSPECTOR
     [PropertyOrder(10)]
+#endif
     [Rename_Inspector("상태 전환자 리스트")]
     public CExecuterContainer<CLASS_EXECUTER_TRANSITION_STATE> p_pExecuter_OnTransitionState = new CExecuterContainer<CLASS_EXECUTER_TRANSITION_STATE>();
 
-    [Space(5)]
+#if ODIN_INSPECTOR
     [PropertyOrder(11)]
+#endif
+    [Space(5)]
     [Rename_Inspector("상태에 진입 했을 때 실행기능 리스트")]
     public CExecuterContainer<CLASS_EXECUTER_ONSTART_STATE> p_pExecuter_OnEnable = new CExecuterContainer<CLASS_EXECUTER_ONSTART_STATE>();
 
@@ -134,19 +145,23 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
 {
     /* const & readonly declaration             */
 
-    /* enum & struct declaration                */
+/* enum & struct declaration                */
 
-    /* public - Field declaration            */
+/* public - Field declaration            */
 
+#if ODIN_INSPECTOR
     [Indent(-1)]
     [ValueDropdown(nameof(GetStateList), IsUniqueList = true, ExcludeExistingValuesInList = true)]
     [ListDrawerSettings(ShowIndexLabels = false, ShowItemCount = false, OnBeginListElementGUI = nameof(BeginDrawListElement), OnEndListElementGUI = nameof(EndDrawListElement), DraggableItems = false, Expanded = false)]
+#endif
     public List<CLASS_STATE> p_listState;
 
     /* protected & private - Field declaration         */
 
     List<CLASS_STATE> _listState_Fixed = new List<CLASS_STATE>();
+#if ODIN_INSPECTOR
     ValueDropdownList<CLASS_STATE> _list_ForPrint = new ValueDropdownList<CLASS_STATE>();
+#endif
 
     // ========================================================================== //
 
@@ -158,6 +173,7 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
         base.DoInit(pOwner, p_listState.ToArray());
     }
 
+#if ODIN_INSPECTOR
     public ValueDropdownList<CLASS_STATE> GetStateList()
     {
         if (_listState_Fixed == null)
@@ -174,6 +190,7 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
 
         return _list_ForPrint;
     }
+#endif
 
     //public void DoInit(CObjectBase pOwner)
     //{
@@ -196,27 +213,28 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
     private void BeginDrawListElement(int index)
     {
         if (p_listState[index] == null)
             return;
-#if UNITY_EDITOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         SirenixEditorGUI.BeginBox(this.p_listState[index].IDictionaryItem_GetKey().ToString());
 #endif
     }
 
     private void EndDrawListElement(int index)
     {
-#if UNITY_EDITOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         SirenixEditorGUI.EndBox();
 #endif
     }
 
-    #endregion Private
+#endregion Private
 }
 
+#if ODIN_INSPECTOR
 #if UNITY_EDITOR
 
 [DrawerPriority(0, 0, 1)]
@@ -279,4 +297,5 @@ public class CFSMExecuteContainer_Drawer<CLASS_FSM_EXECUTE_CONTAINER, ENUM_STATE
     }
 }
 
+#endif
 #endif

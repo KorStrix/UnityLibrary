@@ -12,11 +12,13 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 
 #if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
 using Sirenix.OdinInspector.Editor;
+#endif
 #endif
 
 public interface IExecuter : IHasName
@@ -42,7 +44,7 @@ public class CExecuterContainer<CLASS_EXECUTER> : IExecuteContainer
 {
     /* const & readonly declaration             */
 
-    /* enum & struct declaration                */
+/* enum & struct declaration                */
 
     public class Comparer_ByOrder : CSingletonNotMonoBase<Comparer_ByOrder>, IComparer<ValueDropdownItem<CLASS_EXECUTER>>
     {
@@ -54,8 +56,10 @@ public class CExecuterContainer<CLASS_EXECUTER> : IExecuteContainer
 
     /* public - Field declaration            */
 
+#if ODIN_INSPECTOR
     [Indent(-1)]
     [Space(10), TypeFilter(nameof(GetTypeFilter)), ValueDropdown(nameof(GetValueDownList)), ListDrawerSettings(ShowIndexLabels = false, ListElementLabelName = "IHasName_GetName")]
+#endif
     public List<CLASS_EXECUTER> p_listExecute = new List<CLASS_EXECUTER>();
 
     /* protected & private - Field declaration         */
@@ -135,13 +139,14 @@ public class CExecuterContainer<CLASS_EXECUTER> : IExecuteContainer
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
 
-    #endregion Private
+#endregion Private
 }
 
 
+#if ODIN_INSPECTOR
 #if UNITY_EDITOR
 
 [DrawerPriority(1, 0, 0)]
@@ -209,4 +214,5 @@ public class CExecuteContainer_Drawer_Inherit<CLASS_EXECUTE_CONTAINER, CLASS_EXE
 }
 
 
+#endif
 #endif

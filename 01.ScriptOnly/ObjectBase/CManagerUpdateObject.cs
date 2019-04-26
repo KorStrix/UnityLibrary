@@ -7,6 +7,8 @@
  *	작성일 : 2018-03-17 오후 10:36:36
  *	기능 : 
  *	https://blogs.unity3d.com/kr/2015/12/23/1k-update-calls/
+ *	업데이트 오브젝트 카운팅
+ *	모노비헤비어 외의 객체에 업데이트 기능 지원
    ============================================ */
 #endregion Header
 
@@ -14,9 +16,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-
-using Unity.Jobs;
-using Unity.Collections;
 
 public interface IUpdateAble
 {
@@ -143,7 +142,7 @@ public class CManagerUpdateObject : CSingletonDynamicMonoBase<CManagerUpdateObje
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }

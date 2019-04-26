@@ -9,9 +9,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-using NUnit.Framework;
-using UnityEngine.TestTools;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : CSingletonNotMonoBase<CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource>>
     where ENUM_Resource_Name : System.IComparable, System.IConvertible
@@ -48,7 +47,7 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
     /* public - [Do] Function
      * 외부 객체가 호출                         */
 
-    public void DoInitPoolingObject(List<GameObject> listPoolingObject)
+    public void DoInitPoolingObject(IEnumerable<GameObject> listPoolingObject)
     {
         ProcInitManagerPooling(listPoolingObject);
     }
@@ -279,9 +278,9 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
         ProcInitManagerPooling(arrResources.ToList());
     }
 
-    private void ProcInitManagerPooling(List<GameObject> listObject)
+    private void ProcInitManagerPooling(IEnumerable<GameObject> listObject)
     {
-        if (listObject.Count == 0)
+        if (listObject.Count() == 0)
         {
             Debug.Log("Init Fail. listObject.Count == 0");
             return;
@@ -294,31 +293,32 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
         _mapResourceOrigin.Clear();
         _mapResourceOriginCopy.Clear();
-        for (int i = 0; i < listObject.Count; i++)
+        foreach(var pObject in listObject)
         {
+
             ENUM_Resource_Name eResourceName = default(ENUM_Resource_Name);
             try
             {
-                eResourceName = (ENUM_Resource_Name)System.Enum.Parse(pType_Enum, listObject[i].name);
+                eResourceName = (ENUM_Resource_Name)System.Enum.Parse(pType_Enum, pObject.name);
             }
             catch
             {
                 try
                 {
-                    eResourceName = (ENUM_Resource_Name)((object)listObject[i].name);
+                    eResourceName = (ENUM_Resource_Name)((object)pObject.name);
                 }
                 catch
                 {
-                    Debug.Log("Error Pooling : " + listObject[i].name);
+                    Debug.Log("Error Pooling : " + pObject.name);
                 }
                 if (pType_Enum.IsEnum)
-                    Debug.Log(string.Format("{0} is not in Enum {1}", listObject[i].name, strEnumName));
+                    Debug.Log(string.Format("{0} is not in Enum {1}", pObject.name, strEnumName));
             }
 
             if (_mapResourceOrigin.ContainsKey(eResourceName))
                 continue;
 
-            GameObject pObjectOrigin = listObject[i].gameObject;
+            GameObject pObjectOrigin = pObject.gameObject;
             Class_Resource pResourceOrigin = pObjectOrigin.GetComponent<Class_Resource>();
             if (pResourceOrigin == null)
                 continue;
@@ -407,130 +407,3 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
     }
 
 }
-
-#region Test
-
-[Category("StrixLibrary")]
-public class ObjectPooling_InResourcesTest
-{
-    public enum ETestPoolingObjectName
-    {
-        Test1,
-        Test2,
-        Test3,
-    }
-
-    public class TestPoolingObject : MonoBehaviour
-    {
-        static public Dictionary<ETestPoolingObjectName, int> g_mapActiveCount;
-        public ETestPoolingObjectName eTestType;
-
-        private void OnEnable() { g_mapActiveCount[eTestType]++; }
-        private void OnDisable() { g_mapActiveCount[eTestType]--; }
-    }
-
-    [UnityTest] 
-    public IEnumerator Working_Test()
-    {
-        // 풀링 매니져를 Init합니다.
-        CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> pPoolingManager = InitGeneratePoolingTest();
-
-        Assert.AreEqual(0, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test1]);
-        Assert.AreEqual(0, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test2]);
-
-        List<GameObject> listObjectPooling = new List<GameObject>();
-        for (int i = 0; i < 10; i++)
-            listObjectPooling.Add(pPoolingManager.DoPop(ETestPoolingObjectName.Test1).gameObject);
-        Assert.AreEqual(10, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test1]);
-
-        for (int i = 0; i < 10; i++)
-            pPoolingManager.DoPush(listObjectPooling[i].GetComponent<TestPoolingObject>());
-        Assert.AreEqual(0, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test1]);
-
-        listObjectPooling.Clear();
-        for (int i = 0; i < 5; i++)
-            listObjectPooling.Add(pPoolingManager.DoPop(ETestPoolingObjectName.Test2).gameObject);
-        Assert.AreEqual(5, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test2]);
-
-        pPoolingManager.DoPushAll();
-        Assert.AreEqual(0, TestPoolingObject.g_mapActiveCount[ETestPoolingObjectName.Test2]);
-
-        yield break;
-    }
-
-    static public Dictionary<ETestPoolingObjectName, int> g_mapMakeCount;
-    static public Dictionary<ETestPoolingObjectName, int> g_mapPopCount;
-    static public Dictionary<ETestPoolingObjectName, int> g_mapPushCount;
-
-    [UnityTest]
-    public IEnumerator Event_Test()
-    {
-        g_mapMakeCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test3, 0 } };
-        g_mapPopCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test3, 0 } };
-        g_mapPushCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test3, 0 } };
-        CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> pPoolingManager = InitGeneratePoolingTest();
-
-        pPoolingManager.p_EVENT_OnMakeResource += PPoolingManager_p_EVENT_OnMakeResource;
-        pPoolingManager.p_EVENT_OnPopResource += PPoolingManager_p_EVENT_OnPopResource;
-        pPoolingManager.p_EVENT_OnPushResource += PPoolingManager_p_EVENT_OnPushResource;
-
-        int iTotalMakeCount = Random.Range(15, 50);
-        for (int i = 0; i < iTotalMakeCount; i++)
-            pPoolingManager.DoPop(ETestPoolingObjectName.Test3);
-
-        Assert.AreEqual(g_mapMakeCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPopCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPushCount[ETestPoolingObjectName.Test3], 0);
-
-        pPoolingManager.DoPushAll();
-
-        Assert.AreEqual(g_mapMakeCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPopCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPushCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-
-        for (int i = 0; i < iTotalMakeCount; i++)
-            pPoolingManager.DoPop(ETestPoolingObjectName.Test3);
-
-        Assert.AreEqual(g_mapMakeCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPopCount[ETestPoolingObjectName.Test3], iTotalMakeCount * 2);
-        Assert.AreEqual(g_mapPushCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-
-        pPoolingManager.DoPushAll();
-
-        Assert.AreEqual(g_mapMakeCount[ETestPoolingObjectName.Test3], iTotalMakeCount);
-        Assert.AreEqual(g_mapPopCount[ETestPoolingObjectName.Test3], iTotalMakeCount * 2);
-        Assert.AreEqual(g_mapPushCount[ETestPoolingObjectName.Test3], iTotalMakeCount * 2);
-
-        yield break;
-    }
-
-    private void PPoolingManager_p_EVENT_OnMakeResource(ETestPoolingObjectName arg1, TestPoolingObject arg2) { g_mapMakeCount[arg1]++; }
-    private void PPoolingManager_p_EVENT_OnPushResource(ETestPoolingObjectName arg1, TestPoolingObject arg2) { g_mapPushCount[arg1]++; }
-    private void PPoolingManager_p_EVENT_OnPopResource(ETestPoolingObjectName arg1, TestPoolingObject arg2) { g_mapPopCount[arg1]++; }
-
-    private CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> InitGeneratePoolingTest()
-    {
-        TestPoolingObject.g_mapActiveCount = new Dictionary<ETestPoolingObjectName, int>() { { ETestPoolingObjectName.Test1, 0 }, { ETestPoolingObjectName.Test2, 0 }, { ETestPoolingObjectName.Test3, 0 } };
-
-        List<GameObject> listObjectPooling = new List<GameObject>();
-        for(int i = 0; i < 3; i++)
-        {
-            ETestPoolingObjectName eTest = (ETestPoolingObjectName)i;
-            GameObject pObjectOrigin_Test = new GameObject(eTest.ToString());
-            pObjectOrigin_Test.gameObject.SetActive(false);
-            pObjectOrigin_Test.AddComponent<TestPoolingObject>().eTestType = eTest;
-            listObjectPooling.Add(pObjectOrigin_Test.gameObject);
-        }
-
-        CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject> pPoolingManager = CManagerPooling_InResources<ETestPoolingObjectName, TestPoolingObject>.instance;
-        pPoolingManager.DoInitPoolingObject(listObjectPooling);
-
-        pPoolingManager.p_EVENT_OnMakeResource -= PPoolingManager_p_EVENT_OnMakeResource;
-        pPoolingManager.p_EVENT_OnPopResource -= PPoolingManager_p_EVENT_OnPopResource;
-        pPoolingManager.p_EVENT_OnPushResource -= PPoolingManager_p_EVENT_OnPushResource;
-
-        return pPoolingManager;
-    }
-}
-
-#endregion

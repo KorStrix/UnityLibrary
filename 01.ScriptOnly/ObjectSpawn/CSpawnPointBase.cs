@@ -108,7 +108,9 @@ public abstract class CSpawnPointBase : CObjectBase
     public Color p_pColor_Spawn = Color.white;
 
     [Rename_Inspector("스폰모듈")]
+#if ODIN_INSPECTOR
     [TypeFilter(nameof(GetTypeFilter)), ValueDropdown(nameof(GetValueDownList)), ListDrawerSettings(ShowIndexLabels = false, ListElementLabelName = "IHasName_GetName")]
+#endif
     public CSpawnLogicBase p_pSpawnLogic = new CSpawnLogicBase();
 
     /* protected & private - Field declaration         */
@@ -152,6 +154,7 @@ public abstract class CSpawnPointBase : CObjectBase
 #pragma warning restore CS0162 // 접근할 수 없는 코드가 있습니다.
     }
 
+#if ODIN_INSPECTOR
     static public ValueDropdownList<T> Get_ExistFileNameList_UnityObject<T>(string strDataPath)
         where T : UnityEngine.Object
     {
@@ -186,6 +189,7 @@ public abstract class CSpawnPointBase : CObjectBase
         return null;
 #pragma warning restore CS0162 // 접근할 수 없는 코드가 있습니다.
     }
+#endif
 
     public List<GameObject> DoSpawnObject_OnlyOne()
     {
@@ -295,12 +299,14 @@ public abstract class CSpawnPointBase : CObjectBase
         return Application.dataPath + "/Resources/" + _strResourcesPath;
     }
 
+#if ODIN_INSPECTOR
     virtual protected ValueDropdownList<CSpawnLogicBase> GetValueDownList() { return OdinExtension.GetValueDropDownList_HasName<CSpawnLogicBase>(); }
     virtual protected IEnumerable<System.Type> GetTypeFilter() { return OdinExtension.GetTypeFilter(typeof(CSpawnLogicBase)); }
+#endif
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
     private void SpawnObject_EditorOnly()
     {
@@ -405,10 +411,12 @@ public abstract class CSpawnPointBase : CObjectBase
         }
     }
 
+#if ODIN_INSPECTOR
     private ValueDropdownList<GameObject> GetSpawnObjectName()
     {
         return Get_ExistFileNameList_UnityObject<GameObject>(GetDataPath());
     }
+#endif
 
 #endregion Private
 }
@@ -420,6 +428,7 @@ public abstract class CSpawnPointBase : CObjectBase
 #endif
 #endregion Test
 
+#if ODIN_INSPECTOR
 #if UNITY_EDITOR
 
 public class CSpawnPointBaseDrawer<CLASS_SPAWNPOIONT_DRIVEN> : OdinValueDrawer<CLASS_SPAWNPOIONT_DRIVEN>
@@ -434,5 +443,5 @@ public class CSpawnPointBaseDrawer<CLASS_SPAWNPOIONT_DRIVEN> : OdinValueDrawer<C
     }
 }
 
-
+#endif
 #endif

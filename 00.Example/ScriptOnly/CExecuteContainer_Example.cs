@@ -9,7 +9,10 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 /// <summary>
 /// 
@@ -58,7 +61,9 @@ public class CExecuteContainer_Example : CObjectBase
     /* protected & private - Field declaration         */
 
     [SerializeField]
+#if ODIN_INSPECTOR
     [ShowDrawerChain]
+#endif
     CExecuterContainer<ExecuterBase> _pExecuteContainer = new CExecuterContainer<ExecuterBase>();
 
     // ========================================================================== //
@@ -77,7 +82,7 @@ public class CExecuteContainer_Example : CObjectBase
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }

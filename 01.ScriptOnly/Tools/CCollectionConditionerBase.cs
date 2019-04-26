@@ -9,15 +9,17 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 
 #if UNITY_EDITOR
 using NUnit.Framework;
 using UnityEditor;
 #endif
 
+#if ODIN_INSPECTOR
 #if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
+using Sirenix.OdinInspector;
+#endif
 #endif
 
 public interface IRecipe<CLASS_ELEMENT> : IHasName
@@ -51,7 +53,7 @@ public class CCollectionConditionerBase<CLASS_ELEMENT, CLASS_RECIPE> : CObjectBa
 
     /* protected & private - Field declaration         */
 
-    [ShowInInspector]
+    [SerializeField]
     List<CLASS_RECIPE> _listRecipe_Instance = new List<CLASS_RECIPE>();
 
     List<CLASS_ELEMENT> _listElement_Temp = new List<CLASS_ELEMENT>();
@@ -96,9 +98,9 @@ public class CCollectionConditionerBase<CLASS_ELEMENT, CLASS_RECIPE> : CObjectBa
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }
 
 #region Test
@@ -238,6 +240,7 @@ public class CCollectionConditionerTester : CCollectionConditionerBase<CCollecti
 #endif
 #endregion Test
 
+#if ODIN_INSPECTOR
 #if UNITY_EDITOR
 
 public class CCollectionConditioner_Drawer<CLASS_DRIVEN, CLASS_ELEMENT, CLASS_RECIPE> : OdinValueDrawer<CLASS_DRIVEN>
@@ -255,5 +258,6 @@ public class CCollectionConditioner_Drawer<CLASS_DRIVEN, CLASS_ELEMENT, CLASS_RE
     }
 }
 
+#endif
 #endif
 

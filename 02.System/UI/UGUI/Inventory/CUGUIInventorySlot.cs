@@ -10,7 +10,10 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 public interface IInventorySlotData
 {
@@ -47,6 +50,7 @@ public class CUGUIInventorySlot : CUIObjectBase
     public IInventorySlotData p_pInventoryData { get; private set; }
 
     [Header("필요한 UI Element")] [Space(10)]
+
     [ChildRequireComponent(nameof(EUIElementName_ForInit.Text_SlotItemName), bIsPrint_OnNotFound = false)]
     public Text p_pText_ItemName;
     [ChildRequireComponent(nameof(EUIElementName_ForInit.Image_SlotItemIcon), bIsPrint_OnNotFound = false)]
@@ -110,7 +114,7 @@ public class CUGUIInventorySlot : CUIObjectBase
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }

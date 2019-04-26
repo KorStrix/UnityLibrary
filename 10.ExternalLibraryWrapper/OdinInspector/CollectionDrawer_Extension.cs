@@ -13,11 +13,13 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
 using Sirenix.Utilities.Editor;
-using UnityEditor;
-using UnityEngine;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector;
 
@@ -1123,4 +1125,5 @@ public class CollectionDrawer_Extension<T> : OdinValueDrawer<T>, IDefinesGeneric
         };
     }
 }
+#endif
 #endif

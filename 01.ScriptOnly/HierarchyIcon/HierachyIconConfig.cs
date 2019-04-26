@@ -12,9 +12,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 
-using Sirenix.OdinInspector;
 using System;
 using static HierachyIIconList;
+
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 /// <summary>
 /// 
@@ -54,7 +57,9 @@ public class HierachyIconConfig : CSingletonSOBase<HierachyIconConfig>
         UpdateIcon();
     }
 
+#if ODIN_INSPECTOR
     [Button]
+#endif
     public void UpdateIcon()
     {
         mapIconPer_Type.Clear();

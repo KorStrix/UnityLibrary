@@ -78,12 +78,12 @@ public class ChildRequireComponentAttribute :
 #else
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-public class RequireChildComponentAttribute : GetComponentInChildrenAttribute
+public class ChildRequireComponentAttribute : GetComponentInChildrenAttribute
 {
     public string strRequireComent;
     public bool bIsEditPossibleInspector;
 
-    public RequireChildComponentAttribute(System.Object pComponentName, bool bIsEditPossibleInspector = true)
+    public ChildRequireComponentAttribute(System.Object pComponentName, bool bIsEditPossibleInspector = true)
         : base(pComponentName)
     {
         this.strRequireComent = "'" + pComponentName.ToString() + "' - Require In Children Object";
@@ -244,7 +244,7 @@ public class CEditorInspector_ChildRequireComponentAttribute : PropertyDrawer
 
         // If the calculated HelpBox is less than our minimum height we use this to calculate the returned
         // height instead.
-        return height > minHeight ? height + baseHeight + addedHeight : minHeight + baseHeight + addedHeight;
+        return height > minHeight ? height + baseHeight : minHeight + baseHeight;
     }
 
 

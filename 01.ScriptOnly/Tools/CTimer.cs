@@ -44,8 +44,10 @@ public class CTimer : CObjectBase
     [Rename_Inspector("Enable 시 플레이")]
     public bool p_bIsPlayOnEnable = true;
 
-    [Space(10)]
+#if ODIN_INSPECTOR
     [HideInEditorMode]
+#endif
+    [Space(10)]
     [Rename_Inspector("남은 시간", false)]
     private float p_fRemainTime;
 
@@ -130,7 +132,7 @@ public class CTimer : CObjectBase
 
     // ========================================================================== //
 
-    #region Private
+#region Private
 
-    #endregion Private
+#endregion Private
 }

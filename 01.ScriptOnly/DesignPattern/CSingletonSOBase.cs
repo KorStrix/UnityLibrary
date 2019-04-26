@@ -93,7 +93,7 @@ abstract public class CSingletonSOBase<T> : ScriptableObject
                     _pObjectAttacher.p_pOwnerSO = instance;
                 }
             }
-            _pInstance.OnAwake();
+            _pInstance.OnAwake(Application.isPlaying);
 
             return _pInstance;
         }

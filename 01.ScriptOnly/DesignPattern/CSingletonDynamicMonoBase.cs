@@ -15,7 +15,13 @@
 using UnityEngine;
 using System.Collections;
 
-public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> : CObjectBase
+public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> :
+#if STRIX_LIBRARY
+    CObjectBase
+#else
+    MonoBehaviour, IUpdateAble
+#endif
+
     where CLASS_SingletoneTarget : CSingletonDynamicMonoBase<CLASS_SingletoneTarget>, new()
 {
     static public CLASS_SingletoneTarget instance
@@ -71,23 +77,62 @@ public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> : CObjectBase
 	
 	static public void DoSetParents_ManagerObject( Transform pTransformParents )
 	{
-		//CManagerPooling<ENUM_Resource_Name, Class_Resource> pManagerCurrent = instance;
-		//if (_pTransManager == null)
-		//{
-		//	_bIsInit = false; _bIsDestroy = false;
-		//	pManagerCurrent.OnMakeSingleton();
-		//}
-
 		_pTransManager.SetParent( pTransformParents );
-		_pTransManager.DoResetTransform();
-	}
+        _pTransManager.transform.localScale = Vector3.one;
+        _pTransManager.transform.localRotation = Quaternion.identity;
+        _pTransManager.transform.position = Vector3.zero;
+    }
 
     // ========================== [ Division ] ========================== //
 
     virtual protected void OnReleaseSingleton() { }
 
-	// ========================== [ Division ] ========================== //
-    
+    // ========================== [ Division ] ========================== //
+
+#region NotSupport_StrixLibrary
+#if !STRIX_LIBRARY
+
+    protected bool _bIsExcuteAwake = false;
+    protected bool _bIsQuitApplciation = false;
+    private Coroutine _pCoroutineOnEnable;
+
+    void Awake()
+    {
+        if (_bIsExcuteAwake == false)
+            OnAwake();
+    }
+
+    void OnEnable()
+    {
+        CManagerUpdateObject.instance?.DoAddObject(this);
+
+        OnEnableObject();
+        if (_pCoroutineOnEnable != null)
+            StopCoroutine(_pCoroutineOnEnable);
+
+        if (gameObject.activeSelf)
+            _pCoroutineOnEnable = StartCoroutine(OnEnableObjectCoroutine());
+    }
+
+    protected virtual void OnAwake()
+    {
+        _bIsExcuteAwake = true;
+    }
+
+    virtual protected void OnEnableObject() { }
+    virtual protected IEnumerator OnEnableObjectCoroutine() { yield break; }
+    virtual public void OnUpdate() { }
+
+    public bool IUpdateAble_IsRequireUpdate()
+    {
+        return this != null && gameObject.activeSelf;
+    }
+
+#endif
+    #endregion
+
+    // ========================== [ Division ] ========================== //
+
     void OnDestroy()
     {
         _instance = null;

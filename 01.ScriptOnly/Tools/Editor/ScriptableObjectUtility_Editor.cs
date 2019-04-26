@@ -9,10 +9,12 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 /// <summary>
 /// 
@@ -48,3 +50,4 @@ public static class ScriptableObjectUtility_Editor
         return pAsset;
     }
 }
+#endif

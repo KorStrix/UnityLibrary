@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace StrixLibrary_Test
 {
     [Category("StrixLibrary")]
     public class CManagerPooling_InResources_Test
@@ -129,3 +131,4 @@ namespace Tests
         }
     }
 }
+#endif

@@ -11,8 +11,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #if ODIN_INSPECTOR
+
+#if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
+#endif
 #endif
 
 //public interface IColoredCollectionItem

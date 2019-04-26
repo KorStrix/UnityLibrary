@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 /* ============================================ 
    Editor      : Strix                               
@@ -381,3 +384,4 @@ public class CEditorWindow_NameChanger : ScriptableWizard
 		return System.String.CompareOrdinal( pObjectX.name, pObjectY.name );
 	}
 }
+#endif

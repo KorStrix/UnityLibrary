@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 /* ============================================ 
    Editor      : Strix
@@ -92,3 +94,4 @@ public class CEditorWindow_MaterialChanger : CEditorWindow
        찾기, 계산등 단순 로직(Simpe logic)         */
 
 }
+#endif

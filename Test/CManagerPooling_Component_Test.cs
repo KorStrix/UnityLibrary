@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace StrixLibrary_Test
 {
     public class CManagerPooling_Component_Test
     {
@@ -104,3 +106,4 @@ namespace Tests
         }
     }
 }
+#endif

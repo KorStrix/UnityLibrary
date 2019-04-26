@@ -10,9 +10,11 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
-using System;
 using static HierachyIIconList;
 
 #if ODIN_INSPECTOR
@@ -75,3 +77,4 @@ public class HierachyIconConfig : CSingletonSOBase<HierachyIconConfig>
         }
     }
 }
+#endif

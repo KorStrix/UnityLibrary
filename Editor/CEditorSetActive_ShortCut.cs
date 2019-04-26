@@ -13,6 +13,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 public static class CEditor_ShortCut
@@ -60,3 +62,4 @@ public static class CEditor_ShortCut
         _listSelection.Clear();
     }
 }
+#endif

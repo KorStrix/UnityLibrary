@@ -2,6 +2,8 @@
 using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 public class CEditorProjectView_GenerateSpriteObject : Editor
@@ -28,3 +30,4 @@ public class CEditorProjectView_GenerateSpriteObject : Editor
 		}
 	}
 }
+#endif

@@ -14,6 +14,8 @@ using UnityEditor;
 using System;
 using System.Reflection;
 
+#if UNITY_EDITOR
+
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
@@ -100,3 +102,4 @@ public class HierachyIIconList : CScriptableObject
     }
 
 }
+#endif

@@ -9,13 +9,15 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
 using UnityEditor;
-using static CManagerCommand;
 
 #if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
-using Sirenix.OdinInspector;
 
 /// <summary>
 /// 
@@ -97,4 +99,5 @@ public class CInputManager_WindowEditor : OdinMenuEditorWindow
 #endregion Private
 }
 
+#endif
 #endif

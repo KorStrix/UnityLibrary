@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
+
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
-using System.Reflection;
 
 // 참고 링크
 // https://answers.unity.com/questions/682285/editor-script-for-setting-the-sorting-layer-of-an.html
@@ -39,3 +41,4 @@ public class CEditorInspector_CCompoSortingLayer : Editor
         EditorUtility.SetDirty(_pTarget);
     }
 }
+#endif

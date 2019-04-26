@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.IO;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 public class AssetBundleTestEditor : CEditorWindow
 {
@@ -81,3 +83,4 @@ public class AssetBundleTestEditor : CEditorWindow
     }
 
 }
+#endif

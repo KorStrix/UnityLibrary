@@ -1,8 +1,10 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.IO;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 public class CEditorProjectView_GetObjectNameList : Editor
 {
@@ -133,3 +135,4 @@ public class CEditorProjectView_GetObjectNameList : Editor
 		return "Assets" + strPath.Substring( Application.dataPath.Length );
 	}
 }
+#endif

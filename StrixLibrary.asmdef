@@ -1,5 +1,5 @@
 {
-    "name": "NewAssembly",
+    "name": "StrixLibrary",
     "references": [
         "Unity.TextMeshPro"
     ],

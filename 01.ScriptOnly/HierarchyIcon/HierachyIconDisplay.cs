@@ -15,6 +15,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public struct DrawIconInfo
 {
     public Texture2D pTexture2D { get; private set; }
@@ -140,3 +141,4 @@ public class HierarchyIcon
         EditorGUIUtility.SetIconSize(Vector2.zero);
     }
 }
+#endif

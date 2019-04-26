@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 //http://wiki.unity3d.com/index.php?title=FindMissingScripts
@@ -61,3 +63,4 @@ public class CEditorWindowFindMissingScripts : EditorWindow
         }
     }
 }
+#endif

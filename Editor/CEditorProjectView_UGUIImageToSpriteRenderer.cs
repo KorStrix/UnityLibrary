@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 public class CEditorProjectView_UGUIImageToSpriteRenderer : Editor
@@ -71,3 +73,4 @@ public class CEditorProjectView_UGUIImageToSpriteRenderer : Editor
 		}
 	}
 }
+#endif

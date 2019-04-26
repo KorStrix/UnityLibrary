@@ -3,9 +3,13 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+
 #if ODIN_INSPECTOR
+
 using Sirenix.OdinInspector.Editor;
 #endif
+
 
 /* ============================================ 
    Editor      : Strix
@@ -92,3 +96,5 @@ public class CEditorWindow : EditorWindow
        찾기, 계산등 단순 로직(Simpe logic)         */
 
 }
+
+#endif

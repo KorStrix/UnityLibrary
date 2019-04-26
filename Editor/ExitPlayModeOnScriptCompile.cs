@@ -14,6 +14,7 @@
 // incurred as a result of using this code.
 
 
+#if UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
@@ -43,3 +44,4 @@ public class ExitPlayModeOnScriptCompile
     }
 
 }
+#endif

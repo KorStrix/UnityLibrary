@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +11,9 @@ using System.Text.RegularExpressions;
    Description : 
    Edit Log    : 
    ============================================ */
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 public class CEditorWindow_SpriteEditor : CEditorWindow
 {
@@ -158,3 +160,4 @@ public class CEditorWindow_SpriteEditor : CEditorWindow
 		}
 	}
 }
+#endif

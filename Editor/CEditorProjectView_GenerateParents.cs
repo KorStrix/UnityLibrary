@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
 public class CEditorProjectView_GenerateParents : Editor
@@ -61,3 +63,4 @@ public class CEditorProjectView_GenerateParents : Editor
 		pObject.localScale = vecOriginScale;
 	}
 }
+#endif

@@ -2,8 +2,10 @@
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using System.IO;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 /* ============================================ 
    Editor      : Strix
@@ -50,3 +52,4 @@ public class CEditorProjectView_MaterialGenerator : Editor
 		return "Assets" + strPath.Substring(Application.dataPath.Length);
 	}
 }
+#endif

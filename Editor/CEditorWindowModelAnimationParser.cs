@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
 
@@ -198,3 +200,4 @@ public class CEditorWindowModelAnimationParser : EditorWindow
        찾기, 계산 등의 비교적 단순 로직         */
 
 }
+#endif

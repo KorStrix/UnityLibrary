@@ -1,11 +1,9 @@
 {
-    "name": "StrixLibrary_Test",
+    "name": "NewAssembly",
     "references": [
-        "NewAssembly"
+        "Unity.TextMeshPro"
     ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

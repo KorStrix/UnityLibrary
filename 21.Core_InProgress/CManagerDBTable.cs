@@ -17,8 +17,8 @@ using Sirenix.OdinInspector;
 /// <summary>
 /// 
 /// </summary>
-public class CManagerDBTable<CLASS_DRIVEN, CLASS_DB> : CSingletonMonoBase<CLASS_DRIVEN>
-    where CLASS_DRIVEN : CManagerDBTable<CLASS_DRIVEN, CLASS_DB>
+public class CManagerDBTable<CLASS_DERIVED, CLASS_DB> : CSingletonMonoBase<CLASS_DERIVED>
+    where CLASS_DERIVED : CManagerDBTable<CLASS_DERIVED, CLASS_DB>
     where CLASS_DB : ScriptableObject, IDictionaryItem<string>, new()
 {
     /* const & readonly declaration             */

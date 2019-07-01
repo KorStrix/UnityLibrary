@@ -34,49 +34,49 @@ public class CGridObject : CObjectBase
 
 	/* public - Variable declaration            */
 
-    [Rename_Inspector("포지션 오프셋")]
+    [DisplayName("포지션 오프셋")]
 	public Vector3 _vecLocalPosOffset = Vector3.zero;
 
     [Header("행열 옵션 관련")]
-    [Rename_Inspector("행열 옵션")]
+    [DisplayName("행열 옵션")]
     public ERowColumnOption p_eRowColumnOption = ERowColumnOption.None;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(_bIsEnable_RowColumn_IsRow))]
 #endif
-    [Rename_Inspector("행의 개수")]
+    [DisplayName("행의 개수")]
     public int p_iRowCount = 0;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(_bIsEnable_RowColumn_IsColumn))]
 #endif
-    [Rename_Inspector("열의 개수")]
+    [DisplayName("열의 개수")]
     public int p_iColumnCount = 0;
 
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(_bIsEnable_RowColumnOption))]
 #endif
-    [Rename_Inspector("다음 행열과의 갭")]
+    [DisplayName("다음 행열과의 갭")]
     public float p_fNextRowColumnOffset = 0f;
 
 
     [Space(10)]
     [Header("원형 옵션 관련")]
-    [Rename_Inspector("원형 옵션")]
+    [DisplayName("원형 옵션")]
     public ECircleOption _eCircleOption = ECircleOption.None;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(_bIsEnable_CircleOption))]
 #endif
-    [Rename_Inspector("원형일 때 회전 값")]
+    [DisplayName("원형일 때 회전 값")]
     public Vector3 _vecRotate_OnCircle;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(_bIsEnable_CircleOption))]
 #endif
-    [Rename_Inspector("원형일 때 위치 값")]
+    [DisplayName("원형일 때 위치 값")]
     public Vector3 _vecPos_OnCircle;
 
     [Space(10)]
-    [Rename_Inspector("피벗을 중앙으로 할지")]
+    [DisplayName("피벗을 중앙으로 할지")]
     public bool p_bPivotIsCenter = false;
-    [Rename_Inspector("Update때 항상 정렬 할지")]
+    [DisplayName("Update때 항상 정렬 할지")]
     public bool p_bUseUpdateSort = false;
 
     /* protected - Variable declaration         */
@@ -151,10 +151,8 @@ public class CGridObject : CObjectBase
     }
 #endif
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-		base.OnUpdate();
-
         if (p_bUseUpdateSort == false || transform.childCount == 0)
             return;
 

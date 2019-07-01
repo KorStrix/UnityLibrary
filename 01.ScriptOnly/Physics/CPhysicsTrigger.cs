@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CPhysicsTrigger : CObjectBase, IPhysicsWrapper
 {
     /* const & readonly declaration             */
@@ -39,25 +34,25 @@ public class CPhysicsTrigger : CObjectBase, IPhysicsWrapper
     public event OnPhysicsEvent2D p_Event_IPhysicsWrapper_OnPhysicsEvent_2D;
     public event OnPhysicsEvent3D p_Event_IPhysicsWrapper_OnPhysicsEvent_3D;
 
-    [Rename_Inspector("컬라이더 On")]
+    [DisplayName("컬라이더 On")]
     public bool p_bColliderOn = false;
 
-    [Rename_Inspector("타겟 트렌스폼", false)]
+    [DisplayName("타겟 트렌스폼", false)]
     public Transform p_pTransformTarget;
 
-    [Rename_Inspector("물리 체크 TimeDelta")]
+    [DisplayName("물리 체크 TimeDelta")]
     public float p_fPhysicsCheckDelay = 0.02f;
 
-    [Rename_Inspector("히트 Array Capcity")]
+    [DisplayName("히트 Array Capcity")]
     public int p_iHitInfoCount = 10;
 
-    [Rename_Inspector("히트 레이어 마스크")]
+    [DisplayName("히트 레이어 마스크")]
     public LayerMask p_pLayerMask;
 
     /* protected & private - Field declaration         */
 
     [SerializeField]
-    [Rename_Inspector("컬라이더 타입", false)]
+    [DisplayName("컬라이더 타입", false)]
     EColliderType _eColliderType;
 
     [GetComponent]
@@ -70,25 +65,25 @@ public class CPhysicsTrigger : CObjectBase, IPhysicsWrapper
     SphereCollider _pSphereCollider_Orign = null;
 
     [Header("[2D]")]
-    [Rename_Inspector("새로 충돌된 컬라이더 (Enter)")]
+    [DisplayName("새로 충돌된 컬라이더 (Enter)")]
     [SerializeField]
     List<Collider2D> _listCollider2D_Enter = new List<Collider2D>();
-    [Rename_Inspector("충돌 중인 컬라이더 (Stay)")]
+    [DisplayName("충돌 중인 컬라이더 (Stay)")]
     [SerializeField]
     List<Collider2D> _listCollider2D_Stay = new List<Collider2D>();
-    [Rename_Inspector("충돌 중인 컬라이더 (Exit)")]
+    [DisplayName("충돌 중인 컬라이더 (Exit)")]
     [SerializeField]
     List<Collider2D> _listCollider2D_Exit = new List<Collider2D>();
 
     [Space(10)]
     [Header("[3D]")]
-    [Rename_Inspector("새로 충돌된 컬라이더 (Enter)")]
+    [DisplayName("새로 충돌된 컬라이더 (Enter)")]
     [SerializeField]
     List<Collider> _listCollider3D_Enter = new List<Collider>();
-    [Rename_Inspector("충돌 중인 컬라이더 (Stay)")]
+    [DisplayName("충돌 중인 컬라이더 (Stay)")]
     [SerializeField]
     List<Collider> _listCollider3D_Stay = new List<Collider>();
-    [Rename_Inspector("충돌 중인 컬라이더 (Exit)")]
+    [DisplayName("충돌 중인 컬라이더 (Exit)")]
     [SerializeField]
     List<Collider> _listCollider3D_Exit = new List<Collider>();
 
@@ -487,10 +482,3 @@ public class CPhysicsTrigger : CObjectBase, IPhysicsWrapper
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

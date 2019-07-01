@@ -19,11 +19,6 @@ using UnityEngine.EventSystems;
 using System.Linq;
 using UnityEngine.UI;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public interface IUIObject_HasButton<Enum_ButtonName>
 {
     void IUIObject_HasButton_OnClickButton(Enum_ButtonName eButtonName, Button pButton);
@@ -44,7 +39,7 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
 
     /* public - Field declaration            */
 
-    public CObserverSubject<System.Action<string>> p_Event_OnClickButton { get; private set; } = new CObserverSubject<System.Action<string>>();
+    public ObservableCollection<System.Action<string>> p_Event_OnClickButton { get; private set; } = new ObservableCollection<System.Action<string>>();
 
     /* protected - Field declaration         */
 
@@ -196,13 +191,8 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
                 {
                     UnityEngine.Events.UnityAction pButtonAction = delegate { pMethod.Invoke(this, new object[2] { pEnum, pButton }); };
 
-                    if (CManagerCommand.instance != null)
-                        CManagerCommand.instance.Event_RegistUIInpput_Button(this, pButton, pButtonAction);
-                    else
-                    {
-                        pButton.onClick.RemoveListener(pButtonAction);
-                        pButton.onClick.AddListener(pButtonAction);
-                    }
+                    pButton.onClick.RemoveListener(pButtonAction);
+                    pButton.onClick.AddListener(pButtonAction);
                 }
             }
         }
@@ -256,62 +246,3 @@ public class CUIObjectBase : CObjectBase, IPointerClickHandler, IPointerDownHand
 
     #endregion Private
 }
-
-
-
-#region Test
-#if UNITY_EDITOR
-
-[Category("StrixLibrary")]
-public class UGUIPanel_Test : CUGUIPanelBase, IUIObject_HasButton<UGUIPanel_Test.EInput>
-{
-    public enum EInput
-    {
-        None, Button_Test, Button_Test2,
-    }
-    static EInput eLastInput;
-
-    [UnityTest]
-    public IEnumerator UGUIPanel_HasButtonTest()
-    {
-        EventSystem.current = new GameObject().AddComponent<EventSystem>();
-        UGUIPanel_Test pTestPanel = new GameObject().AddComponent<UGUIPanel_Test>();
-        Button pButtonTest = new GameObject(EInput.Button_Test.ToString()).AddComponent<Button>();
-        Button pButtonTest2 = new GameObject(EInput.Button_Test2.ToString()).AddComponent<Button>();
-
-        pButtonTest.transform.SetParent(pTestPanel.transform);
-        pButtonTest2.transform.SetParent(pTestPanel.transform);
-        pTestPanel.EventOnAwake_Force();
-
-        eLastInput = EInput.None;
-        Assert.AreEqual(eLastInput, EInput.None);
-
-        if(CManagerCommand.instance != null)
-        {
-            //pButtonTest.OnPointerClick(new PointerEventData(EventSystem.current));
-            //CManagerCommand.instance.OnUpdate();  // 통합 테스트를 하면 Command Manager가 생성되는데, Command Manager가 씬에 존재할 경우 UI Object Awake시 커맨드에 등록된다.
-            //Assert.AreEqual(eLastInput, EInput.Button_Test);
-
-            //pButtonTest2.OnPointerClick(new PointerEventData(EventSystem.current));
-            //CManagerCommand.instance.OnUpdate();
-            //Assert.AreEqual(eLastInput, EInput.Button_Test2);
-        }
-        else
-        {
-            pButtonTest.OnPointerClick(new PointerEventData(EventSystem.current));
-            Assert.AreEqual(eLastInput, EInput.Button_Test);
-
-            pButtonTest2.OnPointerClick(new PointerEventData(EventSystem.current));
-            Assert.AreEqual(eLastInput, EInput.Button_Test2);
-        }
-
-        yield break;
-    }
-
-    public void IUIObject_HasButton_OnClickButton(EInput eButtonName, Button pButton)
-    {
-        eLastInput = eButtonName;
-    }
-}
-#endif
-#endregion

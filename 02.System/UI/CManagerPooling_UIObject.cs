@@ -18,8 +18,8 @@ public interface IPoolingUIObject
 /// 
 /// </summary>
 [RequireComponent(typeof(Canvas))]
-public class CManagerPooling_UIObject<Class_Driven> : CSingletonMonoBase<Class_Driven>
-    where Class_Driven : CManagerPooling_UIObject<Class_Driven>
+public class CManagerPooling_UIObject<Class_DERIVED> : CSingletonMonoBase<Class_DERIVED>
+    where Class_DERIVED : CManagerPooling_UIObject<Class_DERIVED>
 {
     /* const & readonly declaration             */
 

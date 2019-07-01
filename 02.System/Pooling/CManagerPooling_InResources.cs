@@ -245,9 +245,9 @@ public class CManagerPooling_InResources<ENUM_Resource_Name, Class_Resource> : C
 
 #if UNITY_EDITOR // 하이어라키뷰에 실시간 풀링 상황 모니터링을 위한 Update
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         gameObject.name = p_strManagerName;
     }

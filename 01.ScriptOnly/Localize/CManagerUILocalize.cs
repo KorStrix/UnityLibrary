@@ -11,6 +11,8 @@ using System.Text;
    Edit Log    : 
    ============================================ */
 
+#pragma warning disable CS0618 // 형식 또는 멤버는 사용되지 않습니다.
+
 [RequireComponent(typeof(CCompoDontDestroyObj))]
 public class CManagerUILocalize : CSingletonDynamicMonoBase<CManagerUILocalize>
 {

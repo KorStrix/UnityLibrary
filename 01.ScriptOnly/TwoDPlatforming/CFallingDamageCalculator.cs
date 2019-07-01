@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [RequireComponent(typeof(CCharacterController2D))]
 public class CFallingDamageCalculator : CObjectBase
 {
@@ -24,24 +19,24 @@ public class CFallingDamageCalculator : CObjectBase
 
     /* public - Field declaration            */
 
-    public CObserverSubject<float> p_Event_OnFallingDamage { get; private set; } = new CObserverSubject<float>();
+    public ObservableCollection<float> p_Event_OnFallingDamage { get; private set; } = new ObservableCollection<float>();
 
     [Header("에디터용")]
-    [Rename_Inspector("낙사 최대 체력")]
+    [DisplayName("낙사 최대 체력")]
     public int p_iMaximumHP_OnEditor = 15;
 
     [Space(5)]
     [Header("세팅용")]
-    [Rename_Inspector("데미지가 안들어가는 길이")]
+    [DisplayName("데미지가 안들어가는 길이")]
     public float p_fDistance_IgnoreDamage = 3f;
-    [Rename_Inspector("거리 1의 길이")]
+    [DisplayName("거리 1의 길이")]
     public float p_fDistance_Per1 = 1f;
-    [Rename_Inspector("거리 1당 데미지")]
+    [DisplayName("거리 1당 데미지")]
     public float p_fDamage_PerDistance = 1f;
 
     [Space(5)]
     [Header("프로그래머 세팅용")]
-    [Rename_Inspector("낙사 시작 위치")]
+    [DisplayName("낙사 시작 위치")]
     public Vector3 p_vecFallingDamageStartPos = Vector3.zero;
 
     /* protected & private - Field declaration         */
@@ -50,7 +45,7 @@ public class CFallingDamageCalculator : CObjectBase
     Vector3 _vecPos_Prev;
 
     bool _bIsGround_Current;
-    [Rename_Inspector("떨어진 거리", false)]
+    [DisplayName("떨어진 거리", false)]
     [SerializeField]
     float _fFallingDistance_Last;
 
@@ -84,10 +79,8 @@ public class CFallingDamageCalculator : CObjectBase
         DoReset_FallingDistance();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         Vector3 vecStartPos = transform.position + p_vecFallingDamageStartPos;
         if (_bIsGround_Current == false)
         {
@@ -148,9 +141,9 @@ public class CFallingDamageCalculator : CObjectBase
         DoReset_FallingDistance();
     }
 
-    private void OnChangePlatformerState_Subscribe(ECharacterControllerState ePrevState, ECharacterControllerState eCurrentState)
+    private void OnChangePlatformerState_Subscribe(CCharacterController2D.CharacterController_PlatformerState_Arg pArg)
     {
-        if (ePrevState != eCurrentState && eCurrentState == ECharacterControllerState.Falling)
+        if (pArg.eState_Prev != pArg.eState_Current && pArg.eState_Current == ECharacterControllerState.Falling)
             DoReset_FallingDistance();
     }
 
@@ -197,10 +190,3 @@ public class CFallingDamageCalculator : CObjectBase
 
 #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

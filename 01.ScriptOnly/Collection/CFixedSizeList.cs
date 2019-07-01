@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 /// <summary>
 /// 사이즈가 고정된 List입니다. 사이즈 오버 시 index가 0인것부터 삭제합니다.
 /// </summary>

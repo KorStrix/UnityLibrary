@@ -35,13 +35,13 @@ public class CFollowObject : CObjectBase
     public EFollowMode p_eFollowMode = EFollowMode.Update;
 
     [Header("부드러운 따라가기 관련 옵션")]
-    [Rename_Inspector("부드러운 따라가기를 할건지")]
+    [DisplayName("부드러운 따라가기를 할건지")]
 	public bool p_bIsSmoothFollow = false;
 
-    [Rename_Inspector("부드러운 따라가기를 했을 때 도착 판정 거리")]
+    [DisplayName("부드러운 따라가기를 했을 때 도착 판정 거리")]
     public float p_fCondition_ArriveDistance = 1f;
 
-    [Rename_Inspector("스무스 팔로우 모드일 때 현재 거리", false)]
+    [DisplayName("스무스 팔로우 모드일 때 현재 거리", false)]
     [SerializeField]
     private float _fArriveDistance;
 
@@ -56,7 +56,7 @@ public class CFollowObject : CObjectBase
 	[SerializeField]
     private float _fShakeMinusDelta = 0.1f;
 
-    [Rename_Inspector("현재 따라가는 중인지", false)]
+    [DisplayName("현재 따라가는 중인지", false)]
     [SerializeField]
 	private bool _bIsFollow = false;
 
@@ -146,9 +146,9 @@ public class CFollowObject : CObjectBase
 		}
 	}
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if (p_eFollowMode == EFollowMode.Update)
             DoUpdateFollow();

@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+#pragma warning disable CS0618 // 형식 또는 멤버는 사용되지 않습니다.
+
 public class CManagerAssetBundle : CSingletonMonoBase<CManagerAssetBundle>
 {
     /* const & readonly declaration             */

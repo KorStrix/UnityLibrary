@@ -18,7 +18,7 @@ public class CSoundPlayer : CCompoEventTrigger, IResourceEventListener
     [System.Serializable]
     public class SSoundPlayInfo_EventWrapper : IDictionaryItem<string>
     {
-        [Rename_Inspector("사운드 이벤트")]
+        [DisplayName("사운드 이벤트")]
         public string p_strSoundEvent;
         public SSoundPlayInfo p_pSoundPlayInfo;
 
@@ -32,51 +32,51 @@ public class CSoundPlayer : CCompoEventTrigger, IResourceEventListener
     [System.Serializable]
     public class SSoundPlayInfo
     {
-        [Rename_Inspector("플레이 할 오디오 키 - 클립이 있으면 클립이 우선")]
+        [DisplayName("플레이 할 오디오 키 - 클립이 있으면 클립이 우선")]
         public string p_strAudioKey;
-        [Rename_Inspector("플레이 할 오디오 클립")]
+        [DisplayName("플레이 할 오디오 클립")]
         public AudioClip p_pAudioClip;
-        [Rename_Inspector("로컬 볼륨")]
+        [DisplayName("로컬 볼륨")]
         [Range(0f, 1f)]
         public float p_fLocalVolume = 1f;
     }
 
 	/* public - Field declaration            */
 
-	[Rename_Inspector("현재 사용중인 사운드 슬롯", false)]
+	[DisplayName("현재 사용중인 사운드 슬롯", false)]
 	public List<CSoundSlot> _listSlotCurrentPlaying = new List<CSoundSlot>();
 
 	[Header("사운드 끝날때 이벤트 - 루프시에도 적용")]
 	public UnityEngine.Events.UnityEvent p_listEvent_FinishSound = new UnityEngine.Events.UnityEvent();
 
-    [Rename_Inspector("Disable 시 사운드 Off 유무")]
+    [DisplayName("Disable 시 사운드 Off 유무")]
     public bool _bPlayOff_OnDisable = false;
     [Header("플레이할 사운드 목록")]
     public List<SSoundPlayInfo> _listSoundPlayInfo;
     [Header("플레이할 사운드 목록 - 이벤트")]
     public List<SSoundPlayInfo_EventWrapper> _listSoundPlayInfo_ByEvent;
 
-    [Rename_Inspector("사운드 볼륨")]
+    [DisplayName("사운드 볼륨")]
     [Range( 0f, 1f )]
 	public float _fSoundVolume = 1f;
-	[Rename_Inspector( "반복 횟수" )]
+	[DisplayName( "반복 횟수" )]
 	public int _iLoopCount = 0;
-	[Rename_Inspector( "반복시 딜레이시간" )]
+	[DisplayName( "반복시 딜레이시간" )]
 	public float _fLoopDelay = 0f;
-	[Rename_Inspector("루프유무")]
+	[DisplayName("루프유무")]
 	public bool _bIsLoop = false;
-	[Rename_Inspector( "3D사운드 유무" )]
+	[DisplayName( "3D사운드 유무" )]
 	public bool _bIs3DSound = false;
-	[Rename_Inspector( "3D사운드시 최소들리는거리" )]
+	[DisplayName( "3D사운드시 최소들리는거리" )]
 	public float _fMinDistance_On3DSound = 1f;
-	[Rename_Inspector( "3D사운드시 최대들리는거리" )]
+	[DisplayName( "3D사운드시 최대들리는거리" )]
 	public float _fMaxDistance_On3DSound = 500f;
 
-    [Rename_Inspector("사운드 플레이시 기존 슬롯 끌지 유무")]
+    [DisplayName("사운드 플레이시 기존 슬롯 끌지 유무")]
     public bool _bStop_OnPlaySound = false;
 
     [GetComponent]
-    [Rename_Inspector("설정값을 복사할 오디오소스")]
+    [DisplayName("설정값을 복사할 오디오소스")]
     public AudioSource _pAudioSource;
 
 	/* protected - Field declaration         */
@@ -166,9 +166,9 @@ public class CSoundPlayer : CCompoEventTrigger, IResourceEventListener
 #endif
 
 #if UNITY_EDITOR
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if (_bIsPlaying)
 		{

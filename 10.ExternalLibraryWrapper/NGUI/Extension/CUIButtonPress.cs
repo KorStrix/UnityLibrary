@@ -62,9 +62,9 @@ public class CUIButtonPress : CNGUIPanelBase
         _bIsPress = bPress;
     }
 
-    protected override void OnUpdate()
+    protected override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if (_bIsPress)
         {

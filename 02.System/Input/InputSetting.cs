@@ -9,14 +9,18 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
+#endif
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-
+#endif
 
 [System.Serializable]
-public class InputAxis
+public class EditorInputInfo
 {
     const string strNativeDetail = "NativeDetail";
     const string strJoystick = "Joystick";
@@ -28,19 +32,18 @@ public class InputAxis
         JoystickAxis = 2
     };
 
-#if UNITY_EDITOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
     [InfoBox("Error", InfoMessageType.Error, VisibleIf = nameof(CheckIs_InValidAxis))]
 #endif
-    [Rename_Inspector("인풋 ID")]
-    public string strInputID;
+    [DisplayName("인풋 ID")]
+    public string strInputName;
 
-    [HorizontalGroup("2")]
     public string positiveButton;
-    [HorizontalGroup("2")]
     public AxisType type;
 
 
     #region NativeDetail
+#if ODIN_INSPECTOR
     [FoldoutGroup(strNativeDetail, expanded: false)] public string negativeButton;
 
     [FoldoutGroup(strNativeDetail)] public string descriptiveName;
@@ -55,26 +58,44 @@ public class InputAxis
 
     [FoldoutGroup(strNativeDetail)] public bool snap = false;
     [FoldoutGroup(strNativeDetail)] public bool invert = false;
+#else
+    public string negativeButton;
 
-#if UNITY_EDITOR
+    public string descriptiveName;
+    public string descriptiveNegativeName;
+
+    public string altNegativeButton;
+    public string altPositiveButton;
+
+    public float gravity;
+    public float dead;
+    public float sensitivity = 1f;
+
+    public bool snap = false;
+    public bool invert = false;
+#endif
+
+#if ODIN_INSPECTOR && UNITY_EDITOR
     [ShowIf(nameof(CheckIs_JoyStickAxis))]
 #endif
     [Header("Joystick axis")]
     public int axis;
 
-#if UNITY_EDITOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
     [ShowIf(nameof(CheckIs_JoyStickAxis))]
 #endif
     public int joyNum;
 
     #endregion NativeDetail
 
-    public InputAxis() { }
+    public bool bDetailSettingEditor;
+
+    public EditorInputInfo() { }
 
 #if UNITY_EDITOR
-    public InputAxis(SerializedProperty pAxesProperty)
+    public EditorInputInfo(SerializedProperty pAxesProperty)
     {
-        strInputID = GetChildProperty(pAxesProperty, "m_Name").stringValue;
+        strInputName = GetChildProperty(pAxesProperty, "m_Name").stringValue;
         descriptiveName = GetChildProperty(pAxesProperty, "descriptiveName").stringValue;
         descriptiveNegativeName = GetChildProperty(pAxesProperty, "descriptiveNegativeName").stringValue;
         negativeButton = GetChildProperty(pAxesProperty, "negativeButton").stringValue;
@@ -93,7 +114,7 @@ public class InputAxis
 
     public void DoSave_ToProperty(SerializedProperty pAxesProperty)
     {
-        GetChildProperty(pAxesProperty, "m_Name").stringValue = strInputID;
+        GetChildProperty(pAxesProperty, "m_Name").stringValue = strInputName;
         GetChildProperty(pAxesProperty, "descriptiveName").stringValue = descriptiveName;
         GetChildProperty(pAxesProperty, "descriptiveNegativeName").stringValue = descriptiveNegativeName;
         GetChildProperty(pAxesProperty, "negativeButton").stringValue = negativeButton;
@@ -126,7 +147,7 @@ public class InputAxis
 
     private bool CheckIs_InValidAxis()
     {
-        return string.IsNullOrEmpty(strInputID) || (type != AxisType.JoystickAxis && string.IsNullOrEmpty(positiveButton));
+        return string.IsNullOrEmpty(strInputName) || (type != AxisType.JoystickAxis && string.IsNullOrEmpty(positiveButton));
     }
 
     private bool CheckIs_JoyStickAxis()
@@ -140,41 +161,63 @@ public class InputAxis
 [System.Serializable]
 public class InputSetting : ScriptableObject
 {
-    const string const_strCurrentSetting = "현재 프로젝트에 세팅된 값";
-    const string const_ProjectSetting = "About Project Setting";
-    const string const_File = "About File";
-
-    // ========================================================================== //
-
-    [TitleGroup(const_strCurrentSetting, order: 0)]
-    [InfoBox("유니티의 기본 프로젝트 세팅과 같은 값입니다.\n캐치할 키보드 입력을 세팅합니다.\n세이브 및 로드를 할 수 있습니다.\n", InfoMessageType.Info)]
-    [Rename_Inspector("현재 세팅된 Input List")]
-    public List<InputAxis> p_listInput = new List<InputAxis>();
-
-    [TitleGroup("Save & Load", order: 1)]
-    [ShowIf(nameof(CheckIsOpend_Editor))]
-    [InlineButton(nameof(Load_From_File), "Load")]
-    [Rename_Inspector("로드할 파일")]
+    [DisplayName("현재 세팅된 Input List")]
+    public List<EditorInputInfo> p_listInput = new List<EditorInputInfo>();
+    
+    [DisplayName("로드할 파일")]
     public InputSetting p_pConfig_ForLoad;
 
     // ========================================================================== //
 
-    public InputSetting(List<InputAxis> listInput)
+#if UNITY_EDITOR
+    static public ValueDropdownList<string> GetInput_ValueDropDownList()
     {
-        p_listInput = listInput;
+        ValueDropdownList<string> list = new ValueDropdownList<string>();
+        var pProperty = GetAxesProperty();
+        for (int i = 0; i < pProperty.arraySize; i++)
+        {
+            var pInputAxisProperty = pProperty.GetArrayElementAtIndex(i);
+            if (pInputAxisProperty != null)
+            {
+                EditorInputInfo pInputInfo = new EditorInputInfo(pInputAxisProperty);
+                list.Add(pInputInfo.strInputName, pInputInfo.strInputName);
+            }
+            else
+                break;
+        }
+
+        return list;
     }
 
-    [ShowIf(nameof(CheckIsOpend_Editor))]
-    [Button("Save To Project Setting", ButtonSizes.Large)]
-    [HorizontalGroup("1")]
-    public void Save_To_Current_ProjectSetting_Clear()
+    public static SerializedProperty GetAxesProperty()
     {
-#if UNITY_EDITOR
-        Debug.Log(nameof(Save_To_Current_ProjectSetting_Clear));
+        SerializedObject serializedObject = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/InputManager.asset")[0]);
+        return serializedObject.FindProperty("m_Axes");
+    }
+
+    public void DoUpdate_InputSetting_From_ProjectSetting()
+    {
+        if (p_listInput == null)
+            p_listInput = new List<EditorInputInfo>();
+        p_listInput.Clear();
+
+        var pProperty = GetAxesProperty();
+        for (int i = 0; i < pProperty.arraySize; i++)
+        {
+            var pInputAxisProperty = pProperty.GetArrayElementAtIndex(i);
+            if (pInputAxisProperty != null)
+                p_listInput.Add(new EditorInputInfo(pInputAxisProperty));
+            else
+                break;
+        }
+    }
+
+    public void DoSave_To_Current_ProjectSetting_Clear()
+    {
 
         if (p_listInput == null)
         {
-            Debug.LogError(nameof(Save_To_Current_ProjectSetting_Clear) + "- _pInputConfig == null || _pInputConfig.listInput == null");
+            Debug.LogError(nameof(DoSave_To_Current_ProjectSetting_Clear) + "- _pInputConfig == null || _pInputConfig.listInput == null");
             return;
         }
 
@@ -184,77 +227,51 @@ public class InputSetting : ScriptableObject
         pSerializedObject.ApplyModifiedProperties();
 
         AddAxis();
-#endif
-    }
-
-    [ShowIf(nameof(CheckIsOpend_Editor))]
-    [Button("Add To Project Setting", ButtonSizes.Large)]
-    [HorizontalGroup("1")]
-    public void Save_To_Current_ProjectSetting_Add()
-    {
-        Debug.Log(nameof(Save_To_Current_ProjectSetting_Add));
-
-        if (p_listInput == null)
-        {
-            Debug.LogError(nameof(Save_To_Current_ProjectSetting_Add) + "- _pInputConfig == null || _pInputConfig.listInput == null");
-            return;
-        }
-
-        AddAxis();
-    }
-
-
-
-    [TitleGroup("Save & Load")]
-    [ShowIf(nameof(CheckIsOpend_Editor))]
-    [Button("Load From Project Setting", ButtonSizes.Large)]
-    [HorizontalGroup("2")]
-    public void Load_From_ProjectSetting()
-    {
-        Debug.Log(nameof(Load_From_ProjectSetting));
-
-        ProjectInputSetting.DoUpdate_InputSetting_From_ProjectSetting();
-    }
-
-    [TitleGroup("Save & Load")]
-    [ShowIf(nameof(CheckIsOpend_Editor))]
-    [Button("Save To File", ButtonSizes.Large)]
-    [HorizontalGroup("2")]
-    public void Save_To_File()
-    {
-        Debug.Log(nameof(Save_To_File));
-
-#if UNITY_EDITOR
-        string strPath = EditorUtility.SaveFilePanelInProject("Save", nameof(InputSetting), "asset", "Please enter a file name to save");
-        if (strPath.Length != 0)
-            ScriptableObjectUtility.CreateAsset(new InputSetting(p_listInput), strPath);
-#endif
-    }
-
-    public void Load_From_File()
-    {
-        Debug.Log(nameof(Load_From_File));
-
-        if(p_pConfig_ForLoad == null)
-        {
-            Debug.LogError("로드할 파일이 없습니다");
-            return;
-        }
-
-        ProjectInputSetting.DoSet_InputSetting(Instantiate(p_pConfig_ForLoad));
     }
 
     // ========================================================================== //
 
+
+    public static void AddAxis(EditorInputInfo pInputAxis)
+    {
+        if (AxisDefined(pInputAxis.strInputName))
+            return;
+
+        SerializedObject pSerializedObject = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/InputManager.asset")[0]);
+        SerializedProperty pAxesProperty = pSerializedObject.FindProperty("m_Axes");
+
+        pAxesProperty.arraySize++;
+        pSerializedObject.ApplyModifiedProperties();
+
+        SetAxis(pSerializedObject, pAxesProperty, pInputAxis, pAxesProperty.arraySize - 1);
+    }
+
+    protected static bool AxisDefined(string axisName)
+    {
+        SerializedProperty axesProperty = GetAxesProperty();
+
+        axesProperty.Next(true);
+        axesProperty.Next(true);
+        while (axesProperty.Next(false))
+        {
+            SerializedProperty axis = axesProperty.Copy();
+            axis.Next(true);
+            if (axis.stringValue == axisName)
+                return true;
+        }
+        return false;
+    }
+
+    protected static void SetAxis(SerializedObject pSerializedObject, SerializedProperty pAxesProperty, EditorInputInfo pInputAxis, int iIndex)
+    {
+        pInputAxis.DoSave_ToProperty(pAxesProperty.GetArrayElementAtIndex(iIndex));
+        pSerializedObject.ApplyModifiedProperties();
+    }
+
     private void AddAxis()
     {
         for (int i = 0; i < p_listInput.Count; i++)
-            ProjectInputSetting.AddAxis(p_listInput[i]);
+            AddAxis(p_listInput[i]);
     }
-
-    public bool CheckIsOpend_Editor()
-    {
-        return ProjectInputSetting.Instance.p_pInputSetting == this;
-    }
-}
 #endif
+}

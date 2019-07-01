@@ -10,37 +10,32 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [CreateAssetMenu(menuName = "StrixSO/CharacterController2D/" + nameof(CCharacterController2D_JumpLogicDefault))]
 public class CCharacterController2D_JumpLogicDefault : CCharacterController2D_LogicBase
 {
-    [Rename_Inspector("점프 힘")]
+    [DisplayName("점프 힘")]
     [SerializeField]
     private float _fJumpForce = 6000f;              public float p_fJumpForce => _fJumpForce;
-    [Rename_Inspector("공중에서 조종 가능한지")]
+    [DisplayName("공중에서 조종 가능한지")]
     [SerializeField]
     private bool _bAirControl = true;               public bool p_bAirControl => _bAirControl;
-    [Rename_Inspector("떨어지는 상태까지 도달하는 시간")]
+    [DisplayName("떨어지는 상태까지 도달하는 시간")]
     [SerializeField]
     private float _fTimeToFalling = 1f;             public float p_fTimeToFalling => _fTimeToFalling;
 
     [Space(10)]
     [Header("멀티 점프 관련")]
-    [Rename_Inspector("가능한 멀티 점프 수(2 == 더블점프)")]
+    [DisplayName("가능한 멀티 점프 수(2 == 더블점프)")]
     [SerializeField]
     private int _iMultipleJumpCount = 2;
-    [Rename_Inspector("멀티 점프당 점프 추가 힘")]
+    [DisplayName("멀티 점프당 점프 추가 힘")]
     [SerializeField]
     private float _fJumpForce_OnMultiple = -3000f;
-    [Rename_Inspector("멀티 점프시 이전 속도를 무시할지")]
+    [DisplayName("멀티 점프시 이전 속도를 무시할지")]
     [SerializeField]
     private bool _bIgnore_OnMultiJump = false;
 
-    [Rename_Inspector("현재 점프 카운트", false)]
+    [DisplayName("현재 점프 카운트", false)]
     [SerializeField]
     private int _iCurrentMultipleJumpCount = 0;
 

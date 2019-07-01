@@ -100,9 +100,9 @@ public class ManagerPhotonChat : CSingletonDynamicMonoBase<ManagerPhotonChat>, I
         DontDestroyOnLoad(gameObject);
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         p_pChatClient?.Service();
     }

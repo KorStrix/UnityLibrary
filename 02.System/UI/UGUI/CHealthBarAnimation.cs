@@ -15,14 +15,22 @@ using UnityEngine.UI;
 using Sirenix.OdinInspector;
 #endif
 
+
+public class OnChangeHP_Arg
+{
+    public float fHPMax;
+    public float fHPCurrent;
+    public float fDamage;
+}
+
 public interface IHasHP
 {
-    CObserverSubject p_Event_OnResetHP { get; }
+    ObservableCollection p_Event_OnResetHP { get; }
     /// <summary>
     /// HP Max, HP Current, Damage
     /// </summary>
-    CObserverSubject<float, float, float> p_Event_OnDamage { get; }
-    CObserverSubject<IHasHP> p_Event_OnDead { get; }
+    ObservableCollection<OnChangeHP_Arg> p_Event_OnDamage { get; }
+    ObservableCollection<IHasHP> p_Event_OnDead { get; }
 }
 
 
@@ -46,28 +54,28 @@ public class CHealthBarAnimation : CObjectBase, IPoolingUIObject
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("체력이 변경될 때만 보일지")]
+    [DisplayName("체력이 변경될 때만 보일지")]
     public bool p_bIsShow_OnChangeHPOnly = true;
 #if ODIN_INSPECTOR
     [ShowIf(nameof(p_bIsShow_OnChangeHPOnly))]
 #endif
-    [Rename_Inspector("보이고 사라지는 시간")]
+    [DisplayName("보이고 사라지는 시간")]
     public float p_fShowTime_OnChangeHPOnly = 1f;
 
     [Header("애니메이션 관련"), Space(10)]
-    [Rename_Inspector("HP 감소 애니메이션 딜레이")]
+    [DisplayName("HP 감소 애니메이션 딜레이")]
     public float p_fDecreaseAnimationDelay = 0.2f;
-    [Rename_Inspector("HP 감소 애니메이션 시간")]
+    [DisplayName("HP 감소 애니메이션 시간")]
     public float p_fDecreaseAnimationTime = 0.2f;
-    [Rename_Inspector("체력량에 따른 HPBar Color")]
+    [DisplayName("체력량에 따른 HPBar Color")]
     public Gradient p_pHPBarColor;
 
     [Header("필요한 UI Element"), Space(10)]
-    [Rename_Inspector("Image `" + nameof(EUIElementName_ForInit.Image_HPFrame) + "`", false)]
+    [DisplayName("Image `" + nameof(EUIElementName_ForInit.Image_HPFrame) + "`", false)]
     public Image p_pImage_HPFrame = null;
-    [Rename_Inspector("Image `" + nameof(EUIElementName_ForInit.Image_HPFill) + "`", false)]
+    [DisplayName("Image `" + nameof(EUIElementName_ForInit.Image_HPFill) + "`", false)]
     public Image p_pImage_HPFill = null;
-    [Rename_Inspector("Image `" + nameof(EUIElementName_ForInit.Image_HPDamage) + "`", false)]
+    [DisplayName("Image `" + nameof(EUIElementName_ForInit.Image_HPDamage) + "`", false)]
     public Image p_pImage_HPDamage = null;
 
     /* protected & private - Field declaration         */
@@ -211,9 +219,9 @@ public class CHealthBarAnimation : CObjectBase, IPoolingUIObject
         }
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if(_pTransform_UI_HPBar_Pos != null)
             transform.position = _pTransform_UI_HPBar_Pos.position;
@@ -231,9 +239,9 @@ public class CHealthBarAnimation : CObjectBase, IPoolingUIObject
         DoSet_HealthBar(1f);
     }
 
-    private void OnChangeHP(float fHPMax, float fHPCurrent, float fDamage)
+    private void OnChangeHP(OnChangeHP_Arg pArg)
     {
-        DoPlay_HealthBarAnimation(fHPCurrent / fHPMax, fDamage / fHPMax);
+        DoPlay_HealthBarAnimation(pArg.fHPCurrent / pArg.fHPMax, pArg.fDamage / pArg.fHPMax);
 
         if (p_bIsShow_OnChangeHPOnly)
             SetEnable_Renderer(true);

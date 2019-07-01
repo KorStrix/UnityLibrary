@@ -85,28 +85,28 @@ public class CMagneticTrigger : CObjectBase
 
     /* public - Field declaration            */
 
-    public CObserverSubject<Transform> p_Event_OnMagneticFinish { get; private set; } = new CObserverSubject<Transform>();
+    public ObservableCollection<Transform> p_Event_OnMagneticFinish { get; private set; } = new ObservableCollection<Transform>();
 
     [Header("SphereCollider or CircleCollider 필요")]
-    [Rename_Inspector("자력에 물리를 사용할 것인지")]
+    [DisplayName("자력에 물리를 사용할 것인지")]
     public bool p_bUsePhysics = false;
-	[Rename_Inspector("자석 반응 타입")]
+	[DisplayName("자석 반응 타입")]
     public EMagneticType p_eMagnetReactType = EMagneticType.Pull;
-    [Rename_Inspector("자력이 멈추는 최소 거리(Pull Only)")]
+    [DisplayName("자력이 멈추는 최소 거리(Pull Only)")]
     public float p_fStopDistance = 1f;
 
     [Space(10)]
     [Header("최종자력: 거리별자력 + 최소자력 <= 최대자력")]
-    [Rename_Inspector("거리별 자력")]
+    [DisplayName("거리별 자력")]
     public float p_fMagnetPower = 0.1f;
-    [Rename_Inspector("최소 자력")]
+    [DisplayName("최소 자력")]
     public float p_fMagnetPower_Min = 0.01f;
-    [Rename_Inspector("최대 자력")]
+    [DisplayName("최대 자력")]
     public float p_fMagnetPower_Max = 5f;
 
     [Space(10)]
     [Header("랜덤 설정")]
-    [Rename_Inspector("랜덤자력 최소 배율")]
+    [DisplayName("랜덤자력 최소 배율")]
     [Range(0.5f, 3f)]
     public float p_fMagnetPower_Random_Min = 0.5f;
     [Range(0.5f, 3f)]
@@ -114,11 +114,11 @@ public class CMagneticTrigger : CObjectBase
 
     [Space(10)]
     [Header("곡선 당기기 설정")]
-    [Rename_Inspector("곡선으로 적용할지")]
+    [DisplayName("곡선으로 적용할지")]
     public bool p_bUseCurvePull = false;
-    [Rename_Inspector("곡선의 완만도")]   
+    [DisplayName("곡선의 완만도")]   
     public float p_fCurvePower = 1f;
-    [Rename_Inspector("곡선 당기기를 어느 거리에서 할지(%)")]
+    [DisplayName("곡선 당기기를 어느 거리에서 할지(%)")]
     [Range(0f, 1f)]
     public float p_fRangePercent_EffectCurve = 0.5f;
 

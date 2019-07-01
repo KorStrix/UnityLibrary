@@ -10,14 +10,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CCharacterController2D_LogicBase : ScriptableObject
 {
-    [Rename_Inspector("디버깅 모드")]
+    [DisplayName("디버깅 모드")]
     public bool p_bIsDebuging = false;
 
     protected CCharacterController2D _pCharacterController2D;

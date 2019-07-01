@@ -14,6 +14,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
+#pragma warning disable CS0618 // 형식 또는 멤버는 사용되지 않습니다.
+
 public class CStreammingAssetGetter 
 {
     public delegate void OnGetStreamingResource(string strPath_With_Extension, WWW pWWW, bool bResult, object pParam);

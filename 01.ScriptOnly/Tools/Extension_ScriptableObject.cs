@@ -10,12 +10,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
-public static class Extension_ScriptableObject
+public static class ScriptableObject_Extension
 {
     static public string ConvertJson(this ScriptableObject pScriptableObject)
     {
@@ -28,43 +23,3 @@ public static class Extension_ScriptableObject
         JsonUtility.FromJsonOverwrite(strJsonText, pScriptableObject);
     }
 }
-
-#region Test
-#if UNITY_EDITOR
-
-[System.Serializable]
-public class ScriptableObjectTest : ScriptableObject
-{
-    public int iTest;
-    public string strTest;
-}
-
-public class ScriptableObject_Test
-{
-    [Test]
-    public void JsonParsing_Test()
-    {
-        ScriptableObjectTest pObjectTest = ScriptableObjectTest.CreateInstance<ScriptableObjectTest>();
-        pObjectTest.iTest = 1;
-        pObjectTest.strTest = "테스트";
-
-        Assert.AreEqual(pObjectTest.iTest, 1);
-        Assert.AreEqual(pObjectTest.strTest, "테스트");
-
-        string strJsonText = pObjectTest.ConvertJson();
-
-        pObjectTest.iTest = 2;
-        pObjectTest.strTest = "Test";
-
-        Assert.AreEqual(pObjectTest.iTest, 2);
-        Assert.AreEqual(pObjectTest.strTest, "Test");
-
-        pObjectTest.WriteJson(strJsonText);
-
-        Assert.AreEqual(pObjectTest.iTest, 1);
-        Assert.AreEqual(pObjectTest.strTest, "테스트");
-    }
-}
-
-#endif
-#endregion Test

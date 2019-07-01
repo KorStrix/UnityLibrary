@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CCharacterController2D_UserControl : CObjectBase
 {
     /* const & readonly declaration             */
@@ -56,9 +51,9 @@ public class CCharacterController2D_UserControl : CObjectBase
         _pCharacterController.EventOnAwake();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if (!p_bIsJump)
         {
@@ -88,10 +83,3 @@ public class CCharacterController2D_UserControl : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

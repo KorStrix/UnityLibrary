@@ -29,9 +29,9 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("항상 보여줄 건지 유무")]
+    [DisplayName("항상 보여줄 건지 유무")]
     public bool p_bIsAlwaysShow = false;
-	[Rename_Inspector("SortOrder를 고정 시킬 건지 유무")]
+	[DisplayName("SortOrder를 고정 시킬 건지 유무")]
 	public bool p_bIsFixedSortOrder = false;
 	
 	bool IUIPanel.p_bIsAlwaysShow
@@ -66,22 +66,19 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 		}
 	}
 
-    public class CObserverShowHide : CObserverSubject<CUGUIPanelBase, bool>
+    public struct CObserverShowHide_Arg
     {
-        public delegate void OnPanelShowHide(CUGUIPanelBase pUIPanel, bool bIsShow);
+        public CUGUIPanelBase pPanel;
+        public bool bActivate;
 
-        public void DoRegist_ShowHide(OnPanelShowHide OnPanelShowHide)
+        public CObserverShowHide_Arg(CUGUIPanelBase pPanel, bool bActivate)
         {
-            DoRegist_Listener(new Action<CUGUIPanelBase, bool>(OnPanelShowHide));
-        }
-
-        public void DoNotify_ShowHide(CUGUIPanelBase pUIPanel, bool bIsShow)
-        {
-            DoNotify(pUIPanel, bIsShow);
+            this.pPanel = pPanel;
+            this.bActivate = bActivate;
         }
     }
 
-    public CObserverShowHide p_Event_OnShowHide { get; private set; } = new CObserverShowHide();
+    public ObservableCollection<CObserverShowHide_Arg> p_Event_OnShowHide { get; private set; } = new ObservableCollection<CObserverShowHide_Arg>();
 
     /* protected - Field declaration         */
 
@@ -146,13 +143,13 @@ public class CUGUIPanelBase : CUIObjectBase, IUIPanel
 
     public void IUIPanel_OnShow()
     {
-        p_Event_OnShowHide.DoNotify_ShowHide(this, true);
+        p_Event_OnShowHide.DoNotify(new CObserverShowHide_Arg(this, true));
         OnShowPanel();
     }
 
     public void IUIPanel_OnHide()
     {
-        p_Event_OnShowHide.DoNotify_ShowHide(this, false);
+        p_Event_OnShowHide.DoNotify(new CObserverShowHide_Arg(this, false));
         OnHidePanel();
     }
 

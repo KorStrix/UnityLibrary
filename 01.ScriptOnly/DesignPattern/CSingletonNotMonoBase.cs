@@ -54,8 +54,8 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
         _instance.OnMakeSingleton(out bIsGenearteGameObject, out _bIsUpdateAble);
         if (bIsGenearteGameObject)
         {
-            System.Type pTypeDriven = typeof(CLASS_SingletoneTarget);
-            _instance.gameObject = new GameObject(pTypeDriven.GetFriendlyName());
+            System.Type pTypeDERIVED = typeof(CLASS_SingletoneTarget);
+            _instance.gameObject = new GameObject(pTypeDERIVED.GetFriendlyName());
             _instance.transform = _instance.gameObject.transform;
 
             CCompoEventTrigger_OnDisable pOnDisable = _instance.gameObject.AddComponent<CCompoEventTrigger_OnDisable>();
@@ -79,11 +79,11 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
 
     // ========================== [ Division ] ========================== //
 
-    virtual public void OnUpdate() { }
+    virtual public void OnUpdate(float fTimeScale_Individual) { }
 
-    public bool IUpdateAble_IsRequireUpdate()
+    public void IUpdateAble_GetUpdateInfo(ref bool bIsUpdate_Default_IsFalse, ref float fTimeScale_Invidiaul_Default_IsOne)
     {
-        return _bIsUpdateAble;
+        bIsUpdate_Default_IsFalse = _bIsUpdateAble;
     }
 
 
@@ -111,35 +111,5 @@ public class CSingletonNotMonoBase<CLASS_SingletoneTarget> : UnityEngine.Object,
             CManagerUpdateObject.instance.DoRemoveObject(this);
 
         DoReleaseSingleton();
-    }
-}
-
-// https://stackoverflow.com/questions/4185521/c-sharp-get-generic-type-name/26429045
-public static class TypeNameExtensions
-{
-    public static string GetFriendlyName(this Type type)
-    {
-        if (type == null)
-            return "";
-
-        string friendlyName = type.Name;
-        if (type.IsGenericType)
-        {
-            int iBacktick = friendlyName.IndexOf('`');
-            if (iBacktick > 0)
-            {
-                friendlyName = friendlyName.Remove(iBacktick);
-            }
-            friendlyName += "<";
-            Type[] typeParameters = type.GetGenericArguments();
-            for (int i = 0; i < typeParameters.Length; ++i)
-            {
-                string typeParamName = GetFriendlyName(typeParameters[i]);
-                friendlyName += (i == 0 ? typeParamName : "," + typeParamName);
-            }
-            friendlyName += ">";
-        }
-
-        return friendlyName;
     }
 }

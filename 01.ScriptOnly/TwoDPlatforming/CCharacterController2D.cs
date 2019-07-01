@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Experimental.U2D;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CCharacterController2D : CObjectBase
 {
     /* const & readonly declaration             */
@@ -31,17 +26,29 @@ public class CCharacterController2D : CObjectBase
         Manual
     }
 
+    public struct CharacterController_PlatformerState_Arg
+    {
+        public ECharacterControllerState eState_Prev;
+        public ECharacterControllerState eState_Current;
+
+        public CharacterController_PlatformerState_Arg(ECharacterControllerState eState_Prev, ECharacterControllerState eState_Current)
+        {
+            this.eState_Prev = eState_Prev;
+            this.eState_Current = eState_Current;
+        }
+    }
+
     /* public - Field declaration            */
 
     /// <summary>
     /// Prev, Current
     /// </summary>
-    public CObserverSubject<ECharacterControllerState, ECharacterControllerState> p_Event_OnChangePlatformerState { get; private set; } = new CObserverSubject<ECharacterControllerState, ECharacterControllerState>();
-    public CObserverSubject<bool> p_Event_OnFalling { get; private set; } = new CObserverSubject<bool>();
-    public CObserverSubject<bool> p_Event_OnWallSliding { get; private set; } = new CObserverSubject<bool>();
-    public CObserverSubject<bool> p_Event_OnGround { get; private set; } = new CObserverSubject<bool>();
-    public CObserverSubject<bool> p_Event_OnLadder { get => p_pLogicLadder?.p_Event_OnLadder; }
-    public CObserverSubject<float> p_Event_OnMove { get; private set; } = new CObserverSubject<float>();
+    public ObservableCollection<CharacterController_PlatformerState_Arg> p_Event_OnChangePlatformerState { get; private set; } = new ObservableCollection<CharacterController_PlatformerState_Arg>();
+    public ObservableCollection<bool> p_Event_OnFalling { get; private set; } = new ObservableCollection<bool>();
+    public ObservableCollection<bool> p_Event_OnWallSliding { get; private set; } = new ObservableCollection<bool>();
+    public ObservableCollection<bool> p_Event_OnGround { get; private set; } = new ObservableCollection<bool>();
+    public ObservableCollection<bool> p_Event_OnLadder { get => p_pLogicLadder?.p_Event_OnLadder; }
+    public ObservableCollection<float> p_Event_OnMove { get; private set; } = new ObservableCollection<float>();
 
     public HashSet<Collider2D> p_setCharacterBody { get; private set; } = new HashSet<Collider2D>();
 
@@ -65,99 +72,99 @@ public class CCharacterController2D : CObjectBase
     public bool p_bRightDirection_IsBlocked { get; private set; }
 
     [SerializeField]
-    [Rename_Inspector("디폴트 캐릭터 방향이 오른쪽인지")]
+    [DisplayName("디폴트 캐릭터 방향이 오른쪽인지")]
     private bool p_bDefault_FaceDirection_IsRight = false;
 
     [Header("움직임 옵션")]
-    [Rename_Inspector("움직임 로직 SO")]
+    [DisplayName("움직임 로직 SO")]
     public CCharacterController2D_MoveLogicBase p_pLogicMove;
 
     [Space(10)]
-    [Rename_Inspector("점프 로직 SO")]
+    [DisplayName("점프 로직 SO")]
     public CCharacterController2D_JumpLogicDefault p_pLogicJump;
 
     [Space(10)]
-    [Rename_Inspector("사다리 로직 SO")]
+    [DisplayName("사다리 로직 SO")]
     public CCharacterController2D_LadderLogicBase p_pLogicLadder;
 
     [Space(10)]
     [Header("앉기 옵션")]
-    [Rename_Inspector("앉기를 사용하는지")]
+    [DisplayName("앉기를 사용하는지")]
     public bool p_bUseCrouching = false;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseCrouching")] 
 #endif
     [UnityEngine.Range(0, 1)]
-    [Rename_Inspector("앉아있을 때 속도 감소 비율")]
+    [DisplayName("앉아있을 때 속도 감소 비율")]
     public float p_fCrouchSpeed = .36f;
-    [Rename_Inspector("천장 체크범위")]
+    [DisplayName("천장 체크범위")]
     public float p_fCeilingRadius = .01f;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseCrouching")]
 #endif
     [SerializeField]
     [GetComponentInChildren("Collider_OnCrouch", true, false)]
-    [Rename_Inspector("\"Collider_OnCrouch\" 앉았을 때 몸통용 자식 컬라이더")]
+    [DisplayName("\"Collider_OnCrouch\" 앉았을 때 몸통용 자식 컬라이더")]
     public CapsuleCollider2D p_pCapsuleCollider_OnCrouch { get; protected set; }
     [SerializeField]
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseCrouching")]
 #endif
     [GetComponentInChildren("ColliderLeft_OnCrouch", true, false)]
-    [Rename_Inspector("\"ColliderLeft_OnCrouch\" 앉았을 때 왼벽 체크용 자식 컬라이더")]
+    [DisplayName("\"ColliderLeft_OnCrouch\" 앉았을 때 왼벽 체크용 자식 컬라이더")]
     protected List<BoxCollider2D> _listBoxColliderLeft_OnCrouch = new List<BoxCollider2D>();
     [SerializeField]
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseCrouching")]
 #endif
     [GetComponentInChildren("ColliderRight_OnCrouch", true, false)]
-    [Rename_Inspector("\"ColliderRight_OnCrouch\" 앉았을 때 오른벽 체크용 자식 컬라이더")]
+    [DisplayName("\"ColliderRight_OnCrouch\" 앉았을 때 오른벽 체크용 자식 컬라이더")]
     protected List<BoxCollider2D> _listBoxColliderRight_OnCrouch = new List<BoxCollider2D>();
 
 
     [Space(10)]
     [Header("경사면 슬라이딩 옵션")]
-    [Rename_Inspector("경사면 슬라이딩 유무")]
+    [DisplayName("경사면 슬라이딩 유무")]
     public bool p_bUseSlopeSliding = false;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseSlopeSliding")]
 #endif
-    [Rename_Inspector("경사면 발동 각도")]
+    [DisplayName("경사면 발동 각도")]
     public float p_fSlopeAngle = 45f;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseSlopeSliding")] 
 #endif
-    [Rename_Inspector("경사면 슬라이딩 중 점프할 때 추가 속도 (기본 점프힘에 추가 힘)")]
+    [DisplayName("경사면 슬라이딩 중 점프할 때 추가 속도 (기본 점프힘에 추가 힘)")]
     public Vector2 p_vecSlidingJump = new Vector2(0f, 0f);
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseSlopeSliding")]
 #endif
-    [Rename_Inspector("경사면 슬라이딩 점프 딜레이")]
+    [DisplayName("경사면 슬라이딩 점프 딜레이")]
     public float p_fSlopeSlidingJump_Delay = 0.2f;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bUseSlopeSliding")]
 #endif
-    [Rename_Inspector("경사면 슬라이딩 조건 달성후 몇초 뒤에 발동할지")]
+    [DisplayName("경사면 슬라이딩 조건 달성후 몇초 뒤에 발동할지")]
     public float p_fSlopeSlidingDelay = 0.2f;
 
 
     [Space(10)]
     [Header("월 슬라이딩 옵션")]
-    [Rename_Inspector("벽을 향해 점프할 때 추가  속도")]
+    [DisplayName("벽을 향해 점프할 때 추가  속도")]
     public Vector2 p_vecWallJumpClimb = new Vector2(50f, 150f);
-    [Rename_Inspector("벽의 반대방향으로 점프할 때 추가  속도")]
+    [DisplayName("벽의 반대방향으로 점프할 때 추가  속도")]
     public Vector2 p_vecWallLeap = new Vector2(50f, 120f);
-    [Rename_Inspector("월 슬라이딩 시 최대 낙하 속도")]
+    [DisplayName("월 슬라이딩 시 최대 낙하 속도")]
     public float p_fWallSlideSpeedMax = -50;
-    [Rename_Inspector("월 점프 딜레이")]
+    [DisplayName("월 점프 딜레이")]
     public float p_fWallJump_Delay = 0.2f;
 
 
     [Space(10)]
     [Header("기타 옵션")]
-    [Rename_Inspector("업데이트 모드")]
+    [DisplayName("업데이트 모드")]
     public EUpdateMode p_eUpdateMode = EUpdateMode.Update;
-    [Rename_Inspector("터레인 레이어")]
+    [DisplayName("터레인 레이어")]
     public LayerMask p_sWhatIsTerrain;
 
 
@@ -169,29 +176,29 @@ public class CCharacterController2D : CObjectBase
     public CapsuleCollider2D p_pCollider_Body { get; protected set; }
     [SerializeField]
     [GetComponentInChildren("CheckGround", true, false)]
-    [Rename_Inspector("\"CheckGround\" - 바닥 체크용 자식 컬라이더")]
+    [DisplayName("\"CheckGround\" - 바닥 체크용 자식 컬라이더")]
     public CapsuleCollider2D p_pCollider_GroundChecker { get; protected set; }
 
     [Space(10)]
     [Header("디버그용")]
     [SerializeField]
-    [Rename_Inspector("\"CheckCeiling\" - 천장 체크용 자식 트렌스폼 ( 앉기 사용시 )", false)]
+    [DisplayName("\"CheckCeiling\" - 천장 체크용 자식 트렌스폼 ( 앉기 사용시 )", false)]
     [GetComponentInChildren("CheckCeiling", true, false)]
     protected Transform _pTransform_CeilingCheck = null;
 
     [SerializeField]
-    [Rename_Inspector("\"ColliderLeft\" - 왼벽 체크용 자식 컬라이더", false)]
+    [DisplayName("\"ColliderLeft\" - 왼벽 체크용 자식 컬라이더", false)]
     [GetComponentInChildren("ColliderLeft", true, false)]
     protected List<BoxCollider2D> _listBoxCollider_LeftCheck = new List<BoxCollider2D>();
     [SerializeField]
-    [Rename_Inspector("\"ColliderRight\" - 오른벽 체크용 자식 컬라이더", false)]
+    [DisplayName("\"ColliderRight\" - 오른벽 체크용 자식 컬라이더", false)]
     [GetComponentInChildren("ColliderRight", true, false)]
     protected List<BoxCollider2D> _listBoxCollider_RightCheck = new List<BoxCollider2D>();
     [SerializeField]
-    [Rename_Inspector("현재 언덕 경사면 각도", false)]
+    [DisplayName("현재 언덕 경사면 각도", false)]
     protected float _fSlopeAngle = 0f;
     [SerializeField]
-    [Rename_Inspector("현재 언덕 경사면 각도 ( 부호 포함 )", false)]
+    [DisplayName("현재 언덕 경사면 각도 ( 부호 포함 )", false)]
     protected float _fSlopeAngle_Signed = 0f;
 
     protected List<Collider2D> _listSideBlock_Wall = new List<Collider2D>(50);
@@ -490,9 +497,9 @@ public class CCharacterController2D : CObjectBase
         DoSet_ChangeFaceDir(p_bDefault_FaceDirection_IsRight);
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         float fMoveDelta_0_1 = _fMoveDelta_0_1;
         p_pLogicMove.Calculate_MoveDelta(ref fMoveDelta_0_1);
@@ -583,7 +590,7 @@ public class CCharacterController2D : CObjectBase
         for (int i = 0; i < _listCharacterControllerListener.Count; i++)
             _listCharacterControllerListener[i].ICharacterController_Listener_OnChangeState(p_ePlatformerState_Prev, p_ePlatformerState_Current);
 
-        p_Event_OnChangePlatformerState.DoNotify(p_ePlatformerState_Prev, p_ePlatformerState_Current);
+        p_Event_OnChangePlatformerState.DoNotify(new CharacterController_PlatformerState_Arg(p_ePlatformerState_Prev, p_ePlatformerState_Current));
     }
 
     protected virtual float GetMoveSpeed()

@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6262b772bdba5b3429f8aefa0af98b0f, type: 3}
+  m_Name: InputEventSetting_Example
+  m_EditorClassIdentifier: 
+  pCommandList: {fileID: 11400000, guid: 4a977e416f5aa3b43af2846fc9088b7f, type: 2}
+  listCommandInfo:
+    listCommandInfo:
+    - strAssemblyName: StrixLibrary_Example, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      strCommandTypeName: CommandList_Example+Command_PrintLog_1
+      pInputInfoGroup:
+        p_listElement:
+        - iBracket_Start_Count: 0
+          iBracket_Finish_Count: 0
+          bEnable: 1
+          pRelateType: 0
+          strInputAxisName: 
+          bAlwaysInput: 0
+          eInputInfoType: 0
+          eKeyCode: 49
+          eMouseButtonType: 0
+    - strAssemblyName: StrixLibrary_Example, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      strCommandTypeName: CommandList_Example+Command_PrintLog_2
+      pInputInfoGroup:
+        p_listElement:
+        - iBracket_Start_Count: 0
+          iBracket_Finish_Count: 0
+          bEnable: 1
+          pRelateType: 0
+          strInputAxisName: 
+          bAlwaysInput: 0
+          eInputInfoType: 0
+          eKeyCode: 50
+          eMouseButtonType: 0
+    - strAssemblyName: StrixLibrary_Example, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      strCommandTypeName: CommandList_Example+Command_PrintLog_3
+      pInputInfoGroup:
+        p_listElement:
+        - iBracket_Start_Count: 0
+          iBracket_Finish_Count: 0
+          bEnable: 1
+          pRelateType: 1
+          strInputAxisName: 
+          bAlwaysInput: 0
+          eInputInfoType: 0
+          eKeyCode: 51
+          eMouseButtonType: 0
+        - iBracket_Start_Count: 0
+          iBracket_Finish_Count: 0
+          bEnable: 1
+          pRelateType: 0
+          strInputAxisName: 
+          bAlwaysInput: 0
+          eInputInfoType: 1
+          eKeyCode: 304
+          eMouseButtonType: 0
+    pCommandListTarget: {fileID: 11400000, guid: 4a977e416f5aa3b43af2846fc9088b7f,
+      type: 2}

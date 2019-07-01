@@ -62,10 +62,10 @@ public class CAnimatorController : CObjectBase, IAnimationController
 		p_Event_OnAnimationEvent = null;
 	}
 
-	/// <summary>
-	/// 사용하기 전에 반드시 실행 // Animator를 Getcomponent 합니다 (없을경우 자식 에서 찾음)
-	/// </summary>
-	public void DoInitAnimator()
+    /// <summary>
+    /// 사용하기 전에 반드시 실행 // Animator를 Getcomponent 합니다 (없을경우 자식 에서 찾음)
+    /// </summary>
+    public void DoInitAnimator()
 	{
 		_pAnimator = GetComponent<Animator>();
 		if (_pAnimator == null)

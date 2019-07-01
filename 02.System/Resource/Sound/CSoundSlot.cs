@@ -51,9 +51,9 @@ public class CSoundSlot : CObjectBase
     // private - Variable declaration        //
     // ===================================== //
 
-    [Rename_Inspector("플레이중인 오디오", false)]
+    [DisplayName("플레이중인 오디오", false)]
     public AudioClip _pAudioClip;
-    [Rename_Inspector("다음 플레이 예정인 오디오", false)]
+    [DisplayName("다음 플레이 예정인 오디오", false)]
     public AudioClip _pAudioClipNext;
 
     private AudioSource _pAudioSource;  public AudioSource p_pAudioSource {  get { return _pAudioSource; } }

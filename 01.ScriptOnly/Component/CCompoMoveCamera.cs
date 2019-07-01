@@ -34,10 +34,8 @@ public class CCompoMoveCamera : CObjectBase
         _pCam = GetComponent<Camera>();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         int iTouchCount = 0;// UICamera.CountInputSources();
         if (iTouchCount == 0)
         {

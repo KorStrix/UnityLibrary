@@ -20,25 +20,6 @@ public interface IHasName
     string IHasName_GetName();
 }
 
-#if ODIN_INSPECTOR
-
-#else
-
-public class ValueDropdownItem<T>
-{
-    public T Value;
-}
-
-public class ValueDropdownList<T> : List<ValueDropdownItem<T>>
-{
-    public void Add(string strName, T pItem)
-    {
-
-    }
-}
-
-#endif
-
 /// <summary>
 /// 
 /// </summary>
@@ -80,9 +61,11 @@ public static class OdinExtension
     static public ValueDropdownList<T> GetValueDropDownList_HasName<T>()
     where T : class, IHasName
     {
-        ValueDropdownList<T> list = new ValueDropdownList<T>();
+        return ConvertTypeList_To_ValueDownList(new ValueDropdownList<T>(), GetTypeFilter(typeof(T)));
+    }
 
-        var pFilteredTypeList = GetTypeFilter(typeof(T));
+    static public ValueDropdownList<T> ConvertTypeList_To_ValueDownList<T>(ValueDropdownList<T> list, IEnumerable<System.Type> pFilteredTypeList) where T : class, IHasName
+    {
         foreach (var pType in pFilteredTypeList)
         {
             T pCurrentT = System.Activator.CreateInstance(pType) as T;

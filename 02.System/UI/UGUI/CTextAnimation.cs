@@ -12,11 +12,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Text;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [RequireComponent((typeof(CTextWrapper)))]
 public class CTextAnimation : CObjectBase, IPoolingUIObject
 {
@@ -26,18 +21,18 @@ public class CTextAnimation : CObjectBase, IPoolingUIObject
 
     /* public - Field declaration            */
 
-    public CObserverSubject<CTextAnimation> p_Event_OnFinishAnimation { get; private set; } = new CObserverSubject<CTextAnimation>();
+    public ObservableCollection<CTextAnimation> p_Event_OnFinishAnimation { get; private set; } = new ObservableCollection<CTextAnimation>();
 
     [GetComponent]
     public CTextWrapper p_pTextComponent { get; private set; }
 
     public string p_strText => p_pTextComponent.text;
 
-    [Rename_Inspector("지속시간")]
+    [DisplayName("지속시간")]
     public float p_fDuration = 1f;
-    [Rename_Inspector("반복 유무")]
+    [DisplayName("반복 유무")]
     public bool p_bIsLoop = true;
-    [Rename_Inspector("Ignore TimeScale")]
+    [DisplayName("Ignore TimeScale")]
     public bool p_bIsIgnore_TimeScale = false;
 
     /* protected & private - Field declaration         */
@@ -138,10 +133,3 @@ public class CTextAnimation : CObjectBase, IPoolingUIObject
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

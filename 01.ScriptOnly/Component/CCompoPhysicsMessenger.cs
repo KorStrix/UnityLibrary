@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CCompoPhysicsMessenger : CObjectBase
 {
     /* const & readonly declaration             */
@@ -29,11 +24,23 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     /* public - Field declaration            */
 
-    public CObserverSubject<Collider2D, EPhysicsHow> p_Event_OnTrigger2D { get; private set; } = new CObserverSubject<Collider2D, EPhysicsHow>();
-    public CObserverSubject<Collision2D, EPhysicsHow> p_Event_OnCollision2D { get; private set; } = new CObserverSubject<Collision2D, EPhysicsHow>();
+    public struct PhysicsMessenger_Arg
+    {
+        public Collider2D pColliderSender;
+        public EPhysicsHow ePhysicsHow;
 
-    public CObserverSubject<Collider2D> p_Event_OnTrigger2D_Stay { get; private set; } = new CObserverSubject<Collider2D>();
-    public CObserverSubject<Collision2D> p_Event_OnCollision2D_Stay { get; private set; } = new CObserverSubject<Collision2D>();
+        public PhysicsMessenger_Arg(Collider2D pColliderSender, EPhysicsHow ePhysicsHow)
+        {
+            this.pColliderSender = pColliderSender;
+            this.ePhysicsHow = ePhysicsHow;
+        }
+    }
+
+    public ObservableCollection<PhysicsMessenger_Arg> p_Event_OnTrigger2D { get; private set; } = new ObservableCollection<PhysicsMessenger_Arg>();
+    public ObservableCollection<PhysicsMessenger_Arg> p_Event_OnCollision2D { get; private set; } = new ObservableCollection<PhysicsMessenger_Arg>();
+
+    public ObservableCollection<Collider2D> p_Event_OnTrigger2D_Stay { get; private set; } = new ObservableCollection<Collider2D>();
+    public ObservableCollection<Collision2D> p_Event_OnCollision2D_Stay { get; private set; } = new ObservableCollection<Collision2D>();
 
     /* protected & private - Field declaration         */
 
@@ -63,7 +70,7 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        p_Event_OnTrigger2D.DoNotify(collision, EPhysicsHow.Enter);
+        p_Event_OnTrigger2D.DoNotify(new PhysicsMessenger_Arg(collision, EPhysicsHow.Enter));
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -73,7 +80,7 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        p_Event_OnTrigger2D.DoNotify(collision, EPhysicsHow.Exit);
+        p_Event_OnTrigger2D.DoNotify(new PhysicsMessenger_Arg(collision, EPhysicsHow.Exit));
     }
 
 
@@ -81,7 +88,7 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        p_Event_OnCollision2D.DoNotify(collision, EPhysicsHow.Enter);
+        p_Event_OnCollision2D.DoNotify(new PhysicsMessenger_Arg(collision.collider, EPhysicsHow.Enter));
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -91,7 +98,7 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        p_Event_OnCollision2D.DoNotify(collision, EPhysicsHow.Exit);
+        p_Event_OnCollision2D.DoNotify(new PhysicsMessenger_Arg(collision.collider, EPhysicsHow.Exit));
     }
 
 
@@ -104,10 +111,3 @@ public class CCompoPhysicsMessenger : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

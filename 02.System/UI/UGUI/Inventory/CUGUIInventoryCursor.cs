@@ -29,7 +29,7 @@ public class CUGUIInventoryCursor : CSingletonDynamicMonoBase<CUGUIInventoryCurs
 
     [Header("필요한 UI Element")] [Space(10)]
     [GetComponentInChildren(nameof(EUIElementName_ForInit.Image_SlotItem), bIsPrint_OnNotFound = false)]
-    [Rename_Inspector("Image `" + nameof(EUIElementName_ForInit.Image_SlotItem) + "`", false)]
+    [DisplayName("Image `" + nameof(EUIElementName_ForInit.Image_SlotItem) + "`", false)]
     public Image p_pImage_CurrentItem;
 
     /* protected & private - Field declaration         */
@@ -40,7 +40,7 @@ public class CUGUIInventoryCursor : CSingletonDynamicMonoBase<CUGUIInventoryCurs
 
     [Header("디버깅용")]
     [SerializeField]
-    [Rename_Inspector("현재 데이터", false)]
+    [DisplayName("현재 데이터", false)]
     IInventorySlotData _pCurrentSlotData;
 
     // ========================================================================== //

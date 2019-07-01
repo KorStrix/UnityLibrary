@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CPositionReflecter : CObjectBase
 {
     /* const & readonly declaration             */
@@ -23,7 +18,7 @@ public class CPositionReflecter : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("반사힘")]
+    [DisplayName("반사힘")]
     public float p_fPushPower = 10f;
 
     /* protected & private - Field declaration         */

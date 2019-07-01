@@ -33,7 +33,7 @@ public class CCompoRandomPos : CCompoEventTrigger
 	/* private - Field declaration           */
 
 	[Header("디버깅용")]
-    [Rename_Inspector("랜덤 결과", false)]
+    [DisplayName("랜덤 결과", false)]
 	[SerializeField]
 	private Vector3 _vecPos = Vector3.zero;
 

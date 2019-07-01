@@ -26,6 +26,8 @@ public abstract class CTransitionStateExecuter_Base<ENUM_STATE> : IExecuter
 {
     virtual public int p_iExecuterOrder => 0;
 
+    public IExecuterList p_pOwnerList { get; set; }
+
 #if ODIN_INSPECTOR
     [LabelText("해당 상태로 전환")]
     [HorizontalGroup]
@@ -41,10 +43,12 @@ public abstract class CTransitionStateExecuter_Base<ENUM_STATE> : IExecuter
     public abstract bool CheckIsTransition();
     public abstract string IHasName_GetName();
 
-    public virtual void IExecuter_OnAwake(IExecuteContainer pContainer, CObjectBase pScriptOwner) { }
-    public virtual void IExecuter_OnEnable(IExecuteContainer pContainer, CObjectBase pScriptOwner) { }
+    public virtual void IExecuter_OnAwake(IExecuterList pContainer, MonoBehaviour pScriptOwner) { }
+    public virtual void IExecuter_OnEnable(IExecuterList pContainer, MonoBehaviour pScriptOwner) { }
+    public virtual void IExecuter_OnDisable(IExecuterList pContainer, MonoBehaviour pScriptOwner) { }
+    public virtual void IExecuter_OnDestroy(IExecuterList pContainer, MonoBehaviour pScriptOwner) { }
 
-    public virtual void IExecuter_Check_IsInvalid_OnEditor(CObjectBase pScriptOwner, ref bool bIsInvalid_Default_IsFalse, ref string strErrorMessage_Default_Is_Error) { }
+    public virtual void IExecuter_Check_IsInvalid_OnEditor(MonoBehaviour pScriptOwner, ref bool bIsInvalid_Default_IsFalse, ref string strErrorMessage_Default_Is_Error) { }
 }
 
 public abstract class State_ExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECUTER_ONSTART_STATE, CLASS_EXECUTER_TRANSITION_STATE> : IState<ENUM_STATE, CLASS_STATE>
@@ -54,22 +58,19 @@ public abstract class State_ExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXE
 {
     public CFSM<ENUM_STATE, CLASS_STATE> p_pFSMOwner { get; set; }
     public CObjectBase p_pScriptOwner { get; set; }
-
-    //[Rename_Inspector("상태 이름")]
-    //public ENUM_STATE p_eState;
-
+    
 #if ODIN_INSPECTOR
     [PropertyOrder(10)]
 #endif
-    [Rename_Inspector("상태 전환자 리스트")]
-    public CExecuterContainer<CLASS_EXECUTER_TRANSITION_STATE> p_pExecuter_OnTransitionState = new CExecuterContainer<CLASS_EXECUTER_TRANSITION_STATE>();
+    [DisplayName("상태 전환자 리스트")]
+    public CExecuterList<CLASS_EXECUTER_TRANSITION_STATE> p_pExecuter_OnTransitionState = new CExecuterList<CLASS_EXECUTER_TRANSITION_STATE>();
 
 #if ODIN_INSPECTOR
     [PropertyOrder(11)]
 #endif
     [Space(5)]
-    [Rename_Inspector("상태에 진입 했을 때 실행기능 리스트")]
-    public CExecuterContainer<CLASS_EXECUTER_ONSTART_STATE> p_pExecuter_OnEnable = new CExecuterContainer<CLASS_EXECUTER_ONSTART_STATE>();
+    [DisplayName("상태에 진입 했을 때 실행기능 리스트")]
+    public CExecuterList<CLASS_EXECUTER_ONSTART_STATE> p_pExecuter_OnEnable = new CExecuterList<CLASS_EXECUTER_ONSTART_STATE>();
 
     protected CObjectBase _pScriptOwner;
 
@@ -123,7 +124,12 @@ public abstract class State_ExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXE
     virtual public void OnAwake_State(CObjectBase pScriptOwner, CFSM<ENUM_STATE, CLASS_STATE> pFSMOwner)
     {
         _pScriptOwner = pScriptOwner;
+        if (p_pExecuter_OnTransitionState == null)
+            p_pExecuter_OnTransitionState = new CExecuterList<CLASS_EXECUTER_TRANSITION_STATE>();
         p_pExecuter_OnTransitionState.DoNotify_OnAwake(pScriptOwner);
+
+        if (p_pExecuter_OnEnable == null)
+            p_pExecuter_OnEnable = new CExecuterList<CLASS_EXECUTER_ONSTART_STATE>();
         p_pExecuter_OnEnable.DoNotify_OnAwake(pScriptOwner);
     }
 
@@ -170,7 +176,10 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
 
     public void DoInit_FSMExecuter(CObjectBase pOwner)
     {
-        base.DoInit(pOwner, p_listState.ToArray());
+        if(p_listState != null)
+            base.DoInit(pOwner, p_listState.ToArray());
+        else
+            base.DoInit(pOwner, new CLASS_STATE[0]);
     }
 
 #if ODIN_INSPECTOR
@@ -179,14 +188,18 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
         if (_listState_Fixed == null)
             _listState_Fixed = new List<CLASS_STATE>();
         _listState_Fixed.Clear();
-        OnSetStateList(ref _listState_Fixed);
+        OnSetStateList_IfCountZero_IsError(ref _listState_Fixed);
 
         if (_list_ForPrint == null)
             _list_ForPrint = new ValueDropdownList<CLASS_STATE>();
         _list_ForPrint.Clear();
-
         for (int i = 0; i < _listState_Fixed.Count; i++)
             _list_ForPrint.Add(_listState_Fixed[i].IDictionaryItem_GetKey().ToString(), _listState_Fixed[i]);
+
+        if(_list_ForPrint.Count == 0)
+        {
+            Debug.LogError("_list_ForPrint.Count == 0");
+        }
 
         return _list_ForPrint;
     }
@@ -209,7 +222,7 @@ public abstract class CFSMExecuterContainer<ENUM_STATE, CLASS_STATE, CLASS_EXECU
 
     /* protected - [abstract & virtual]         */
 
-    abstract protected void OnSetStateList(ref List<CLASS_STATE> list_ForPrint_DefaultCount_IsZero);
+    abstract protected void OnSetStateList_IfCountZero_IsError(ref List<CLASS_STATE> list_ForPrint_DefaultCount_IsZero);
 
     // ========================================================================== //
 
@@ -256,11 +269,11 @@ public class State_ExecuteContainer_Drawer<ENUM_STATE, CLASS_STATE, CLASS_EXECUT
         }
 
         if (value.p_pExecuter_OnTransitionState == null)
-            value.p_pExecuter_OnTransitionState = new CExecuterContainer<CLASS_EXECUTER_TRANSITION_STATE>();
+            value.p_pExecuter_OnTransitionState = new CExecuterList<CLASS_EXECUTER_TRANSITION_STATE>();
         this.ValueEntry.Property.Children["p_pExecuter_OnTransitionState"].Draw();
 
         if (value.p_pExecuter_OnEnable == null)
-            value.p_pExecuter_OnEnable = new CExecuterContainer<CLASS_EXECUTER_ONSTART_STATE>();
+            value.p_pExecuter_OnEnable = new CExecuterList<CLASS_EXECUTER_ONSTART_STATE>();
         this.ValueEntry.Property.Children["p_pExecuter_OnEnable"].Draw();
     }
 }
@@ -283,6 +296,8 @@ public class CFSMExecuteContainer_Drawer<CLASS_FSM_EXECUTE_CONTAINER, ENUM_STATE
             rect = EditorGUI.PrefixLabel(rect, label);
         }
 
+        // EditorGUI.LabelField(rect, "현재 상태 : " + value.p_eStateCurrent.ToString());
+
         if (value.p_listState == null)
             value.p_listState = new List<CLASS_STATE>();
 
@@ -293,7 +308,7 @@ public class CFSMExecuteContainer_Drawer<CLASS_FSM_EXECUTE_CONTAINER, ENUM_STATE
                 value.p_listState.Add(listDefault[i].Value);
         }
 
-        this.ValueEntry.Property.Children["p_listState"].Draw(label);
+        this.ValueEntry.Property.Children[nameof(ValueEntry.SmartValue.p_listState)].Draw(label);
     }
 }
 

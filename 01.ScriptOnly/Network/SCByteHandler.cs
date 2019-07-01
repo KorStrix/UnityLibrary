@@ -18,10 +18,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System;
 
-using NUnit.Framework;
-using UnityEngine.TestTools;
-
-public static class SCByteHelper
+public static class ByteExtension
 {
 	static public int ConvertByte_To_Int( byte byteTarget, int iBitIndexFinish = 8, int iBitIndexStart = 0)
 	{
@@ -90,24 +87,3 @@ public static class SCByteHelper
         return Marshal.SizeOf(typeof(Struct));
     }
 }
-
-
-#region Test
-[Category("StrixLibrary")]
-public class ByteHandler_Test
-{
-    public enum ETest
-    {
-        ETest1
-    }
-
-    [Test]
-    static public void Byte_To_BitArray()
-    {
-        Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(1) == 1);
-        Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(1, 8, 1) == 0);
-        Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(2, 8, 0) == 2);
-        Assert.IsTrue(SCByteHelper.ConvertByte_To_Int(127, 8, 2) == (127 - 3));
-    }
-}
-#endregion

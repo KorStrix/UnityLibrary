@@ -28,16 +28,16 @@ public class CManager_VirtualCursor : CSingletonMonoBase<CManager_VirtualCursor>
         set { transform.position = value; }
     }
 
-    [Rename_Inspector("마우스와 가상커서 위치 오프셋")]
+    [DisplayName("마우스와 가상커서 위치 오프셋")]
     public Vector2 p_vecMousePosOffset;
-    [Rename_Inspector("카메라 레이 Hit 레이어")]
+    [DisplayName("카메라 레이 Hit 레이어")]
     public LayerMask p_pWorldPosition_Z_HitLayer;
 
     [Space(5)]
-    [Rename_Inspector("커서 이동속도")]
+    [DisplayName("커서 이동속도")]
     public float p_fMoveSpeed = 10f;
 
-    [Rename_Inspector("마우스 포지션에 따른 업데이트 잠금")]
+    [DisplayName("마우스 포지션에 따른 업데이트 잠금")]
     public bool p_bIsLock_MousePosition = false;
 
     /* protected & private - Field declaration         */
@@ -87,10 +87,8 @@ public class CManager_VirtualCursor : CSingletonMonoBase<CManager_VirtualCursor>
         _pManagerInputSystem = CManagerInputEventSystem.instance;
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if(p_bIsLock_MousePosition == false)
         {
             Vector2 vecMousePosition = _pManagerInputSystem.DoRayCasting_MousePos_2D(p_pWorldPosition_Z_HitLayer);

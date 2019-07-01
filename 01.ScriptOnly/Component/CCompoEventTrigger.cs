@@ -79,15 +79,15 @@ public class CCompoEventTrigger : CObjectBase, IPointerClickHandler, IPointerDow
 
 	public event System.Action<bool> p_OnPress;
 
-	[Rename_Inspector( "트리거 작동 조건" )]
+	[DisplayName( "트리거 작동 조건" )]
 	public EConditionTypeFlags p_eConditionType = EConditionTypeFlags.None;
-	[Rename_Inspector("트리거 작동 시 처음 딜레이")]
+	[DisplayName("트리거 작동 시 처음 딜레이")]
 	public float p_fDelayTrigger = 0f;
 
 #if ODIN_INSPECTOR
     [ShowIf(nameof(CheckIsUpdate))]
 #endif
-    [Rename_Inspector("업데이트 시 타임 델타")]
+    [DisplayName("업데이트 시 타임 델타")]
     public float p_fUpdateTimeDelta = 0.02f;
 
 	public UnityEngine.Events.UnityEvent p_listEvent = new UnityEvent();

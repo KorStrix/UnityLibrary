@@ -79,9 +79,9 @@ public class CUI_Joystick : CNGUIPanelBase
 
 
 
-	//protected override void OnUpdate()
+	//protected override void OnUpdate(float fTimeScale_Individual)
  //   {
- //       base.OnUpdate();
+ //       base.OnUpdate(fTimeScale_Individual);
 
         Vector3 vecPos_Background = _pTransformCached.position;
         bool bInputJoystick = _bIsPress && _pCurrentTouch != null;

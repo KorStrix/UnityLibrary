@@ -22,7 +22,7 @@ public class CManagerDeviceCamera : CSingletonMonoBase<CManagerDeviceCamera>
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("시작시 자동으로 카메라 플레이")]
+    [DisplayName("시작시 자동으로 카메라 플레이")]
     public bool bAutoPlayCamera = false;
 
     public WebCamTexture p_pWebCamTexture { get; private set; }

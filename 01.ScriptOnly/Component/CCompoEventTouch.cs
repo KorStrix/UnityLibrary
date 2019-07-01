@@ -87,10 +87,8 @@ public class CCompoEventTouch : CObjectBase
 
     /* protected - Override & Unity API         */
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-		base.OnUpdate();
-
         int iTouchCount = 0;
 
 #if (UNITY_EDITOR || UNITY_STANDALONE)

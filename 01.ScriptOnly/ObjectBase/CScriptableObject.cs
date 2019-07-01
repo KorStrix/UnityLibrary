@@ -10,6 +10,10 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -68,6 +72,13 @@ public class CScriptableObject :
             OnAwake(Application.isPlaying);
     }
 
+    public void Event_OnAwake_And_Instantiate<T>(out T pInstantiateObject)
+        where T : CScriptableObject
+    {
+        pInstantiateObject = CScriptableObject.Instantiate(this) as T;
+        pInstantiateObject.Event_OnAwake();
+    }
+
     protected virtual void OnAwake(bool bAppIsPlaying)
     {
         if (bAppIsPlaying)
@@ -88,3 +99,48 @@ public class CScriptableObject :
 
     protected virtual void OnDestroy_Singleton() { }
 }
+
+#if UNITY_EDITOR && !ODIN_INSPECTOR
+[CustomEditor(typeof(CScriptableObject), true)]
+public class CScriptableObject_Inspector : Editor
+{
+    public static string strJsonText;
+    public static ScriptableObject pScriptableObject;
+    public static System.Type pScriptableObject_Type;
+
+
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        EditorGUI.BeginDisabledGroup(true);
+        EditorGUILayout.ObjectField("Copy Chunk : ", pScriptableObject, pScriptableObject_Type, false);
+        EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.Space();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Copy ScriptableObject"))
+        {
+            pScriptableObject = target as ScriptableObject;
+            pScriptableObject_Type = target.GetType();
+            strJsonText = JsonUtility.ToJson(pScriptableObject);
+
+            Debug.Log("Copy " + pScriptableObject.name);
+        }
+
+        if (GUILayout.Button("Paste ScriptableObject"))
+        {
+            if (pScriptableObject_Type != target.GetType())
+            {
+                Debug.LogError("타입이 달라서 Paste를 못합니다..");
+                return;
+            }
+
+            JsonUtility.FromJsonOverwrite(strJsonText, target);
+            Debug.Log("Paste " + target.name);
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+}
+#endif

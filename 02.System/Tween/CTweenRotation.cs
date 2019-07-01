@@ -49,12 +49,12 @@ public class CTweenRotation : CTweenBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("벡터 보간을 사용할 것인지 ? (false면 쿼터니언 보간)")]
+    [DisplayName("벡터 보간을 사용할 것인지 ? (false면 쿼터니언 보간)")]
     public bool p_bUseSlerp = true;
 
-    [Rename_InspectorAttribute("시작")]
+    [DisplayNameAttribute("시작")]
     public Vector3 p_vecRotStart;
-    [Rename_InspectorAttribute("도달")]
+    [DisplayNameAttribute("도달")]
     public Vector3 p_vecRotDest;
 
     public bool p_bIsLocal;

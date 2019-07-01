@@ -57,10 +57,8 @@ public class CCompoMovePos : CCompoEventTrigger
 		_vecVelocity = PrimitiveHelper.RandomRange( _vecRandomForce_Min, _vecRandomForce_Max );
 	}
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-		base.OnUpdate();
-
         transform.Translate( _vecVelocity * Time.deltaTime , _pSpaceSimulate );
 	}
 

@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [RequireComponent(typeof(CPhysicsTrigger))]
 public class CPointEffector2D : CObjectBase
 {
@@ -36,14 +31,14 @@ public class CPointEffector2D : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("힘 크기")]
+    [DisplayName("힘 크기")]
     public float p_fForceMagnitude = 10f;
-    [Rename_Inspector("최소 힘 크기")]
+    [DisplayName("최소 힘 크기")]
     public float p_fForceMagnitude_Min = 1f;
-    [Rename_Inspector("최대 속도(Addforce 결과)")]
+    [DisplayName("최대 속도(Addforce 결과)")]
     public float p_fVelocity_Max = 1f;
 
-    [Rename_Inspector("가까우면 무시할 지 체크할 거리")]
+    [DisplayName("가까우면 무시할 지 체크할 거리")]
     public float p_fDistance_Shorter_OnIgnore = 1f;
 
     /* protected & private - Field declaration         */
@@ -171,10 +166,3 @@ public class CPointEffector2D : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

@@ -33,7 +33,7 @@ public class CTextWrapper : CObjectBase, IPoolingUIObject
 
 	/* public - Field declaration            */
 
-    public CObserverSubject<CTextWrapper> p_Event_OnDisable { get; private set; } = new CObserverSubject<CTextWrapper>();
+    public ObservableCollection<CTextWrapper> p_Event_OnDisable { get; private set; } = new ObservableCollection<CTextWrapper>();
     public string text
     {
         get { return GetText(); }

@@ -82,17 +82,22 @@ abstract public class CSingletonSOBase<T> : ScriptableObject
         get
         {
             if (_pInstance == null)
-                _pInstance = CreateInstance<T>();
-
-            if (_pObjectAttacher == null && Application.isPlaying)
             {
-                if (CSOAttacher.g_bIsQuit == false)
+                bool bCreateGameObject = false;
+                _pInstance = CreateInstance<T>();
+                _pInstance.OnCreateInstance_SingletonSO(ref bCreateGameObject);
+
+                if (bCreateGameObject && _pObjectAttacher == null && Application.isPlaying)
                 {
-                    GameObject pObjectManager = new GameObject(typeof(T).Name, typeof(CSOAttacher));
-                    _pObjectAttacher = pObjectManager.GetComponent<CSOAttacher>();
-                    _pObjectAttacher.p_pOwnerSO = instance;
+                    if (CSOAttacher.g_bIsQuit == false)
+                    {
+                        GameObject pObjectManager = new GameObject(typeof(T).Name, typeof(CSOAttacher));
+                        _pObjectAttacher = pObjectManager.GetComponent<CSOAttacher>();
+                        _pObjectAttacher.p_pOwnerSO = instance;
+                    }
                 }
             }
+
             _pInstance.OnAwake(Application.isPlaying);
 
             return _pInstance;
@@ -109,19 +114,13 @@ abstract public class CSingletonSOBase<T> : ScriptableObject
 
     public bool p_bExecute_Awake_OnPlay { get; private set; } = false;
 
+    // ==================================================================
+
     public void Event_OnAwake()
     {
         if(Application.isPlaying == false || 
           (Application.isPlaying && p_bExecute_Awake_OnPlay == false))
             OnAwake(Application.isPlaying);
-    }
-
-    protected virtual void OnAwake(bool bAppIsPlaying)
-    {
-        if(bAppIsPlaying)
-            p_bExecute_Awake_OnPlay = true;
-
-        // Debug.Log(GetType().GetFriendlyName() + nameof(OnAwake) + " bAppIsPlaying : " + bAppIsPlaying + " p_bExecute_Awake_OnPlay : " + p_bExecute_Awake_OnPlay);
     }
 
     /// <summary>
@@ -132,6 +131,20 @@ abstract public class CSingletonSOBase<T> : ScriptableObject
     {
         p_bExecute_Awake_OnPlay = false;
         OnAwake(false);
+    }
+
+    // ==================================================================
+
+    protected virtual void OnCreateInstance_SingletonSO(ref bool bCreateGameObject_Default_IsFalse)
+    {
+    }
+
+    protected virtual void OnAwake(bool bAppIsPlaying)
+    {
+        if (bAppIsPlaying)
+            p_bExecute_Awake_OnPlay = true;
+
+        // Debug.Log(GetType().GetFriendlyName() + nameof(OnAwake) + " bAppIsPlaying : " + bAppIsPlaying + " p_bExecute_Awake_OnPlay : " + p_bExecute_Awake_OnPlay);
     }
 
     protected virtual void OnDestroy_Singleton() { }

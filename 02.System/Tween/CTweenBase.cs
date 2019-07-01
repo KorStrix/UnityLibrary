@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 
 #if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
 using UnityEditor;
 #endif
 
@@ -84,36 +82,33 @@ abstract public class CTweenBase : CObjectBase, IEnumerator
     public event OnTweenEvent p_Event_OnStartTween_InCludeArg;
     public event OnTweenEvent p_Event_OnFinishTween_InCludeArg;
 
-    [Rename_Inspector("트윈 대상")]
+    [DisplayName("트윈 대상")]
     public GameObject p_pObjectTarget = null;
 
-    [Space(10)]
     [Header("트윈 옵션")]
-    [Rename_Inspector("트윈 스타일")]
+    [DisplayName("트윈 스타일")]
     public ETweenStyle p_eTweenStyle = ETweenStyle.Once;
-    [Rename_Inspector("재생시간")]
+    [DisplayName("재생시간")]
     public float p_fDuration = 1f;
-    [Rename_Inspector("애니메이션 커브")]
+    [DisplayName("애니메이션 커브")]
     public AnimationCurve p_pAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
-    [Rename_Inspector("기본 트윈 재생 시 방향")]
+    [DisplayName("기본 트윈 재생 시 방향")]
     public ETweenDirection p_eTweenDirection_OnDefaultPlay = ETweenDirection.Forward;
 
-    [Space(10)]
     [Header("플레이 옵션")]
-    [Rename_Inspector("Enable시 자동 재생")]
+    [DisplayName("Enable시 자동 재생")]
     public bool p_bIsPlay_OnEnable = false;
-    [Rename_Inspector("Enable시 초기값으로")]
+    [DisplayName("Enable시 초기값으로")]
     public bool p_bIsReset_OnEnable = false;
-    [Rename_Inspector("트윈 전의 딜레이")]
+    [DisplayName("트윈 전의 딜레이")]
     public float p_fFirstDelaySec = 0f;
-    [Rename_Inspector("트윈 후의 딜레이")]
+    [DisplayName("트윈 후의 딜레이")]
     public float p_fAfterDelaySec = 0f;
 
-    [Space(10)]
     [Header("기타 옵션")]
-    [Rename_Inspector("Ignore TimeScale?")]
+    [DisplayName("Ignore TimeScale?")]
     public bool p_bIgnoreTimeScale = false;
-    [Rename_Inspector("물리 업데이트를 사용할 것인지")]
+    [DisplayName("물리 업데이트를 사용할 것인지")]
     public bool p_bUseFixedUpdate = false;
 
     public UnityEvent p_Event_OnFinishTween = new UnityEvent();
@@ -125,10 +120,10 @@ abstract public class CTweenBase : CObjectBase, IEnumerator
     /* protected & private - Field declaration         */
 
     [SerializeField]
-    [Rename_Inspector("현재 진행 상황 0 ~ 1", false)]
+    [DisplayName("현재 진행 상황 0 ~ 1", false)]
     protected float _fProgress_0_1;
     [SerializeField]
-    [Rename_Inspector("트윈 플레이 중인지?", false)]
+    [DisplayName("트윈 플레이 중인지?", false)]
     bool _bIsPlayingTween;
 
     AnimationCurve _pAnimationCurve_OnReverseCurvePlay;
@@ -520,7 +515,7 @@ abstract public class CTweenBase : CObjectBase, IEnumerator
         return Time.unscaledDeltaTime;
     }
 
-    #region IEnumerator Driven
+    #region IEnumerator DERIVED
     // IEnumerator 관련
     public bool MoveNext()
     {
@@ -529,7 +524,7 @@ abstract public class CTweenBase : CObjectBase, IEnumerator
 
     public object Current => null;
     void IEnumerator.Reset() { }
-    #endregion IEnumerator Driven
+    #endregion IEnumerator DERIVED
 
     #endregion Private
 }

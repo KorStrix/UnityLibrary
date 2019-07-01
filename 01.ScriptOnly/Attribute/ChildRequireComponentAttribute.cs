@@ -14,6 +14,7 @@ using System;
 #if UNITY_EDITOR
 using UnityEditor;
 using System.Reflection;
+using System.Linq;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -56,6 +57,13 @@ public class ChildRequireComponentAttribute :
         this.bIsPrint_OnNotFound = true;
     }
 
+    public ChildRequireComponentAttribute(System.Object pComponentName, bool bIsPrint_OnNotFound, int iOrder = 0)
+        : base(nameof(ChildRequireComponentAttribute), iOrder)
+    {
+        this.strComponentName = pComponentName.ToString();
+        this.bIsPrint_OnNotFound = bIsPrint_OnNotFound;
+    }
+
     public object GetComponent(MonoBehaviour pTargetMono, Type pElementType)
     {
         object pObjectArray = pTargetMono.GetComponentsInChildren_SameName(strComponentName, pElementType, true);
@@ -78,16 +86,22 @@ public class ChildRequireComponentAttribute :
 #else
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-public class ChildRequireComponentAttribute : GetComponentInChildrenAttribute
+public class ChildRequireComponentAttribute : PropertyAttribute, IGetComponentAttribute
 {
-    public string strRequireComent;
-    public bool bIsEditPossibleInspector;
+    public string strComponentName;
+    public bool bIsPrint_OnNotFound;
 
-    public ChildRequireComponentAttribute(System.Object pComponentName, bool bIsEditPossibleInspector = true)
-        : base(pComponentName)
+    public ChildRequireComponentAttribute(System.Object pComponentName, bool bIsPrint_OntNotFound = true)
     {
-        this.strRequireComent = "'" + pComponentName.ToString() + "' - Require In Children Object";
-        this.bIsEditPossibleInspector = bIsEditPossibleInspector;
+        this.strComponentName = pComponentName.ToString();
+        this.bIsPrint_OnNotFound = bIsPrint_OntNotFound;
+    }
+
+    public bool bIsPrint_OnNotFound_GetComponent => bIsPrint_OnNotFound;
+
+    public object GetComponent(MonoBehaviour pTargetMono, Type pElementType)
+    {
+        return SCManagerGetComponent.Event_GetComponentInChildren(pTargetMono, pElementType, true, true, strComponentName);
     }
 }
 #endif
@@ -96,12 +110,7 @@ public class ChildRequireComponentAttribute : GetComponentInChildrenAttribute
 #if ODIN_INSPECTOR
 [OdinDrawer]
 [DrawerPriority(DrawerPriorityLevel.SuperPriority)]
-public class CChildRequireComponentAttribute_Drawer :
-#if UNITY_EDITOR
-    OdinGroupDrawer<ChildRequireComponentAttribute> // 그룹 드로어는 Editor Only이다..
-#else
-    OdinAttributeDrawer<ChildRequireComponentAttribute>
-#endif
+public class CChildRequireComponentAttribute_Drawer : OdinGroupDrawer<ChildRequireComponentAttribute>
 {
     public enum ECheckState
     {
@@ -125,7 +134,16 @@ public class CChildRequireComponentAttribute_Drawer :
         var property = this.Property;
         var attribute = this.Attribute;
 
-        SCManagerGetComponent.DoUpdateGetComponentAttribute(property.ParentValues[0] as MonoBehaviour);
+        object pObjectFieldOwner = property.ParentValues[0];
+        bool bTargetIsMono = property.ParentValues[0] is MonoBehaviour;
+        if(bTargetIsMono)
+            SCManagerGetComponent.DoUpdateGetComponentAttribute(property.ParentValues[0] as MonoBehaviour);
+        else
+        {
+            pObjectFieldOwner = property.ParentValues[0];
+            SCManagerGetComponent.DoUpdateGetComponentAttribute(property.Parent.ParentValues[0] as MonoBehaviour, property.ParentValues[0]);
+        }
+
 
         PropertyContext<TitleContext> context;
         if (property.Context.Get(this, "Title", out context))
@@ -190,7 +208,8 @@ public class CChildRequireComponentAttribute_Drawer :
         }
         else
         {
-            if (Attribute.bIsPrint_OnNotFound_GetComponent == false)
+            var pAttribute = pPropertyChild.GetAttribute<ChildRequireComponentAttribute>();
+            if (pAttribute != null && pAttribute.bIsPrint_OnNotFound_GetComponent == false)
                 eCheckState = ECheckState.NotYet;
             else
                 eCheckState = ECheckState.Fail;
@@ -208,64 +227,130 @@ public class CChildRequireComponentAttribute_Drawer :
 [CustomPropertyDrawer(typeof(ChildRequireComponentAttribute))]
 public class CEditorInspector_ChildRequireComponentAttribute : PropertyDrawer
 {
-    // Used for top and bottom padding between the text and the HelpBox border.
-    const int paddingHeight = 8;
-
-    // Used to add some margin between the the HelpBox and the property.
-    const int marginHeight = 2;
-
-    //  Global field to store the original (base) property height.
-    float baseHeight = 0;
+    public enum ECheckState
+    {
+        NotYet,
+        Checked,
+        Fail,
+    }
 
     /// <summary>
     /// A wrapper which returns the PropertyDrawer.attribute field as a HelpAttribute.
     /// </summary>
-    ChildRequireComponentAttribute pRequireChildComponent { get { return (ChildRequireComponentAttribute)attribute; } }
-
-
-    public override float GetPropertyHeight(SerializedProperty prop, GUIContent label)
-    {
-        // We store the original property height for later use...
-        baseHeight = base.GetPropertyHeight(prop, label);
-
-        // This stops icon shrinking if text content doesn't fill out the container enough.
-        float minHeight = paddingHeight * 5;
-
-        // Calculate the height of the HelpBox using the GUIStyle on the current skin and the inspector
-        // window's currentViewWidth.
-        var content = new GUIContent(pRequireChildComponent.strComponentName);
-        var style = GUI.skin.GetStyle("helpbox");
-
-        var height = style.CalcHeight(content, EditorGUIUtility.currentViewWidth);
-
-        // We add tiny padding here to make sure the text is not overflowing the HelpBox from the top
-        // and bottom.
-        height += marginHeight * 2;
-
-        // If the calculated HelpBox is less than our minimum height we use this to calculate the returned
-        // height instead.
-        return height > minHeight ? height + baseHeight : minHeight + baseHeight;
-    }
-
-
+    ChildRequireComponentAttribute _pAttribute { get { return (ChildRequireComponentAttribute)attribute; } }
+    
     public override void OnGUI(Rect position, SerializedProperty prop, GUIContent label)
     {
+        Color pColorOrigin = GUI.color;
         GUI.enabled = false;
 
-        label.text = "[" + pRequireChildComponent.strComponentName + "]";
+        object pObjectFieldOwner = prop.serializedObject.targetObject;
+
+        System.Type pTypeCurrentPropertyOwner = fieldInfo.ReflectedType;
+        bool bTargetIsMono = pTypeCurrentPropertyOwner.IsSubclassOf(typeof(MonoBehaviour));
+        if(bTargetIsMono)
+        {
+            SCManagerGetComponent.DoUpdateGetComponentAttribute(prop.serializedObject.targetObject as MonoBehaviour);
+        }
+        else
+        {
+            // Unity Editor의 PropertyDrawer에선 현재 그리고 있는 프로퍼티의 오너 인스턴스가 무조건 Monobehaviour를 통해 얻어오는데,
+            // PropertyDrawer의 현재 그리고 있는 프로퍼티 오너가 Mono가 아닐 경우, Mono에서부터 현재 그리고 있는 프로퍼티 오너의 인스턴스를 찾아야 한다..
+
+            // 프로퍼티의 경우 Play Mode가 Edit일 때 찾지 못하는 에러가 있음 ( Play 중일땐 정상 )
+            int iIndex = prop.propertyPath.IndexOf('.');
+            if(iIndex != -1)
+            {
+                string strFieldOwnerName = prop.propertyPath.Substring(0, iIndex);
+                System.Type pMonobehaviourType = prop.serializedObject.targetObject.GetType();
+
+                MemberInfo pMemberInfo_Owner = null;
+                pMemberInfo_Owner = FindMember(strFieldOwnerName, pMemberInfo_Owner, pMonobehaviourType.GetFields(BindingFlags.Public | BindingFlags.Instance));
+                if(pMemberInfo_Owner == null)
+                    pMemberInfo_Owner = FindMember(strFieldOwnerName, pMemberInfo_Owner, pMonobehaviourType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+                if (pMemberInfo_Owner == null)
+                    pMemberInfo_Owner = FindMember(strFieldOwnerName, pMemberInfo_Owner, pMonobehaviourType.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+                if (pMemberInfo_Owner == null)
+                    pMemberInfo_Owner = FindMember(strFieldOwnerName, pMemberInfo_Owner, pMonobehaviourType.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance));
+
+                if (pMemberInfo_Owner != null)
+                {
+                    pObjectFieldOwner = pMemberInfo_Owner.GetValue_Extension(prop.serializedObject.targetObject);
+                    SCManagerGetComponent.DoUpdateGetComponentAttribute(prop.serializedObject.targetObject as MonoBehaviour, pObjectFieldOwner);
+                }
+            }
+        }
+
+        label.text = "'" + _pAttribute.strComponentName + "'";
+        switch (CalculateCheckState(prop, pObjectFieldOwner))
+        {
+            case ECheckState.NotYet:
+                GUI.color = Color.yellow;
+                label.text = "Wait-" + label.text;
+                break;
+
+            case ECheckState.Checked:
+                GUI.color = Color.green;
+                label.text = "Check-" + label.text;
+                break;
+
+            case ECheckState.Fail:
+                GUI.color = Color.red;
+                label.text = "Fail-" + label.text;
+                break;
+        }
 
         EditorGUI.BeginProperty(position, label, prop);
-
-        var helpPos = position;
-        helpPos.height -= baseHeight + marginHeight;
-
-        position.y += helpPos.height + marginHeight;
-        position.height = baseHeight;
-
         EditorGUI.PropertyField(position, prop, label);
-
         EditorGUI.EndProperty();
+
         GUI.enabled = true;
+        GUI.color = pColorOrigin;
+
+    }
+
+    private static MemberInfo FindMember(string strFieldName, MemberInfo pMemberInfo_Me, MemberInfo[] arrMemberInfo)
+    {
+        foreach (var pMemberInfo in arrMemberInfo)
+        {
+            if (pMemberInfo.Name.Equals(strFieldName))
+            {
+                pMemberInfo_Me = pMemberInfo;
+                break;
+            }
+        }
+
+        return pMemberInfo_Me;
+    }
+
+    private ECheckState CalculateCheckState(SerializedProperty property, object pObjectFieldOwner)
+    {
+        ECheckState eCheckState;
+        if (Check_IsFill_Member(property, pObjectFieldOwner))
+        {
+            eCheckState = ECheckState.Checked;
+        }
+        else
+        {
+            if (_pAttribute.bIsPrint_OnNotFound_GetComponent == false)
+                eCheckState = ECheckState.NotYet;
+            else
+                eCheckState = ECheckState.Fail;
+        }
+
+        return eCheckState;
+    }
+
+    private bool Check_IsFill_Member(SerializedProperty property, object pObjectFieldOwner)
+    {
+        try
+        {
+            return this.fieldInfo.CheckValueIsNull(pObjectFieldOwner) == false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 #endif

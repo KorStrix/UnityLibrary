@@ -15,7 +15,7 @@ using System;
 #if UNITY_EDITOR
 using UnityEditor;
 
-using static HierachyIIconList;
+using static HierachyIconList;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -24,32 +24,50 @@ using Sirenix.OdinInspector;
 /// <summary>
 /// 
 /// </summary>
-[CreateAssetMenu(menuName ="StrixSO/" + nameof(HierachyIconConfig))]
+[CreateAssetMenu(menuName = "StrixSO/" + nameof(HierachyIconConfig))]
 public class HierachyIconConfig : CSingletonSOBase<HierachyIconConfig>
 {
-    public HierachyIIconList[] arrIconMapping;
+    public HierachyIconList[] arrIconMapping;
 
-    static Dictionary<string, KeyValuePair<Texture2D, int>> mapIconPer_Type = new Dictionary<string, KeyValuePair<Texture2D, int>>();
-    static Dictionary<string, KeyValuePair<Texture2D, int>> mapIconPer_Tag = new Dictionary<string, KeyValuePair<Texture2D, int>>();
+    static Dictionary<string, IconMappingDataBase> mapIconPer_Type = new Dictionary<string, IconMappingDataBase>();
+    static Dictionary<string, IconMappingDataBase> mapIconPer_Tag = new Dictionary<string, IconMappingDataBase>();
 
-    static public bool GetTexture_Per_Type(System.Type pType, out Texture2D pTexture, out int iOrder)
+    static public bool GetTexture_Per_Type(System.Type pType, ref Texture2D pTexture, ref int iOrder)
     {
-        KeyValuePair<Texture2D, int> sValue;
-        bool bResult = mapIconPer_Type.TryGetValue(pType.GetFriendlyName(), out sValue);
-        pTexture = sValue.Key;
-        iOrder = sValue.Value;
+        IconMappingDataBase sValue;
+        if (mapIconPer_Type.TryGetValue(pType.GetFriendlyName(), out sValue))
+        {
+            pTexture = sValue.GetTexture();
+            iOrder = sValue.iOrder;
 
-        return bResult;
+            return pTexture != null;
+        }
+        else
+        {
+            pTexture = null;
+            iOrder = 0;
+
+            return false;
+        }
     }
 
-    static public bool GetTexture_Per_Tag(string strTag, out Texture2D pTexture, out int iOrder)
+    static public bool GetTexture_Per_Tag(string strTag, ref Texture2D pTexture, ref int iOrder)
     {
-        KeyValuePair<Texture2D, int> sValue;
-        bool bResult = mapIconPer_Tag.TryGetValue(strTag, out sValue);
-        pTexture = sValue.Key;
-        iOrder = sValue.Value;
+        IconMappingDataBase sValue;
+        if (mapIconPer_Tag.TryGetValue(strTag, out sValue))
+        {
+            pTexture = sValue.GetTexture();
+            iOrder = sValue.iOrder;
 
-        return bResult;
+            return pTexture != null;
+        }
+        else
+        {
+            pTexture = null;
+            iOrder = 0;
+
+           return false;
+        }
     }
 
     protected override void OnAwake(bool bAppIsPlaying)
@@ -67,13 +85,24 @@ public class HierachyIconConfig : CSingletonSOBase<HierachyIconConfig>
         mapIconPer_Type.Clear();
         mapIconPer_Tag.Clear();
 
+        if (arrIconMapping == null)
+            return;
+
         for (int i = 0; i < arrIconMapping.Length; i++)
         {
-            for (int j = 0; j < arrIconMapping[i].p_listIconMappingData_Type.Count; j++)
-                mapIconPer_Type.Add(arrIconMapping[i].p_listIconMappingData_Type[j].strTypeName, new KeyValuePair<Texture2D, int>(arrIconMapping[i].p_listIconMappingData_Type[j].pTexture, arrIconMapping[i].p_listIconMappingData_Type[j].iOrder));
+            List<IconMappingData_Type> listIconMappingData_Type = arrIconMapping[i].p_listIconMappingData_Type;
+            for (int j = 0; j < listIconMappingData_Type.Count; j++)
+            {
+                if(listIconMappingData_Type[j] != null && string.IsNullOrEmpty(listIconMappingData_Type[j].strTypeName) == false)
+                    mapIconPer_Type.Add(listIconMappingData_Type[j].strTypeName, listIconMappingData_Type[j]);
+            }
 
-            for (int j = 0; j < arrIconMapping[i].p_listIconMappingData_Tag.Count; j++)
-                mapIconPer_Tag.Add(arrIconMapping[i].p_listIconMappingData_Tag[j].strTag, new KeyValuePair<Texture2D, int>(arrIconMapping[i].p_listIconMappingData_Tag[j].pTexture, arrIconMapping[i].p_listIconMappingData_Tag[j].iOrder));
+            List<IconMappingData_Tag> listIconMappingData_Tag = arrIconMapping[i].p_listIconMappingData_Tag;
+            for (int j = 0; j < listIconMappingData_Tag.Count; j++)
+            {
+                if (listIconMappingData_Tag[j] != null && string.IsNullOrEmpty(listIconMappingData_Tag[j].strTag) == false)
+                    mapIconPer_Tag.Add(arrIconMapping[i].p_listIconMappingData_Tag[j].strTag, arrIconMapping[i].p_listIconMappingData_Tag[j]);
+            }
         }
     }
 }

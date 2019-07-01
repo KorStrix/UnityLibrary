@@ -16,12 +16,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System;
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEngine.TestTools;
-using NUnit.Framework;
-#endif
-
 public class CTweenPosition_Radial : CTweenBase
 {
     /* const & readonly declaration             */
@@ -35,17 +29,17 @@ public class CTweenPosition_Radial : CTweenBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("카피하여 트윈할 차일드 오브젝트")]
+    [DisplayName("카피하여 트윈할 차일드 오브젝트")]
     public GameObject p_iChildPrefab;
-    [Rename_Inspector("트윈 진행 각도범위 180이면 12시 기준으로 6시까지")]
+    [DisplayName("트윈 진행 각도범위 180이면 12시 기준으로 6시까지")]
     public float p_fRaidalRangeAngle = 360f;
-    [Rename_Inspector("트윈 시작 오프셋, 0일 땐 12시방향부터 오른쪽으로")]
+    [DisplayName("트윈 시작 오프셋, 0일 땐 12시방향부터 오른쪽으로")]
     public float p_fRaidalStartAngle = 0f;
-    [Rename_Inspector("Radial 개수")]
+    [DisplayName("Radial 개수")]
     public int p_iChildCount = 5;
-    [Rename_Inspector("Tween Start")]
+    [DisplayName("Tween Start")]
     public float p_fDistance_Start = 0f;
-    [Rename_Inspector("Tween Dest")]
+    [DisplayName("Tween Dest")]
     public float p_fDistance_Dest = 10f;
 
     /* protected & private - Field declaration         */
@@ -292,49 +286,3 @@ public class CTweenPosition_Radial : CTweenBase
 
     #endregion Private
 }
-
-#region Test
-#if UNITY_EDITOR
-
-[Category("StrixLibrary")]
-public class CTweenPosition_Radial_Test
-{
-    [UnityTest]
-    public IEnumerator GetChildIndex_ClosestDirection_Test()
-    {
-        GameObject pObject = new GameObject("방사형트윈_가까운방향의_자식인덱스구하기");
-        CTweenPosition_Radial pTweenTest = pObject.AddComponent<CTweenPosition_Radial>();
-
-        pTweenTest.p_iChildCount = 1;
-        pTweenTest.p_fRaidalRangeAngle = 360;
-        pTweenTest.p_fRaidalStartAngle = 0;
-
-        Assert.AreEqual(0, pTweenTest.GetChildIndex_ClosestDirection(Vector3.up));
-
-        pTweenTest.p_iChildCount = 4;
-        pTweenTest.p_fRaidalRangeAngle = 360;
-        pTweenTest.p_fRaidalStartAngle = 0;
-
-        Assert.AreEqual(1, pTweenTest.GetChildIndex_ClosestDirection(Vector3.right));
-        Assert.AreEqual(3, pTweenTest.GetChildIndex_ClosestDirection(Vector3.left));
-
-        pTweenTest.p_iChildCount = 4;
-        pTweenTest.p_fRaidalRangeAngle = 180;
-        pTweenTest.p_fRaidalStartAngle = 0;
-
-        Assert.AreEqual(0, pTweenTest.GetChildIndex_ClosestDirection(Vector3.up));
-        Assert.AreEqual(3, pTweenTest.GetChildIndex_ClosestDirection(Vector3.down));
-
-        pTweenTest.p_iChildCount = 8;
-        pTweenTest.p_fRaidalRangeAngle = 180;
-        pTweenTest.p_fRaidalStartAngle = 90;
-
-        Assert.AreEqual(0, pTweenTest.GetChildIndex_ClosestDirection(Vector3.right));
-        Assert.AreEqual(7, pTweenTest.GetChildIndex_ClosestDirection(Vector3.left));
-        
-        yield break;
-    }
-}
-
-#endif
-#endregion

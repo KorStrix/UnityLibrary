@@ -23,7 +23,7 @@ public class CCompo_OnMoveChangeTrigger : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("업데이트 시 타임 델타")]
+    [DisplayName("업데이트 시 타임 델타")]
     public float p_fUpdateTimeDelta = 0.02f;
 
     public UnityEngine.Events.UnityEvent p_listEvent = new UnityEvent();

@@ -94,16 +94,19 @@ public class HierarchyIcon
         if (pDrawIcon != null)
             DrawIcon_InheritDrawer(rect, pDrawIcon, ref iDrawIconCount);
 
-        Texture2D pTexture_Tag;
-        int iOrder;
-        if (HierachyIconConfig.GetTexture_Per_Tag(gameObject.tag, out pTexture_Tag, out iOrder))
+        Texture2D pTexture_Tag = null;
+        int iOrder = 0;
+        if (HierachyIconConfig.GetTexture_Per_Tag(gameObject.tag, ref pTexture_Tag, ref iOrder))
             listIconDrawOrderInfo.Add(new IconDrawOrderInfo(pTexture_Tag, iDrawIconCount++));
 
         Component[] arrComponent = gameObject.GetComponents<Component>();
         for(int i = 0; i < arrComponent.Length; i++)
         {
-            Texture2D pTexture;
-            if(HierachyIconConfig.GetTexture_Per_Type(arrComponent[i].GetType(), out pTexture, out iOrder))
+            if (arrComponent[i] == null)
+                continue;
+
+            Texture2D pTexture = null;
+            if(HierachyIconConfig.GetTexture_Per_Type(arrComponent[i].GetType(), ref pTexture, ref iOrder))
                 listIconDrawOrderInfo.Add(new IconDrawOrderInfo(pTexture, iDrawIconCount++));
         }
 

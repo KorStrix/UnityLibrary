@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using RangeAttribute = UnityEngine.RangeAttribute;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CSineVFXLaser : CObjectBase
 {
     /* const & readonly declaration             */
@@ -25,20 +20,20 @@ public class CSineVFXLaser : CObjectBase
     /* public - Field declaration            */
 
     [Header("레이져 히트 옵션")]
-    [Rename_Inspector("2D Physics를 사용하는지")]
+    [DisplayName("2D Physics를 사용하는지")]
     public bool _bUsePhysics2D = true;
-    [Rename_Inspector("히트  레이어 마스크")]
+    [DisplayName("히트  레이어 마스크")]
     public LayerMask pLayerMask_Hit;
-    [Rename_Inspector("트리거도 히트할지")]
+    [DisplayName("트리거도 히트할지")]
     public bool p_bIsInclude_Trigger = false;
 
     [Space(10)]
     [Header("레이져 모양 옵션")]
-    [Rename_Inspector("레이져 넓이")]
+    [DisplayName("레이져 넓이")]
     public float fLaserWidth = 5f;
-    [Rename_Inspector("레이져 최대 길이")]
+    [DisplayName("레이져 최대 길이")]
     public float fLaserLength = 100f;
-    [Rename_Inspector("레이져 지속시간")]
+    [DisplayName("레이져 지속시간")]
     public float fLaserDurationSec = 1f;
 
     [Space(10)]
@@ -47,17 +42,17 @@ public class CSineVFXLaser : CObjectBase
 
     [Space(10)]
     [Header("레이져 서브 이펙트 옵션")]
-    [Rename_Inspector("레이 시작시 이펙트")]
+    [DisplayName("레이 시작시 이펙트")]
     public GameObject pObjectStartPrefab;
 
     [Space(5)]
-    [Rename_Inspector("레이 닿은 곳의 폭발 이펙트")]
+    [DisplayName("레이 닿은 곳의 폭발 이펙트")]
     public GameObject pObjectExplosionPrefab;
     [UnityEngine.Range(0f, 1f)]
-    [Rename_Inspector("폭발 이펙트 발동 최소 레이져 진행도 0 ~ 1")]
+    [DisplayName("폭발 이펙트 발동 최소 레이져 진행도 0 ~ 1")]
     public float fPlayExplosion_Progress_Min = 0f;
     [Range(0f, 1f)]
-    [Rename_Inspector("폭발 이펙트 발동 최대 레이져 진행도 0 ~ 1")]
+    [DisplayName("폭발 이펙트 발동 최대 레이져 진행도 0 ~ 1")]
     public float fPlayExplosion_Progress_Max = 0.8f;
 
     [Space(5)]
@@ -65,18 +60,18 @@ public class CSineVFXLaser : CObjectBase
 
     [Space(10)]
     [Header("레이져 플레이 옵션")]
-    [Rename_Inspector("플레이 시 초반 딜레이")]
+    [DisplayName("플레이 시 초반 딜레이")]
     public float fStartDelay = 0f;
-    [Rename_Inspector("Enable 시 자동 플레이")]
+    [DisplayName("Enable 시 자동 플레이")]
     public bool bIsPlay_OnEnable = true;
 
     [Space(10)]
     [Header("레이져 루프 옵션")]
-    [Rename_Inspector("반복 유무")]
+    [DisplayName("반복 유무")]
     public bool bIsLoop;
-    [Rename_Inspector("반복 시작 Progress")]
+    [DisplayName("반복 시작 Progress")]
     public float fProgress_OnLoopStart = 0.2f;
-    [Rename_Inspector("반복 끝 Progress")]
+    [DisplayName("반복 끝 Progress")]
     public float fProgress_OnLoopFinish = 0.8f;
 
 
@@ -93,15 +88,15 @@ public class CSineVFXLaser : CObjectBase
 
 
     [SerializeField]
-    [Rename_Inspector("현재 진행 상태", false)]
+    [DisplayName("현재 진행 상태", false)]
     float _fProgress_0_1;
 
     [SerializeField]
-    [Rename_Inspector("딜레이", false)]
+    [DisplayName("딜레이", false)]
     float _fDelay;
 
     [SerializeField]
-    [Rename_Inspector("충돌된 길이", false)]
+    [DisplayName("충돌된 길이", false)]
     private float _fHitLength;
 
     Transform _pTransformStart;
@@ -171,10 +166,8 @@ public class CSineVFXLaser : CObjectBase
             DoPlayLaser();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if (_fDelay > 0f)
         {
             _fDelay -= Time.deltaTime;
@@ -296,10 +289,3 @@ public class CSineVFXLaser : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

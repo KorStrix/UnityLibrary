@@ -74,9 +74,9 @@ public class CManagerUIShared_UGUI : CManagerUGUIBase<CManagerUIShared_UGUI, CMa
 		Input.gyro.enabled = true;
 	}
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         // 순간 가속도 흔들기 힘이 특정치 이상일 때
         if ((Input.acceleration.magnitude > 5 && fConsoleDelay < Time.time) ||

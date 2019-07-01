@@ -22,14 +22,14 @@ public class CSpriteRendererAnimator : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("FPS")]
+    [DisplayName("FPS")]
     public float p_fFPS = 30.0f;
-    [Rename_Inspector("반복 재생 할 것인지")]
+    [DisplayName("반복 재생 할 것인지")]
     public bool p_bIsLoop = true;
-    [Rename_Inspector("Enable 시 자동 재생할 것인지")]
+    [DisplayName("Enable 시 자동 재생할 것인지")]
     public bool p_bIsPlay_OnEnable = true;
 
-    [Rename_Inspector("애니메이션 이미지 목록")]
+    [DisplayName("애니메이션 이미지 목록")]
     public Sprite[] p_arrFrames;
 
     /* protected & private - Field declaration         */

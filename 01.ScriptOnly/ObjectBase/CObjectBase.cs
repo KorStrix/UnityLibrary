@@ -15,10 +15,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-
-using NUnit.Framework;
-using UnityEngine.TestTools;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -41,10 +37,25 @@ public class CObjectBase :
     MonoBehaviour, IUpdateAble
 #endif
 {
-    [Rename_Inspector("디버깅 필터")]
+    public class Object_Activate_Arg
+    {
+        public CObjectBase pScript;
+        public GameObject pGameObject;
+        public bool bActive;
+
+        public Object_Activate_Arg(CObjectBase pScript, GameObject pGameObject, bool bActivate)
+        {
+            this.pScript = pScript;
+            this.pGameObject = pGameObject;
+            this.bActive = bActivate;
+        }
+    }
+
+
+    [DisplayName("디버깅 필터")]
     public EDebugFilter p_eDebugFilter = EDebugFilter.None;
 
-    public CObserverSubject<CObjectBase, GameObject, bool> p_Event_OnActivate { get; private set; } = new CObserverSubject<CObjectBase, GameObject, bool>();
+    public ObservableCollection<Object_Activate_Arg> p_Event_OnActivate { get; private set; } = new ObservableCollection<Object_Activate_Arg>();
 
     protected bool _bIsExcuteAwake = false;
     protected bool _bIsQuitApplciation = false;
@@ -56,7 +67,7 @@ public class CObjectBase :
         set { SetEnable_Script(value); }
     }
 
-    bool _bIsDestroy =false;
+    bool _bIsDestroy = false;
 
     // ========================== [ Division ] ========================== //
 
@@ -82,9 +93,9 @@ public class CObjectBase :
 
 #if ODIN_INSPECTOR
     [ShowIf(nameof(CheckIs_DrawDebugButton))]
-    [HorizontalGroup("Debug_1", Order = 100)]
+    [ButtonGroup("Debug_1", Order = 100)]
     [InfoBox("Debug Button")]
-    [Button(ButtonSizes.Large)]
+    [Button("Awake", ButtonSizes.Large)]
 #endif
     public void EventOnAwake()
     {
@@ -93,9 +104,9 @@ public class CObjectBase :
     }
 
 #if ODIN_INSPECTOR
-    [HorizontalGroup("Debug_1", Order = 100)]
+    [ButtonGroup("Debug_1", Order = 100)]
     [ShowIf(nameof(CheckIs_DrawDebugButton))]
-    [Button(ButtonSizes.Large)]
+    [Button("Awake Force", ButtonSizes.Large)]
 #endif
     public void EventOnAwake_Force()
     {
@@ -154,14 +165,14 @@ public class CObjectBase :
         if (gameObject.activeSelf)
             _pCoroutineOnEnable = StartCoroutine(OnEnableObjectCoroutine());
 
-        p_Event_OnActivate.DoNotify(this, gameObject, true);
+        p_Event_OnActivate.DoNotify(new Object_Activate_Arg(this, gameObject, true));
     }
 
     void OnDisable()
     {
         OnDisableObject(_bIsQuitApplciation);
 
-        p_Event_OnActivate.DoNotify(this, gameObject, false);
+        p_Event_OnActivate.DoNotify(new Object_Activate_Arg(this, gameObject, false));
     }
 
     void Start()
@@ -183,9 +194,9 @@ public class CObjectBase :
         _bIsQuitApplciation = true;
     }
 
-    public bool IUpdateAble_IsRequireUpdate()
+    public void IUpdateAble_GetUpdateInfo(ref bool bIsUpdate_Default_IsFalse, ref float fTimeScale_Invidiaul_Default_IsOne)
     {
-        return this != null && gameObject.activeSelf;
+        bIsUpdate_Default_IsFalse = this != null && gameObject.activeSelf;
     }
 
     // ========================== [ Division ] ========================== //
@@ -218,7 +229,16 @@ public class CObjectBase :
     /// <summary>
     /// Unity Update와 동일한 로직입니다.
     /// </summary>
-    virtual public void OnUpdate() { }
+    public void OnUpdate()
+    {
+        OnUpdate(1f);
+    }
+
+    /// <summary>
+    /// Unity Update와 동일합니다. Manager에서 컴포넌트 별 TimeScale을 관리합니다.
+    /// </summary>
+    /// <param name="fTimeScale_Individual">각 컴포넌트 별 TimeScale입니다.</param>
+    virtual public void OnUpdate(float fTimeScale_Individual) { }
 
     // ========================== [ Division ] ========================== //
 
@@ -244,49 +264,13 @@ public class CObjectBase :
             Debug.Log(strLog);
     }
 
-    bool CheckIs_DrawDebugButton()
+    protected bool CheckIs_DrawDebugButton()
     {
         return p_eDebugFilter != EDebugFilter.None;
     }
-}
 
-#region Test
-[Category("StrixLibrary")]
-public class CObjectBase_Test : CObjectBase
-{
-    [GetComponent]
-    [HideInInspector]
-    public CObjectBase pGetComponent;
-
-    [GetComponentInParent]
-    [HideInInspector]
-    public CObjectBase pGetComponentParents;
-
-    [UnityTest]
-    public IEnumerator Test_ObjectBase_GetComponent_Attribute()
+    protected bool CheckIs_DrawDebugButton_And_PlayModeOnly()
     {
-        GameObject pObjectNew = new GameObject();
-        CObjectBase_Test pTarget = pObjectNew.AddComponent<CObjectBase_Test>();
-        pTarget.EventOnAwake();
-
-        yield return null;
-
-        Assert.IsNotNull(pTarget.pGetComponent);
-    }
-
-    [UnityTest]
-    public IEnumerator Test_ObjectBase_GetComponentInChildren_Attribute()
-    {
-        GameObject pObjectNew = new GameObject();
-        CObjectBase_Test pTargetParents = pObjectNew.AddComponent<CObjectBase_Test>();
-
-        CObjectBase_Test pTarget = pObjectNew.AddComponent<CObjectBase_Test>();
-        pTarget.transform.SetParent(pTargetParents.transform);
-        pTarget.EventOnAwake();
-
-        yield return null;
-
-        Assert.IsNotNull(pTarget.pGetComponentParents);
+        return p_eDebugFilter != EDebugFilter.None && Application.isPlaying;
     }
 }
-#endregion

@@ -34,7 +34,7 @@ public class CEffect : CObjectBase
     [Header("이펙트 끝날때 이벤트")]
     public UnityEngine.Events.UnityEvent p_listEvent_FinishEffect = new UnityEngine.Events.UnityEvent();
 
-    [Rename_Inspector("이펙트 이름", false)]
+    [DisplayName("이펙트 이름", false)]
     public string _strEffectName;
 
     /* protected - Variable declaration         */

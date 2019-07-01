@@ -43,15 +43,15 @@ public class CCompoEffectPlayer : CObjectBase, IResourceEventListener
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("Enable시 Effect Play할지")]
+    [DisplayName("Enable시 Effect Play할지")]
     public bool p_bEffectPlay_OnEnable = false;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf("p_bEffectPlay_OnEnable")]
 #endif
-    [Rename_Inspector("Enable시 Play할 Effect이름")]
+    [DisplayName("Enable시 Play할 Effect이름")]
     public string p_strEffectName_OnEnablePlay;
 
-    [Rename_Inspector("Effect가 끝나면 Object Disable할지")]
+    [DisplayName("Effect가 끝나면 Object Disable할지")]
     public bool p_bDisableObject_OnFinishEffect = false;
 
     [Header("이벤트 이펙트 리스트")]
@@ -60,10 +60,10 @@ public class CCompoEffectPlayer : CObjectBase, IResourceEventListener
     [Header("이펙트 끝날때 이벤트")]
     public UnityEngine.Events.UnityEvent p_listEvent_FinishEffect = new UnityEngine.Events.UnityEvent();
 
-    [Rename_Inspector("플레이중인 이펙트가 활성중이면 끕니다")]
+    [DisplayName("플레이중인 이펙트가 활성중이면 끕니다")]
     public bool _bIsDisableEffectPlayed_When_EffectPlaying = true;
 
-    [Rename_Inspector("이펙트 플레이 포지션 오프셋")]
+    [DisplayName("이펙트 플레이 포지션 오프셋")]
     public Vector3 _vecEffectPos_Offset;
 
     /* protected - Field declaration         */

@@ -23,32 +23,46 @@ public class CTimer : CObjectBase
 
     /* enum & struct declaration                */
 
+    public struct Timer_Arg
+    {
+        public CTimer pTimer;
+        public float fSettingTime;
+        public float fRemainTime;
+
+        public Timer_Arg(CTimer pTimer, float fSettingTime, float fRemainTime)
+        {
+            this.pTimer = pTimer;
+            this.fSettingTime = fSettingTime;
+            this.fRemainTime = fRemainTime;
+        }
+    }
+
     /* public - Field declaration            */
 
     /// <summary>
     /// Setting Time, Remain Time
     /// </summary>
-    public CObserverSubject<CTimer, float, float> p_Event_OnWorkingTimer { get; private set; } = new CObserverSubject<CTimer, float, float>();
-    public CObserverSubject<CTimer> p_Event_OnFinishTimer { get; private set; } = new CObserverSubject<CTimer>();
+    public ObservableCollection<Timer_Arg> p_Event_OnWorkingTimer { get; private set; } = new ObservableCollection<Timer_Arg>();
+    public ObservableCollection<CTimer> p_Event_OnFinishTimer { get; private set; } = new ObservableCollection<CTimer>();
 
 #if ODIN_INSPECTOR
     [ShowInInspector]
-    [Rename_Inspector("현재 작동중인지")]
+    [DisplayName("현재 작동중인지")]
 #endif
     public bool p_bIsWorkingTimer { get; private set; } = false;
 
-    [Rename_Inspector("세팅할 시간")]
+    [DisplayName("세팅할 시간")]
     public float p_fSettingTime = 10f;
-    [Rename_Inspector("루프 유무")]
+    [DisplayName("루프 유무")]
     public bool p_bIsLoop = true;
-    [Rename_Inspector("Enable 시 플레이")]
+    [DisplayName("Enable 시 플레이")]
     public bool p_bIsPlayOnEnable = true;
 
 #if ODIN_INSPECTOR
     [HideInEditorMode]
 #endif
     [Space(10)]
-    [Rename_Inspector("남은 시간", false)]
+    [DisplayName("남은 시간", false)]
     private float p_fRemainTime;
 
     /* protected & private - Field declaration         */
@@ -98,10 +112,8 @@ public class CTimer : CObjectBase
             DoStartTimer();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if(p_bIsWorkingTimer)
         {
             p_fRemainTime -= Time.deltaTime;
@@ -115,7 +127,7 @@ public class CTimer : CObjectBase
                     DoStartTimer();
             }
             else
-                p_Event_OnWorkingTimer.DoNotify(this, p_fSettingTime, p_fRemainTime);
+                p_Event_OnWorkingTimer.DoNotify(new Timer_Arg(this, p_fSettingTime, p_fRemainTime));
         }
 
 #if UNITY_EDITOR

@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CEventTriggerTween : CObjectBase
 {
     /* const & readonly declaration             */
@@ -29,9 +24,9 @@ public class CEventTriggerTween : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("트리거 작동 조건")]
+    [DisplayName("트리거 작동 조건")]
     public EInputType_Tween p_eInputType_Main = EInputType_Tween.TweenStart;
-    [Rename_Inspector("트리거 작동 시 처음 딜레이")]
+    [DisplayName("트리거 작동 시 처음 딜레이")]
     public float p_fDelayTrigger = 0f;
     public UnityEngine.Events.UnityEvent p_listEvent_Main = new UnityEngine.Events.UnityEvent();
 
@@ -58,10 +53,3 @@ public class CEventTriggerTween : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

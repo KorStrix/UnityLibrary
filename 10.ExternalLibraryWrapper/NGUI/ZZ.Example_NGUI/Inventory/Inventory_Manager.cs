@@ -12,9 +12,9 @@ public class Inventory_Manager : CManagerNGUIBase<Inventory_Manager, Inventory_M
 		Inventory_TestTwo
 	}
 	
-	protected override void OnUpdate()
+	protected override void OnUpdate(float fTimeScale_Individual)
 	{
-		base.OnUpdate();
+		base.OnUpdate(fTimeScale_Individual);
 
 		if(Input.GetKeyDown(KeyCode.Alpha1))
 		{

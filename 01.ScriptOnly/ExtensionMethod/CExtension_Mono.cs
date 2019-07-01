@@ -13,7 +13,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public static class CExtension_Mono
+public static class MonoExtension
 {
     static public void SetLayer_Recursive(this Component pObject, int iLayer)
     {

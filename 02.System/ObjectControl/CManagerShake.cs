@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CManagerShake : CSingletonNotMonoBase<CManagerShake>
 {
     /* const & readonly declaration             */
@@ -139,9 +134,9 @@ public class CManagerShake : CSingletonNotMonoBase<CManagerShake>
         bIsUpdateAble = true;
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         for (int i = 0; i < _listShakeData.Count; i++)
         {

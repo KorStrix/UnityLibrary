@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CCompoGizmoDrawer : CObjectBase
 {
     /* const & readonly declaration             */
@@ -31,25 +26,25 @@ public class CCompoGizmoDrawer : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("기즈모 모양")]
+    [DisplayName("기즈모 모양")]
     public EGizmoShape p_eGizmoShape = EGizmoShape.WireSphere;
-    [Rename_Inspector("기즈모 포지션 오프셋")]
+    [DisplayName("기즈모 포지션 오프셋")]
     public Vector3 p_vecPositionOffset;
-    [Rename_Inspector("기즈모 색상")]
+    [DisplayName("기즈모 색상")]
     public Color p_pGizmoColor = Color.red;
-    [Rename_Inspector("기즈모 사이즈")]
+    [DisplayName("기즈모 사이즈")]
     public float p_fGizmoSize = 1f;
 
     [Header("기즈모 텍스트 옵션")]
-    [Rename_Inspector("기즈모에 출력할 텍스트")]
+    [DisplayName("기즈모에 출력할 텍스트")]
     public string p_strGizmoName;
-    [Rename_Inspector("기즈모 텍스트 포지션 오프셋")]
+    [DisplayName("기즈모 텍스트 포지션 오프셋")]
     public Vector3 p_vecPositionOffset_Name;
-    [Rename_Inspector("기즈모 텍스트 색상")]
+    [DisplayName("기즈모 텍스트 색상")]
     public Color p_pGizmoTextColor = Color.green;
-    [Rename_Inspector("기즈모 텍스트 사이즈")]
+    [DisplayName("기즈모 텍스트 사이즈")]
     public int p_iFontSize = 10;
-    [Rename_Inspector("기즈모 텍스트를 게임 오브젝트 이름으로 출력")]
+    [DisplayName("기즈모 텍스트를 게임 오브젝트 이름으로 출력")]
     public bool p_bPrintObjectName = true;
 
     /* protected & private - Field declaration         */

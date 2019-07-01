@@ -24,9 +24,9 @@ public class CUICompoMoveObject : CNGUIPanelBase
             NGUITools.AddWidgetCollider(gameObject);
     }
 	
-    protected override void OnUpdate()
+    protected override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         //int iTouchCount = UICamera.CountInputSources();
         //if (_bIsDrag == false && iTouchCount == 0)

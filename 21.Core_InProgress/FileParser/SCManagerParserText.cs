@@ -37,11 +37,6 @@ using System.Linq;
 
 using FileInfo = System.Reflection.FieldInfo;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class KeyAttribute : Attribute
 {
     public string strKeyName { get; private set; }
@@ -330,18 +325,18 @@ public class SCManagerParserText_Test
 
         private int Int_Private = 0;
 
-        [UnityEngine.TestTools.UnityTest]
-        [Category("StrixLibrary")]
-        public IEnumerator Test_ManagerParserText()
-        {
-            STestObject pTestObject = SCManagerParserText.ParsingObject<STestObject>(const_strTest);
+        //[UnityEngine.TestTools.UnityTest]
+        //[Category("StrixLibrary")]
+        //public IEnumerator Test_ManagerParserText()
+        //{
+        //    STestObject pTestObject = SCManagerParserText.ParsingObject<STestObject>(const_strTest);
 
-            Assert.IsTrue(pTestObject.Int == 1);
-            Assert.IsTrue(pTestObject.Property_String == " 스트링 스트링 ");
-            Assert.IsTrue(pTestObject.Int_Private == 7);
+        //    Assert.IsTrue(pTestObject.Int == 1);
+        //    Assert.IsTrue(pTestObject.Property_String == " 스트링 스트링 ");
+        //    Assert.IsTrue(pTestObject.Int_Private == 7);
 
-            yield break;
-        }
+        //    yield break;
+        //}
     }
 }
 #endif

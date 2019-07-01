@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public static class CameraExtensions
 {
     public static Bounds GetBounds_Orthographic(this Camera pCamera)
@@ -191,10 +186,8 @@ public class CManager_CheckVisible_InCamera : CSingletonMonoBase<CManager_CheckV
         _listVisibleObject = new CList_Enter_Stay_Exit<Collider2D>();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if(p_eUpdateMode == EUpdateMode.Update)
             DoUpdate_CheckVisible();
     }
@@ -239,10 +232,3 @@ public class CManager_CheckVisible_InCamera : CSingletonMonoBase<CManager_CheckV
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

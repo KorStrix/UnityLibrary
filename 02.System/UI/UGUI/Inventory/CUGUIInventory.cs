@@ -21,7 +21,7 @@ public class CUGUIInventory : CUIObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("슬롯 오리지널")]
+    [DisplayName("슬롯 오리지널")]
     public CUGUIInventorySlot p_pSlotOrigin = null;
 
     public List<CUGUIInventorySlot> p_listInventorySlot { get; private set; } = new List<CUGUIInventorySlot>();

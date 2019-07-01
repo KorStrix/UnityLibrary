@@ -15,11 +15,11 @@ using System.Collections.Generic;
 /// </summary>
 public class CSpawnedObject : CObjectBase
 {
-    [Rename_Inspector("스폰 포인트")]
+    [DisplayName("스폰 포인트")]
     [SerializeField]
-    CSpawnPointBase _pSpawnPointOwner;
+    CSpawnerBase _pSpawnPointOwner;
 
-    public void DoInit(CSpawnPointBase pSpawnPointOwner)
+    public void DoInit(CSpawnerBase pSpawnPointOwner)
     {
         _pSpawnPointOwner = pSpawnPointOwner;
     }

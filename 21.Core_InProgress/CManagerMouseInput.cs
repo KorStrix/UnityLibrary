@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [ExecuteInEditMode]
 public class CManagerMouseInput : CSingletonMonoBase<CManagerMouseInput>
 {
@@ -36,19 +31,19 @@ public class CManagerMouseInput : CSingletonMonoBase<CManagerMouseInput>
 
     /* public - Field declaration            */
 
-    public CObserverSubject<Vector2> p_Event_OnMouseFlick { get; private set; } = new CObserverSubject<Vector2>();
+    public ObservableCollection<Vector2> p_Event_OnMouseFlick { get; private set; } = new ObservableCollection<Vector2>();
 
     [Header("감지거리는 스크린 사이즈 기준")]
-    [Rename_Inspector("스크린 사이즈", false)]
+    [DisplayName("스크린 사이즈", false)]
     [SerializeField]
     Vector2 _vecScreenSize = Vector2.zero;
 
     [Header("마우스 플릭 감지"), Space(10)]
-    [Rename_Inspector("마우스 플릭 감지를 할지")]
+    [DisplayName("마우스 플릭 감지를 할지")]
     public bool p_bIsCheckFlick = false;
-    [Rename_Inspector("플릭 감지 거리")]
+    [DisplayName("플릭 감지 거리")]
     public float p_fDetectDistance_Flick = 100;
-    [Rename_Inspector("플릭 감지 초")]
+    [DisplayName("플릭 감지 초")]
     public float p_fDetectDuration_Flick = 0.075f;
 
     /* protected & private - Field declaration         */
@@ -65,10 +60,8 @@ public class CManagerMouseInput : CSingletonMonoBase<CManagerMouseInput>
 
     /* protected - Override & Unity API         */
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         Vector2 vecMousePos = Input.mousePosition;
         if(0f < vecMousePos.x && vecMousePos.x < Screen.width &&
            0f < vecMousePos.y && vecMousePos.y < Screen.height)
@@ -129,10 +122,3 @@ public class CManagerMouseInput : CSingletonMonoBase<CManagerMouseInput>
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

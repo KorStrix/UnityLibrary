@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CTweenMultiplePosition : CTweenBase
 {
     /* const & readonly declaration             */
@@ -25,27 +20,27 @@ public class CTweenMultiplePosition : CTweenBase
     [System.Serializable]
     public class TweenData
     {
-        [Rename_Inspector("시작 위치는 현재 위치로")]
+        [DisplayName("시작 위치는 현재 위치로")]
         public bool bStartPosition_IsCurrentPosition = true;
 
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.HideIf("bStartPosition_IsCurrentPosition")]
 #endif
-        [Rename_Inspector("시작 위치")]
+        [DisplayName("시작 위치")]
         public Vector3 vecPosition_Start;
-        [Rename_Inspector("도착 위치")]
+        [DisplayName("도착 위치")]
         public Vector3 vecPosition_Dest;
-        [Rename_Inspector("재생 시간")]
+        [DisplayName("재생 시간")]
         public float fDurationSec;
     }
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("Is Local")]
+    [DisplayName("Is Local")]
     public bool p_bIsLocal = true;
 
     [SerializeField]
-    [Rename_Inspector("Tween Start - 디버깅용", false)]
+    [DisplayName("Tween Start - 디버깅용", false)]
     Vector3 _vecTweenStartPos;
 
     public List<TweenData> p_listTweenData = new List<TweenData>();
@@ -218,82 +213,9 @@ public class CTweenMultiplePosition : CTweenBase
         for (int i = 0; i < iIndex; i++)
             fDuration_PrevTotal += p_listTweenData[i].fDurationSec;
 
-        _fProgress_0_1 = fDuration_PrevTotal.ProgressDelta_0_1(Calculate_TotalDuration());
+        _fProgress_0_1 = fDuration_PrevTotal.Convert_ThisValue_To_Delta_0_1(Calculate_TotalDuration());
     }
 
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-class CTweenMultiple_Test : CTweenMultiplePosition
-{
-    [Test]
-    public void Test_CalculateTween_Delta()
-    {
-        CTweenMultiple_Test pMultiplePosition;
-        InitTweenTest(out pMultiplePosition);
-
-        float fTotalTime = pMultiplePosition.Calculate_TotalDuration();
-        float fProgress_0_1 = (fTotalTime / 2f) / fTotalTime;
-        float fProgress_Calculated = 0f;
-
-        pMultiplePosition.Calculate_CurrentTweenData(0f, out fProgress_Calculated);
-        Assert.AreEqual(pMultiplePosition.p_iPlayIndex_Last, 0);
-
-        float fProgress_Start_1 = pMultiplePosition.p_listTweenData[0].fDurationSec / fTotalTime;
-
-        pMultiplePosition.Calculate_CurrentTweenData(fProgress_Start_1 + 0.001f, out fProgress_Calculated);
-        Assert.AreEqual(pMultiplePosition.p_iPlayIndex_Last, 1);
-
-        float fProgress_Start_2 = pMultiplePosition.p_listTweenData[1].fDurationSec / fTotalTime;
-        fProgress_Start_2 += fProgress_Start_1;
-
-        pMultiplePosition.Calculate_CurrentTweenData(fProgress_Start_2 + 0.001f, out fProgress_Calculated);
-        Assert.AreEqual(pMultiplePosition.p_iPlayIndex_Last, 2);
-    }
-
-    [Test]
-    public void Test_CalculateTween_Index()
-    {
-        CTweenMultiple_Test pMultiplePosition;
-        InitTweenTest(out pMultiplePosition);
-
-        float fDetlaTime = Time.deltaTime;
-        for (int i = 0; i < 3; i++)
-        {
-            pMultiplePosition.CalculateProgress_ByIndex(i);
-            pMultiplePosition.DoSetTweening(0f);
-            Assert.AreEqual(pMultiplePosition.transform.position.ToString("F1"), pMultiplePosition.p_listTweenData[i].vecPosition_Start.ToString("F1"));
-        }
-    }
-
-    private static void InitTweenTest(out CTweenMultiple_Test pMultiplePosition)
-    {
-        GameObject pObject = new GameObject();
-        pMultiplePosition = pObject.AddComponent<CTweenMultiple_Test>();
-        pMultiplePosition.transform.position = Vector3.zero;
-
-        float fTotalTime = 0f;
-        for (int i = 0; i < 3; i++)
-        {
-            TweenData pTweenData = new TweenData();
-            pTweenData.vecPosition_Start = Vector3.one * i;
-            pTweenData.vecPosition_Dest = Vector3.one * (i + 1);
-
-            pTweenData.fDurationSec = i + 1;
-            pMultiplePosition.p_listTweenData.Add(pTweenData);
-
-            fTotalTime += pTweenData.fDurationSec;
-        }
-        pMultiplePosition.DoSetTarget(pObject);
-
-        Assert.AreEqual(fTotalTime, pMultiplePosition.Calculate_TotalDuration());
-    }
-}
-
-#endif
-#endregion Test

@@ -17,10 +17,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-#endif
-
 #pragma warning disable 0661
 
 [System.Serializable]
@@ -332,22 +328,3 @@ public struct HugeNumber
 		return base.GetHashCode();
 	}
 }
-
-#region Test
-#if UNITY_EDITOR
-
-public class SHugeNumber_Test
-{
-    [Test]
-    public void HugeNumber_ToStringTest()
-    {
-        int iValue = 1000;
-        string striValueString = "1A";
-
-        HugeNumber sHugeNumber = new HugeNumber(iValue);
-        Assert.IsTrue(sHugeNumber.ToString() == striValueString);
-    }
-}
-
-#endif
-#endregion

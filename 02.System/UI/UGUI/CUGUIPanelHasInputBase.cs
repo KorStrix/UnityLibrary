@@ -19,11 +19,6 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.EventSystems;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public interface IDropDownInitializer
 {
 	void IDropDownInitializer_Regist_DropDownItem( CUGUIDropdownItem pItem );

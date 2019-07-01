@@ -19,8 +19,8 @@ using System.Reflection;
 
 public interface IUpdateAble
 {
-    bool IUpdateAble_IsRequireUpdate();
-    void OnUpdate();
+    void IUpdateAble_GetUpdateInfo(ref bool bIsUpdate_Default_IsFalse, ref float fTimeScale_Invidiaul_Default_IsOne);
+    void OnUpdate(float fTimeScale_Individual);
 }
 
 public class CManagerUpdateObject : CSingletonDynamicMonoBase<CManagerUpdateObject>
@@ -97,14 +97,20 @@ public class CManagerUpdateObject : CSingletonDynamicMonoBase<CManagerUpdateObje
         while (true)
         {
             _listDestroyIndex.Clear();
+
+            float fDeltaTime = Time.deltaTime;
             int iUpdateObjectCount = 0;
             int iListCount = g_listObject.Count;
             for (int i = 0; i < iListCount; i++)
         {
                 IUpdateAble pUpdateAble = g_listObject[i];
-                if (pUpdateAble.IUpdateAble_IsRequireUpdate())
+
+                bool bIsUpdate = false;
+                float fTimeScale = 1f;
+                pUpdateAble.IUpdateAble_GetUpdateInfo(ref bIsUpdate, ref fTimeScale);
+                if (bIsUpdate)
                 {
-                    pUpdateAble.OnUpdate();
+                    pUpdateAble.OnUpdate(fTimeScale);
                     ++iUpdateObjectCount;
                 }
             }

@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSystem>
 {
     /* const & readonly declaration             */
@@ -24,15 +19,15 @@ public class CManagerInputEventSystem : CSingletonMonoBase<CManagerInputEventSys
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("이벤트 카메라")]
+    [DisplayName("이벤트 카메라")]
     public Camera p_pEventCamera;
-    [Rename_Inspector("히트할 레이어")]
+    [DisplayName("히트할 레이어")]
     public LayerMask p_pLayerMask_Hit;
-    [Rename_Inspector("Is 2D")]
+    [DisplayName("Is 2D")]
     public bool p_bIs2D;
 
     [Space(10)]
-    [Rename_Inspector("히트 어레이 Capacity")]
+    [DisplayName("히트 어레이 Capacity")]
     public int p_iHitArrayCapapcity = 10;
 
     public List<CRaycastHitWrapper> p_listLastHit { get; private set; }

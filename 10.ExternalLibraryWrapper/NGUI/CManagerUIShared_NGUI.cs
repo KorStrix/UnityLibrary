@@ -65,9 +65,9 @@ public class CManagerUIShared_NGUI : CManagerNGUIBase<CManagerUIShared_NGUI, CMa
 		//Input.gyro.enabled = true;
 	}
 
-	protected override void OnUpdate()
+	protected override void OnUpdate(float fTimeScale_Individual)
 	{
-		base.OnUpdate();
+		base.OnUpdate(fTimeScale_Individual);
 
 		//if (Input.acceleration.magnitude > 5 && fConsoleDelay < Time.time)
 		//{

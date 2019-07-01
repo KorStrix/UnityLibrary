@@ -21,12 +21,12 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     /* public - Field declaration            */
 
-    public CObserverSubject<float> p_Event_OnChangeTimeScale { get { return _Event_OnChangeTimeScale; } }
+    public ObservableCollection<float> p_Event_OnChangeTimeScale { get { return _Event_OnChangeTimeScale; } }
     public float p_fCurrentTimeScale { get; private set; }
 
     /* protected & private - Field declaration         */
 
-    private CObserverSubject<float> _Event_OnChangeTimeScale = new CObserverSubject<float>();
+    private ObservableCollection<float> _Event_OnChangeTimeScale = new ObservableCollection<float>();
 
     Stack<float> _stackTimeScale = new Stack<float>();
     Coroutine _pCoroutine_Fade;
@@ -38,8 +38,8 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoSet_PrevTimeScale()
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoSet_PrevTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " _stackTimeScale.Count : " + _stackTimeScale.Count, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoSet_PrevTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " _stackTimeScale.Count : " + _stackTimeScale.Count, this);
 
         if (_stackTimeScale.Count == 0)
             return;
@@ -49,24 +49,24 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoAddTimeScale(float fAddTimeScale)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoAddTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fAddTimeScale : " + fAddTimeScale, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoAddTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fAddTimeScale : " + fAddTimeScale, this);
 
         SetTimeScale(p_fCurrentTimeScale + fAddTimeScale);
     }
 
     public void DoSetTimeScale(float fTimeScale)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale, this);
 
         SetTimeScale(fTimeScale);
     }
 
     public void DoSetTimeScale_Fade(float fTimeScale, float fFadeDuration)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoSetTimeScale_Fade p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale + " fFadeDuration : " + fFadeDuration, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoSetTimeScale_Fade p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScale : " + fTimeScale + " fFadeDuration : " + fFadeDuration, this);
 
         if (_pCoroutine_Fade != null)
             StopCoroutine(_pCoroutine_Fade);
@@ -76,8 +76,8 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoSetTimeScale_Fade(float fTimeScaleFrom, float fTimeScaleTo, float fFadeDuration)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScaleFrom : " + fTimeScaleFrom + " fTimeScaleTo : " + fTimeScaleTo, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoSetTimeScale p_fCurrentTimeScale : " + p_fCurrentTimeScale + " fTimeScaleFrom : " + fTimeScaleFrom + " fTimeScaleTo : " + fTimeScaleTo, this);
 
         if (_pCoroutine_Fade != null)
             StopCoroutine(_pCoroutine_Fade);
@@ -88,8 +88,8 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     public void DoSetTimeScale()
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
-            Debug.Log(name + " DoSetTimeScale : " + p_fCurrentTimeScale, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_Core))
+        //    Debug.Log(name + " DoSetTimeScale : " + p_fCurrentTimeScale, this);
 
         SetTimeScale(p_fCurrentTimeScale);
     }
@@ -114,8 +114,8 @@ public class CManagerTimeScale : CSingletonDynamicMonoBase<CManagerTimeScale>
 
     private void SetTimeScale(float fTimeScale, bool bEnqueueStack = true)
     {
-        if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
-            Debug.Log(name + " SetTimeScale : " + fTimeScale, this);
+        //if (CheckDebugFilter(EDebugFilter.Debug_Level_LowLevel))
+        //    Debug.Log(name + " SetTimeScale : " + fTimeScale, this);
 
         Time.timeScale = fTimeScale;
         p_fCurrentTimeScale = fTimeScale;

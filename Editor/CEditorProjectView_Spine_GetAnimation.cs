@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 #if Spine
 
 using Spine;
@@ -49,12 +44,4 @@ public class CEditorProjectView_Spine_GetAnimation : Editor
         }
     }
 }
- 
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test
-
 #endif

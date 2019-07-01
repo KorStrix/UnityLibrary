@@ -121,11 +121,11 @@ public class CSingletonDynamicMonoBase<CLASS_SingletoneTarget> :
 
     virtual protected void OnEnableObject() { }
     virtual protected IEnumerator OnEnableObjectCoroutine() { yield break; }
-    virtual public void OnUpdate() { }
+    virtual public void OnUpdate(float fTimeScale_Individual) { }
 
-    public bool IUpdateAble_IsRequireUpdate()
+    public void IUpdateAble_GetUpdateInfo(ref bool bIsUpdate_Default_IsFalse, ref float fTimeScale_Invidiaul_Default_IsOne)
     {
-        return this != null && gameObject.activeSelf;
+        bIsUpdate_Default_IsFalse = this != null && gameObject.activeSelf;
     }
 
 #endif

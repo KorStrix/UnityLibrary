@@ -10,20 +10,15 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public abstract class CCharacterController2D_LadderLogicBase : CCharacterController2D_LogicBase
 {
-    public CObserverSubject<bool> p_Event_OnLadder { get; protected set; } = new CObserverSubject<bool>();
+    public ObservableCollection<bool> p_Event_OnLadder { get; protected set; } = new ObservableCollection<bool>();
 
     public Collider2D p_pCollider_Ladder { get; protected set; }
     public bool p_bIsClimbLadder { get; protected set; }
     public float p_fVerticalMoveAmount_0_1 { get; protected set; }
 
-    [Rename_Inspector("사다리 오르는 속도")]
+    [DisplayName("사다리 오르는 속도")]
     [SerializeField]
     protected float _fLadderSpeed = 1f;
 

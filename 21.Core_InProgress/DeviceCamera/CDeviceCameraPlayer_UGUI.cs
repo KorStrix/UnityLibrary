@@ -46,10 +46,8 @@ public class CDeviceCameraPlayer_UGUI : CObjectBase
         _pImage = GetComponent<RawImage>();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if (_pImage.texture != null || _pCameraAccesser == null) return;
 
         _pImage.texture = _pCameraAccesser.p_pWebCamTexture;

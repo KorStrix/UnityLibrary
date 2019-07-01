@@ -16,13 +16,13 @@ public class CShakeObject : CObjectBase
     }
 
     [SerializeField]
-    [Rename_Inspector("흔들리기 적용위치")]
+    [DisplayName("흔들리기 적용위치")]
     private EShakePos _eShakePosType = EShakePos.All;
     [SerializeField]
-    [Rename_Inspector("기본 흔드는 힘")]
+    [DisplayName("기본 흔드는 힘")]
     private float _fDefaultShakePow = 1f;
     [SerializeField]
-    [Rename_Inspector("흔드는 힘을 깎는 양")]
+    [DisplayName("흔드는 힘을 깎는 양")]
     private float _fShakeMinusDelta = 0.1f;
 	//[SerializeField]
 	//private bool _bMachineShaking = false;

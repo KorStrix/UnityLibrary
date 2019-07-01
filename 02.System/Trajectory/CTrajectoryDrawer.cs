@@ -20,25 +20,25 @@ public class CTrajectoryDrawer : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("점 원본")]
+    [DisplayName("점 원본")]
     public GameObject p_pObjectDot;
-    [Rename_Inspector("원본을 Disable할지")]
+    [DisplayName("원본을 Disable할지")]
     public bool p_bDeactive_Origin = true;
 
     [Space(5)]
-    [Rename_Inspector("점 개수")]
+    [DisplayName("점 개수")]
     public int p_iNumberOfDots = 40;
-    [Rename_Inspector("점 사이 거리")]
+    [DisplayName("점 사이 거리")]
     public float p_fDotSeparation = 3f;
-    [Rename_Inspector("최소 점 사이 거리")]
+    [DisplayName("최소 점 사이 거리")]
     public float p_fDotSeparation_Miniest = 0f;
-    [Rename_Inspector("원본과 떨어지는 거리")]
+    [DisplayName("원본과 떨어지는 거리")]
     public float p_fDotShift = 3f;
 
     [Space(5)]
-    [Rename_Inspector("도착지에 표기할 오브젝트")]
+    [DisplayName("도착지에 표기할 오브젝트")]
     public GameObject p_pObjectArrivePoint;
-    [Rename_Inspector("점을 그리는걸 멈추는 조건 충돌체 Layer")]
+    [DisplayName("점을 그리는걸 멈추는 조건 충돌체 Layer")]
     public LayerMask p_sCheck_StopDrawLayerMask;
 
     /* protected & private - Field declaration         */

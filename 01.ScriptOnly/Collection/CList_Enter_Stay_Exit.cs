@@ -11,8 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
 using UnityEditor;
 
 #if ODIN_INSPECTOR
@@ -53,13 +51,13 @@ public class CList_Enter_Stay_Exit<T>
     private HashSet<T> _setStay = new HashSet<T>(new HashSetComparer());
 
     [SerializeField]
-    [Rename_Inspector("Enter List")]
+    [DisplayName("Enter List")]
     private List<T> _listEnter;
     [SerializeField]
-    [Rename_Inspector("Stay List")]
+    [DisplayName("Stay List")]
     private List<T> _listStay;
     [SerializeField]
-    [Rename_Inspector("Exit List")]
+    [DisplayName("Exit List")]
     private List<T> _listExit;
 
     // ========================================================================== //
@@ -124,42 +122,6 @@ public class CList_Enter_Stay_Exit<T>
     #endregion Private
 }
 // ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-public class CList_Enter_Stay_Exit
-{
-    [Test]
-    public void Working_Test()
-    {
-        SCManagerProfiler.DoStartTestCase(nameof(Working_Test));
-
-        CList_Enter_Stay_Exit<int> list = new CList_Enter_Stay_Exit<int>();
-
-        int[] arrEmpty = new int[] { };
-        int[] arrValue = new int[] { 0, 1, 3, 5};
-        list.AddEnter(arrValue);
-
-        Assert.AreEqual(list.p_list_Enter.ToArray(), arrValue);
-        Assert.AreEqual(list.p_list_Stay.ToArray(), arrValue);
-        Assert.AreEqual(list.p_list_Exit.ToArray(), arrEmpty);
-
-        arrValue = new int[] { 0 };
-        int[] arrExit = new int[] { 1, 3, 5 };
-        list.AddEnter(arrValue);
-
-        Assert.AreEqual(list.p_list_Enter.ToArray(), arrEmpty);
-        Assert.AreEqual(list.p_list_Stay.ToArray(), arrValue);
-        Assert.AreEqual(list.p_list_Exit.ToArray(), arrExit);
-
-        SCManagerProfiler.DoFinishTestCase(nameof(Working_Test));
-        SCManagerProfiler.DoPrintResult(true);
-    }
-}
-
-#endif
-#endregion Test
 
 #if ODIN_INSPECTOR
 #if UNITY_EDITOR

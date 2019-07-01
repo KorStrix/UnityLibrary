@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public class CRaycastHitCalculator : CObjectBase
 {
     /* const & readonly declaration             */
@@ -30,29 +25,29 @@ public class CRaycastHitCalculator : CObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("레이 길이")]
+    [DisplayName("레이 길이")]
     public float p_fHitDistance = 10f;
-    [Rename_Inspector("레이 방향")]
+    [DisplayName("레이 방향")]
     public Vector3 p_vecRayDirection = new Vector3(0f, 1f, 0f);
-    [Rename_Inspector("히트 체크할 LayerMask")]
+    [DisplayName("히트 체크할 LayerMask")]
     public LayerMask p_pLayerMask;
-    [Rename_Inspector("업데이트 모드")]
+    [DisplayName("업데이트 모드")]
     public EUpdateMode p_eUpdateMode = EUpdateMode.Update;
-    [Rename_Inspector("Hit Capacity")]
+    [DisplayName("Hit Capacity")]
     [SerializeField]
     private int _iHitCapacity = 10;
-    [Rename_Inspector("2D ?")]
+    [DisplayName("2D ?")]
     public bool p_bIs2D = false;
-    [Rename_Inspector("Check Trigger")]
+    [DisplayName("Check Trigger")]
     public bool p_bIncludeTrigger = false;
 
-    public CObserverSubject<List<RaycastHit>> p_Event_OnHit { get { return _OnHit; } }
-    public CObserverSubject<List<RaycastHit2D>> p_Event_OnHit_2D { get { return _OnHit_2D; } }
+    public ObservableCollection<List<RaycastHit>> p_Event_OnHit { get { return _OnHit; } }
+    public ObservableCollection<List<RaycastHit2D>> p_Event_OnHit_2D { get { return _OnHit_2D; } }
 
     /* protected & private - Field declaration         */
 
-    CObserverSubject<List<RaycastHit>> _OnHit = new CObserverSubject<List<RaycastHit>>();
-    CObserverSubject<List<RaycastHit2D>> _OnHit_2D = new CObserverSubject<List<RaycastHit2D>>();
+    ObservableCollection<List<RaycastHit>> _OnHit = new ObservableCollection<List<RaycastHit>>();
+    ObservableCollection<List<RaycastHit2D>> _OnHit_2D = new ObservableCollection<List<RaycastHit2D>>();
 
     List<RaycastHit> _listHit;
     List<RaycastHit2D> _listHit2D;
@@ -153,10 +148,8 @@ public class CRaycastHitCalculator : CObjectBase
         }
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
-
         if (p_eUpdateMode == EUpdateMode.Update)
             DoCalculateRaycast();
     }
@@ -218,10 +211,3 @@ public class CRaycastHitCalculator : CObjectBase
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

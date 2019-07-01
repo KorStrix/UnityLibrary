@@ -40,13 +40,13 @@ public class CUGUIInventorySlot : CUIObjectBase
 
     /* public - Field declaration            */
 
-    [Rename_Inspector("슬롯 인덱스", false)]
+    [DisplayName("슬롯 인덱스", false)]
     public int p_iSlotIndex;
 
 #if ODIN_INSPECTOR
     [ShowInInspector]
 #endif
-    [Rename_Inspector("현재 데이터")]
+    [DisplayName("현재 데이터")]
     public IInventorySlotData p_pInventoryData { get; private set; }
 
     [Header("필요한 UI Element")] [Space(10)]
@@ -61,7 +61,7 @@ public class CUGUIInventorySlot : CUIObjectBase
 
     [Header("디버깅용")]
     [SerializeField]
-    [Rename_Inspector("선택 되었는지", false)]
+    [DisplayName("선택 되었는지", false)]
     bool _bSelected;
 
     // ========================================================================== //

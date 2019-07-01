@@ -10,46 +10,41 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 public abstract class CCharacterController2D_MoveLogicBase : CCharacterController2D_LogicBase
 {
-    [Rename_Inspector("걷기 속도")]
+    [DisplayName("걷기 속도")]
     public float p_fSpeed_OnWalking = 40f;
-    [Rename_Inspector("달리기 속도")]
+    [DisplayName("달리기 속도")]
     public float p_fSpeed_OnRunning = 80f;
-    [Rename_Inspector("최대 걷기 속도까지 걸리는 시간")]
+    [DisplayName("최대 걷기 속도까지 걸리는 시간")]
     public float p_fTimeToMaxSpeedApex = 0.5f;
-    [Rename_Inspector("걷기로 도달하는 최대 Move Delta (1이 달리기)")] [UnityEngine.Range(0, 1)]
+    [DisplayName("걷기로 도달하는 최대 Move Delta (1이 달리기)")] [UnityEngine.Range(0, 1)]
     public float p_fMaxMoveDelta_OnWalking = 0.5f;
-    [Rename_Inspector("바라보는 방향 기준을 인풋이 아닌 속도를 기준으로 할 것인지")]
+    [DisplayName("바라보는 방향 기준을 인풋이 아닌 속도를 기준으로 할 것인지")]
     public bool p_bLookAtVelocity = false;
-    [Rename_Inspector("앞에 막힌 벽을 향해 움직일 때 움직이는 애니메이션을 할것인지")]
+    [DisplayName("앞에 막힌 벽을 향해 움직일 때 움직이는 애니메이션을 할것인지")]
     public bool p_bIsPlayAnimation_OnForwardIsBlock = false;
 
     [Space(10)]
     [Header("바닥에 붙는 옵션")]
-    [Rename_Inspector("바닥에 붙는 옵션을 사용할 것인지")]
+    [DisplayName("바닥에 붙는 옵션을 사용할 것인지")]
     public bool p_bUseAttachGround = true;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(p_bUseAttachGround))]
 #endif
-    [Rename_Inspector("바닥 감지 레이 Y 위치 오프셋")]
+    [DisplayName("바닥 감지 레이 Y 위치 오프셋")]
     public float p_fGroundCheck_RayOrigin = -3.025f;
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.ShowIf(nameof(p_bUseAttachGround))]
 #endif
-    [Rename_Inspector("바닥 감지 레이 길이")]
+    [DisplayName("바닥 감지 레이 길이")]
     public float p_fGroundCheck_RayDistance = 2f;
 
     [Space(10)]
     [Header("제동 옵션")]
-    [Rename_Inspector("제동 시 천천히 멈추기 유무")]
+    [DisplayName("제동 시 천천히 멈추기 유무")]
     public bool p_bIsSmoothMoveStop = false;
-    [Rename_Inspector("제동 시간")]
+    [DisplayName("제동 시간")]
     public float p_fTimeToStop = 0.1f;
 
     protected CapsuleCollider2D _pColliderGround;

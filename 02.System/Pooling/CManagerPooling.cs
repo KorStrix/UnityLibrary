@@ -19,8 +19,8 @@ public class CManagerPooling<Class_GetType> : CManagerPoolingBase<CManagerPoolin
     }
 }
 
-public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingletonNotMonoBase<Class_Driven>
-    where Class_Driven : CManagerPoolingBase<Class_Driven, Class_GetType>, new()
+public abstract class CManagerPoolingBase<Class_DERIVED, Class_GetType> : CSingletonNotMonoBase<Class_DERIVED>
+    where Class_DERIVED : CManagerPoolingBase<Class_DERIVED, Class_GetType>, new()
     where Class_GetType : class
 {
     /* const & readonly declaration             */
@@ -186,9 +186,9 @@ public abstract class CManagerPoolingBase<Class_Driven, Class_GetType> : CSingle
 
 #if UNITY_EDITOR // 하이어라키뷰에 실시간 풀링 상황 모니터링을 위한 Update
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         int iUseCount = 0;
         foreach (var pList in _mapUsed.Values)

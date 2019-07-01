@@ -40,9 +40,9 @@ public class CManagerSound : CSingletonDynamicMonoBase<CManagerSound>
     // public - Variable declaration         //
     // ===================================== //
 
-    [Rename_Inspector("이펙트볼륨")]
+    [DisplayName("이펙트볼륨")]
     public float _fVolumeEffect = 1f;
-    [Rename_Inspector("BGM볼륨")]
+    [DisplayName("BGM볼륨")]
     public float _fVolumeBGM = 1f;
 
     // ===================================== //
@@ -385,9 +385,9 @@ public class CManagerSound : CSingletonDynamicMonoBase<CManagerSound>
 
 #if UNITY_EDITOR
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         int iPlaySoundSlotCount = 0;
         for(int i = 0; i < transform.childCount; i++)

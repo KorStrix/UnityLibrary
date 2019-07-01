@@ -10,11 +10,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 /// <summary>
 /// 참고한 코드
 /// http://www.theappguruz.com/blog/add-collider-to-line-renderer-unity
@@ -32,8 +27,32 @@ public class CCompoLineRendererCollider : MonoBehaviour
         Exit,
     }
 
-    public CObserverSubject<Collider2D, EPhysicsState> p_Event_OnTrigger2D { get; private set; } = new CObserverSubject<Collider2D, EPhysicsState>();
-    public CObserverSubject<Collision2D, EPhysicsState> p_Event_OnCollision2D { get; private set; } = new CObserverSubject<Collision2D, EPhysicsState>();
+    public struct SLineRendererCollider_Trigger_Arg
+    {
+        public Collider2D pCollider;
+        public EPhysicsState ePhysicsState;
+        
+        public SLineRendererCollider_Trigger_Arg(Collider2D pCollider, EPhysicsState ePhysicsState)
+        {
+            this.pCollider = pCollider;
+            this.ePhysicsState = ePhysicsState;
+        }
+    }
+
+    public struct SLineRendererCollider_Collider_Arg
+    {
+        public Collision2D pCollision;
+        public EPhysicsState ePhysicsState;
+
+        public SLineRendererCollider_Collider_Arg(Collision2D pCollision, EPhysicsState ePhysicsState)
+        {
+            this.pCollision = pCollision;
+            this.ePhysicsState = ePhysicsState;
+        }
+    }
+
+    public ObservableCollection<SLineRendererCollider_Trigger_Arg> p_Event_OnTrigger2D { get; private set; } = new ObservableCollection<SLineRendererCollider_Trigger_Arg>();
+    public ObservableCollection<SLineRendererCollider_Collider_Arg> p_Event_OnCollision2D { get; private set; } = new ObservableCollection<SLineRendererCollider_Collider_Arg>();
 
     /* public - Field declaration            */
 
@@ -86,13 +105,13 @@ public class CCompoLineRendererCollider : MonoBehaviour
         UpdateColliderShape();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Enter); }
-    private void OnTriggerStay2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Stay); }
-    private void OnTriggerExit2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(collision, EPhysicsState.Exit); }
+    private void OnTriggerEnter2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(new SLineRendererCollider_Trigger_Arg(collision, EPhysicsState.Enter)); }
+    private void OnTriggerStay2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(new SLineRendererCollider_Trigger_Arg(collision, EPhysicsState.Stay)); }
+    private void OnTriggerExit2D(Collider2D collision) { p_Event_OnTrigger2D.DoNotify(new SLineRendererCollider_Trigger_Arg(collision, EPhysicsState.Exit)); }
 
-    private void OnCollisionEnter2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Enter); }
-    private void OnCollisionStay2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Stay); }
-    private void OnCollisionExit2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(collision, EPhysicsState.Exit); }
+    private void OnCollisionEnter2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(new SLineRendererCollider_Collider_Arg(collision, EPhysicsState.Enter)); }
+    private void OnCollisionStay2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(new SLineRendererCollider_Collider_Arg(collision, EPhysicsState.Stay)); }
+    private void OnCollisionExit2D(Collision2D collision) { p_Event_OnCollision2D.DoNotify(new SLineRendererCollider_Collider_Arg(collision, EPhysicsState.Exit)); }
 
     /* protected - [abstract & virtual]         */
 
@@ -144,10 +163,3 @@ public class CCompoLineRendererCollider : MonoBehaviour
 
     #endregion Private
 }
-// ========================================================================== //
-
-#region Test
-#if UNITY_EDITOR
-
-#endif
-#endregion Test

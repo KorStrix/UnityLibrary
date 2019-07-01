@@ -11,11 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-#if UNITY_EDITOR
-using NUnit.Framework;
-using UnityEngine.TestTools;
-#endif
-
 [CreateAssetMenu(menuName = "StrixSO/CharacterController2D/" + nameof(CCharacterController2D_MoveLogic_AirUnit))]
 public class CCharacterController2D_MoveLogic_AirUnit : CCharacterController2D_MoveLogicBase
 {

@@ -81,9 +81,9 @@ public class CCompo_SpineAlphaControl : CObjectBase
 		_pSkeleton = _pAnimation.skeleton;
 	}
 
-    public override void OnUpdate()
+    public override void OnUpdate(float fTimeScale_Individual)
     {
-        base.OnUpdate();
+        base.OnUpdate(fTimeScale_Individual);
 
         if (_bExcutePlaying)
 			DoSetAlphaRenderer( fAlpha );

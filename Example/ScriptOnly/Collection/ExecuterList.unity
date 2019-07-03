@@ -112,6 +112,98 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1081673164
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1081673166}
+  - component: {fileID: 1081673165}
+  m_Layer: 0
+  m_Name: EventTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1081673165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081673164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8b8824dc8bd90547a54254dbe1e1115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: _pEventConditionList
+      Entry: 7
+      Data: 0|CExecuterList`1[[ExecuterList_Example_EventTrigger+EventCondition, StrixLibrary]],
+        StrixLibrary
+    - Name: p_listExecute
+      Entry: 7
+      Data: 1|System.Collections.Generic.List`1[[ExecuterList_Example_EventTrigger+EventCondition,
+        StrixLibrary]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _pEventExecuteList
+      Entry: 7
+      Data: 2|CExecuterList`1[[ExecuterList_Example_EventTrigger+EventExecuteBase,
+        StrixLibrary]], StrixLibrary
+    - Name: p_listExecute
+      Entry: 7
+      Data: 3|System.Collections.Generic.List`1[[ExecuterList_Example_EventTrigger+EventExecuteBase,
+        StrixLibrary]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+--- !u!4 &1081673166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081673164}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1221913631
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,24 +244,15 @@ MonoBehaviour:
     SerializationNodes:
     - Name: _pMoveExecuterList
       Entry: 7
-      Data: 0|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary_Example]],
+      Data: 0|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary]],
         StrixLibrary
     - Name: p_listExecute
       Entry: 7
       Data: 1|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
-        StrixLibrary_Example]], mscorlib
+        StrixLibrary]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 2|ExecuterList_Example_HowMove+FourLeg_Walking, StrixLibrary_Example
-    - Name: WalkingSpeed_4Leg
-      Entry: 4
-      Data: 4.25
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 
@@ -181,24 +264,15 @@ MonoBehaviour:
       Data: 
     - Name: _pMoveExecuterList_OnHurry
       Entry: 7
-      Data: 3|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary_Example]],
+      Data: 2|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary]],
         StrixLibrary
     - Name: p_listExecute
       Entry: 7
-      Data: 4|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
-        StrixLibrary_Example]], mscorlib
+      Data: 3|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
+        StrixLibrary]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 5|ExecuterList_Example_HowMove+FourLeg_Running, StrixLibrary_Example
-    - Name: RunningSpeed_4Leg
-      Entry: 4
       Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -262,27 +336,15 @@ MonoBehaviour:
     SerializationNodes:
     - Name: _pMoveExecuterList
       Entry: 7
-      Data: 0|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary_Example]],
+      Data: 0|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary]],
         StrixLibrary
     - Name: p_listExecute
       Entry: 7
       Data: 1|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
-        StrixLibrary_Example]], mscorlib
+        StrixLibrary]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 2|ExecuterList_Example_HowMove+TwoLeg_Walking, StrixLibrary_Example
-    - Name: WalkingSpeed_2Leg
-      Entry: 3
-      Data: 4
-    - Name: bIsError
-      Entry: 5
-      Data: true
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 
@@ -294,24 +356,15 @@ MonoBehaviour:
       Data: 
     - Name: _pMoveExecuterList_OnHurry
       Entry: 7
-      Data: 3|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary_Example]],
+      Data: 2|CExecuterList`1[[ExecuterList_Example_HowMove+Executer_HowMove, StrixLibrary]],
         StrixLibrary
     - Name: p_listExecute
       Entry: 7
-      Data: 4|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
-        StrixLibrary_Example]], mscorlib
+      Data: 3|System.Collections.Generic.List`1[[ExecuterList_Example_HowMove+Executer_HowMove,
+        StrixLibrary]], mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 5|ExecuterList_Example_HowMove+TwoLeg_Running, StrixLibrary_Example
-    - Name: RunningSpeed_2Leg
-      Entry: 3
-      Data: 5
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 

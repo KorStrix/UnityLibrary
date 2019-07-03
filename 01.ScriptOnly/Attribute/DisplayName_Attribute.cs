@@ -48,7 +48,7 @@ public class DisplayNameAttribute : PropertyAttribute
     /// </summary>
     /// <param name="strInpectorName">인스펙터에 노출시킬 이름</param>
     /// <param name="bIsEditPossibleInspector">에디터에서 수정가능 유무</param>
-    public Rename_InspectorAttribute(string strInpectorName, bool bIsEditPossibleInspector = true)
+    public DisplayNameAttribute(string strInpectorName, bool bIsEditPossibleInspector = true)
     {
         this.strInspectorName = strInpectorName;
         this.bIsEditPossibleInspector = bIsEditPossibleInspector;
@@ -85,15 +85,15 @@ public class CEditorInspector_Attribute_DisplayName : OdinAttributeDrawer<Displa
 }
 
 #else
-[CustomPropertyDrawer(typeof(Rename_InspectorAttribute))]
+[CustomPropertyDrawer(typeof(DisplayNameAttribute))]
 public class CEditorInspector_Attribute_DisplayName : PropertyDrawer
 {
-    Rename_InspectorAttribute pAttributeTarget;
+    DisplayNameAttribute pAttributeTarget;
 
     public override void OnGUI(Rect position,
                    SerializedProperty property, GUIContent label)
     {
-        pAttributeTarget = (Rename_InspectorAttribute)attribute;
+        pAttributeTarget = (DisplayNameAttribute)attribute;
         // Vector2 vecSize = CalculateSize(pAttributeTarget);
 
         // Todo - 인스펙터 이름이 길어지면 재조정
@@ -107,13 +107,13 @@ public class CEditorInspector_Attribute_DisplayName : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        pAttributeTarget = (Rename_InspectorAttribute)attribute;
+        pAttributeTarget = (DisplayNameAttribute)attribute;
         Vector2 vecSize = CalculateSize(pAttributeTarget);
 
         return vecSize.y;
     }
 
-    Vector2 CalculateSize(Rename_InspectorAttribute attribute)
+    Vector2 CalculateSize(DisplayNameAttribute attribute)
     {
         return GUI.skin.label.CalcSize(new GUIContent(attribute.strInspectorName));
     }
